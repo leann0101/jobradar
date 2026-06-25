@@ -3,6 +3,8 @@ import json
 import uuid
 import logging
 import threading
+import base64
+import requests
 from datetime import datetime
 from pathlib import Path
 
@@ -80,6 +82,57 @@ def load_history() -> list:
 
 def save_history(history: list):
     save_json(HISTORY_FILE, history)
+
+
+def sync_data_to_github():
+    token = os.environ.get("GITHUB_TOKEN")
+    owner = os.environ.get("GITHUB_OWNER")
+    repo = os.environ.get("GITHUB_REPO")
+    
+    if not (token and owner and repo):
+        logger.info("GitHub sync credentials not fully set, skipping sync.")
+        return
+        
+    headers = {
+        "Authorization": f"token {token}",
+        "Accept": "application/vnd.github.v3+json",
+        "User-Agent": "JobRadar-Sync"
+    }
+    
+    files_to_sync = ["data/jobs.json", "data/history.json"]
+    
+    for rel_path in files_to_sync:
+        local_path = BASE_DIR / rel_path
+        if not local_path.exists():
+            continue
+            
+        github_path = rel_path.replace("\\", "/")
+        
+        try:
+            with open(local_path, "rb") as f:
+                content_bytes = f.read()
+            encoded = base64.b64encode(content_bytes).decode("utf-8")
+            
+            sha = None
+            url = f"https://api.github.com/repos/{owner}/{repo}/contents/{github_path}"
+            r = requests.get(url, headers=headers, timeout=10)
+            if r.status_code == 200:
+                sha = r.json().get("sha")
+                
+            payload = {
+                "message": f"Sync: update {github_path} from local scrape",
+                "content": encoded
+            }
+            if sha:
+                payload["sha"] = sha
+                
+            r_put = requests.put(url, headers=headers, json=payload, timeout=15)
+            if r_put.status_code in [200, 201]:
+                logger.info(f"Successfully synced {github_path} to GitHub.")
+            else:
+                logger.error(f"Failed to sync {github_path} to GitHub: {r_put.status_code} {r_put.text}")
+        except Exception as e:
+            logger.error(f"Error syncing {github_path} to GitHub: {e}")
 
 
 # ── Scraping pipeline ─────────────────────────────────────────────────────────
@@ -165,6 +218,10 @@ def run_scrape_pipeline():
         save_history(history)
 
         logger.info(f"Scrape complete. {len(analyzed)} new jobs added.")
+
+        # Sync to GitHub if running locally
+        if os.environ.get("RENDER") != "true":
+            sync_data_to_github()
     finally:
         with scrape_lock:
             is_scraping = False

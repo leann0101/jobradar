@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Settings — JobRadar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h2>Settings</h2>
+    <p>Configure your keyword preferences and scraping options</p>
+  </div>
+  <button id="save-settings-btn" class="btn btn-primary">💾 Save Settings</button>
+</div>
+
+<!-- Hidden inputs for tag data -->
+<input type="hidden" id="must-have-hidden" value='{{ settings.must_have | tojson }}' />
+<input type="hidden" id="nice-to-have-hidden" value='{{ settings.nice_to_have | tojson }}' />
+
+<div class="settings-grid">
+  <!-- Must Have Keywords -->
+  <div class="settings-card">
+    <h3>🎯 Must-Have Keywords</h3>
+    <p class="desc">High-weight keywords. Jobs matching more of these score higher. Type and press Enter to add.</p>
+    <div class="tag-input-container" id="must-have-input" role="group" aria-label="Must-have keywords"></div>
+  </div>
+
+  <!-- Nice to Have Keywords -->
+  <div class="settings-card">
+    <h3>⚡ Nice-to-Have Keywords</h3>
+    <p class="desc">Lower-weight bonus keywords. They boost the score but aren't required. Press Enter to add.</p>
+    <div class="tag-input-container" id="nice-to-have-input" role="group" aria-label="Nice-to-have keywords"></div>
+  </div>
+</div>
+
+<!-- Thresholds + Search config -->
+<div class="settings-grid">
+  <div class="settings-card">
+    <h3>📊 Match Score Thresholds</h3>
+    <p class="desc">Define the cut-off scores for Best Match and Medium Match classifications.</p>
+
+    <div class="form-group">
+      <label class="form-label" for="best-threshold">Best Match threshold (%)</label>
+      <input type="number" id="best-threshold" class="form-input"
+        min="1" max="100" value="{{ settings.score_thresholds.best_match }}"
+        aria-describedby="best-threshold-hint" />
+      <small id="best-threshold-hint" style="font-size:12px; color:var(--text-muted);">
+        Jobs scoring ≥ this are shown as "Best Match"
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="medium-threshold">Medium Match threshold (%)</label>
+      <input type="number" id="medium-threshold" class="form-input"
+        min="1" max="100" value="{{ settings.score_thresholds.medium_match }}" />
+      <small style="font-size:12px; color:var(--text-muted);">
+        Jobs scoring ≥ this (but below Best) are "Medium Match"
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="days-ago">Job freshness (days)</label>
+      <input type="number" id="days-ago" class="form-input"
+        min="1" max="30" value="{{ settings.search.days_ago }}" />
+      <small style="font-size:12px; color:var(--text-muted);">
+        Only show jobs posted within this many days
+      </small>
+    </div>
+  </div>
+
+  <div class="settings-card">
+    <h3>🌐 Platforms to Scrape</h3>
+    <p class="desc">Select which job platforms to include in each scrape run.</p>
+
+    <div class="checkbox-grid">
+      {% set active_platforms = settings.search.platforms %}
+      <label class="checkbox-item {% if 'linkedin' in active_platforms %}checked{% endif %}" for="platform-linkedin" id="label-linkedin">
+        <input type="checkbox" id="platform-linkedin" value="linkedin"
+          {% if 'linkedin' in active_platforms %}checked{% endif %} />
+        <div class="checkbox-dot"></div>
+        <span style="font-size:13px; font-weight:600;">LinkedIn</span>
+      </label>
+      <label class="checkbox-item {% if 'indeed' in active_platforms %}checked{% endif %}" for="platform-indeed" id="label-indeed">
+        <input type="checkbox" id="platform-indeed" value="indeed"
+          {% if 'indeed' in active_platforms %}checked{% endif %} />
+        <div class="checkbox-dot"></div>
+        <span style="font-size:13px; font-weight:600;">Indeed</span>
+      </label>
+      <label class="checkbox-item {% if 'glassdoor' in active_platforms %}checked{% endif %}" for="platform-glassdoor" id="label-glassdoor">
+        <input type="checkbox" id="platform-glassdoor" value="glassdoor"
+          {% if 'glassdoor' in active_platforms %}checked{% endif %} />
+        <div class="checkbox-dot"></div>
+        <span style="font-size:13px; font-weight:600;">Glassdoor</span>
+      </label>
+    </div>
+
+    <div style="margin-top: 24px; padding: 16px; background: var(--bg-secondary); border-radius: var(--radius-sm); border: 1px solid var(--border);">
+      <div class="form-label">Current Search Profile</div>
+      <div style="font-size:13px; color:var(--text-secondary); line-height:1.8;">
+        <div>🔍 Query: <strong>{{ settings.search.job_titles | join(', ') }}</strong></div>
+        <div>📍 Location: <strong>{{ settings.search.location }}</strong></div>
+        <div>🌍 Language: <strong>English only</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="padding: 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md);">
+  <h3 style="font-size:14px; font-weight:700; margin-bottom:8px; color: var(--accent-amber);">⚠️ Danger Zone</h3>
+  <p style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;">Clear all saved jobs and start fresh. This cannot be undone.</p>
+  <button class="btn btn-danger" id="clear-jobs-btn" onclick="clearAllJobs()">🗑 Clear All Jobs</button>
+</div>
+
+<script>
+async function clearAllJobs() {
+  if (!confirm('Delete ALL saved jobs? This cannot be undone.')) return;
+  const res = await fetch('/api/jobs/clear', { method: 'DELETE' });
+  if (res.ok) {
+    showToast('All jobs cleared.', 'success');
+    setTimeout(() => window.location.href = '/', 1500);
+  }
+}
+</script>
+{% endblock %}

@@ -146,6 +146,7 @@ class TagInput {
 function initSettingsPage() {
   const mustInput = new TagInput('must-have-input', 'must-have-hidden', 'must');
   const niceInput = new TagInput('nice-to-have-input', 'nice-to-have-hidden', 'nice');
+  const jobTitlesInput = new TagInput('job-titles-input', 'job-titles-hidden', 'job-title');
 
   // Checkbox toggles
   document.querySelectorAll('.checkbox-item').forEach(item => {
@@ -170,6 +171,8 @@ function initSettingsPage() {
       best_match: parseInt(document.getElementById('best-threshold')?.value || 40),
       medium_match: parseInt(document.getElementById('medium-threshold')?.value || 15),
       days_ago: parseInt(document.getElementById('days-ago')?.value || 15),
+      location: document.getElementById('search-location')?.value || 'Germany',
+      job_titles: jobTitlesInput.getValues(),
       platforms,
     };
 

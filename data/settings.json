@@ -1,0 +1,41 @@
+{
+  "must_have": [
+    "Industry 4.0",
+    "IIoT",
+    "Industrial IoT",
+    "Manufacturing",
+    "Factory Automation",
+    "OT/IT",
+    "OT IT Integration",
+    "Hardware",
+    "Software Product",
+    "B2B Industrial",
+    "B2B Enterprise",
+    "Robotics",
+    "Automation",
+    "Sensors",
+    "Edge Computing",
+    "SCADA",
+    "MES",
+    "ERP",
+    "Embedded Systems",
+    "Firmware"
+  ],
+  "nice_to_have": [
+    "Roadmap",
+    "Roadmap Planning",
+    "Cross-functional",
+    "Cross-functional Team"
+  ],
+  "score_thresholds": {
+    "best_match": 40,
+    "medium_match": 15
+  },
+  "search": {
+    "job_titles": ["product manager"],
+    "location": "Germany",
+    "language": "English",
+    "days_ago": 15,
+    "platforms": ["linkedin", "indeed", "glassdoor"]
+  }
+}

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}JobRadar — PM Jobs in Germany{% endblock %}</title>
+  <meta name="description" content="AI-powered job search assistant for Product Manager roles in Germany. Scrapes LinkedIn, Indeed, and Glassdoor weekly." />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" role="navigation" aria-label="Main Navigation">
+    <div class="sidebar-logo">
+      <div class="logo-icon" aria-hidden="true">🎯</div>
+      <h1>JobRadar</h1>
+      <p>PM Jobs · Germany</p>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('dashboard') }}" class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}" id="nav-dashboard">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a href="{{ url_for('settings_page') }}" class="nav-item {% if request.endpoint == 'settings_page' %}active{% endif %}" id="nav-settings">
+        <span class="nav-icon">⚙️</span> Settings
+      </a>
+      <a href="{{ url_for('history_page') }}" class="nav-item {% if request.endpoint == 'history_page' %}active{% endif %}" id="nav-history">
+        <span class="nav-icon">🕐</span> History
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div>Weekly scrape · Groq AI</div>
+      <div style="margin-top:4px; color: var(--accent-green); font-weight: 600;">🟢 Active</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content" role="main">
+    {% block content %}{% endblock %}
+  </main>
+
+</div>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

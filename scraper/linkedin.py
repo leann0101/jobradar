@@ -31,82 +31,103 @@ def scrape_linkedin(search_query: str, location: str = "Germany", days_ago: int 
     Note: LinkedIn heavily blocks scrapers; this uses the public JSON API endpoint.
     """
     jobs = []
-    headers = random.choice(HEADERS_LIST)
+    
+    # Scrape up to 3 pages (start = 0, 25, 50) to get up to 75 job cards
+    for page in range(3):
+        start_val = page * 25
+        logger.info(f"Scraping LinkedIn page {page+1} (start={start_val}) for '{search_query}'...")
+        
+        headers = random.choice(HEADERS_LIST)
+        url = (
+            "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
+            f"?keywords={search_query.replace(' ', '%20')}"
+            f"&location={location.replace(' ', '%20')}"
+            f"&f_TPR=r{days_ago * 86400}"   # Convert days to seconds
+            f"&f_JT=F"                       # Full-time
+            f"&sortBy=DD"                    # Sort by date
+            f"&start={start_val}"
+        )
 
-    # LinkedIn public job search API (no login needed)
-    url = (
-        "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
-        f"?keywords={search_query.replace(' ', '%20')}"
-        f"&location={location.replace(' ', '%20')}"
-        f"&f_TPR=r{days_ago * 86400}"   # Convert days to seconds
-        f"&f_JT=F"                       # Full-time
-        f"&sortBy=DD"                    # Sort by date
-        f"&start=0"
-    )
+        try:
+            resp = requests.get(url, headers=headers, timeout=15)
+            if resp.status_code != 200:
+                logger.warning(f"LinkedIn returned {resp.status_code} for page {page+1}")
+                if page == 0:
+                    # Fallback URL for page 1
+                    url2 = (
+                        "https://www.linkedin.com/jobs/search/"
+                        f"?keywords={search_query.replace(' ', '+')}"
+                        f"&location={location.replace(' ', '+')}"
+                        f"&f_TPR=r{min(days_ago, 14) * 86400}"
+                        f"&sortBy=DD"
+                    )
+                    resp = requests.get(url2, headers=headers, timeout=15)
+                else:
+                    # Stop paginating if subsequent pages fail
+                    break
 
-    try:
-        resp = requests.get(url, headers=headers, timeout=15)
-        if resp.status_code != 200:
-            logger.warning(f"LinkedIn returned {resp.status_code}")
-            # Try fallback URL
-            url2 = (
-                "https://www.linkedin.com/jobs/search/"
-                f"?keywords={search_query.replace(' ', '+')}"
-                f"&location={location.replace(' ', '+')}"
-                f"&f_TPR=r{min(days_ago, 14) * 86400}"
-                f"&sortBy=DD"
-            )
-            resp = requests.get(url2, headers=headers, timeout=15)
+            soup = BeautifulSoup(resp.text, "html.parser")
+            cards = soup.find_all("div", class_="base-card") or soup.find_all("li", class_="jobs-search__results-list")
+            logger.info(f"LinkedIn page {page+1}: found {len(cards)} cards")
+            
+            if not cards:
+                # No more jobs found on this page
+                break
 
-        soup = BeautifulSoup(resp.text, "html.parser")
-        cards = soup.find_all("div", class_="base-card") or soup.find_all("li", class_="jobs-search__results-list")
-        logger.info(f"LinkedIn: found {len(cards)} cards")
+            for card in cards:
+                try:
+                    title_el   = card.find("h3", class_="base-search-card__title") or card.find("h3")
+                    company_el = card.find("h4", class_="base-search-card__subtitle") or card.find("h4")
+                    loc_el     = card.find("span", class_="job-search-card__location") or card.find("span", class_="job-result-card__location")
+                    date_el    = card.find("time")
+                    link_el    = card.find("a", class_="base-card__full-link") or card.find("a")
 
-        for card in cards[:25]:
-            try:
-                title_el   = card.find("h3", class_="base-search-card__title") or card.find("h3")
-                company_el = card.find("h4", class_="base-search-card__subtitle") or card.find("h4")
-                loc_el     = card.find("span", class_="job-search-card__location") or card.find("span", class_="job-result-card__location")
-                date_el    = card.find("time")
-                link_el    = card.find("a", class_="base-card__full-link") or card.find("a")
+                    title   = title_el.get_text(strip=True) if title_el else ""
+                    company = company_el.get_text(strip=True) if company_el else ""
+                    loc     = loc_el.get_text(strip=True) if loc_el else location
+                    date_str = date_el.get("datetime", "") if date_el else ""
+                    link    = link_el.get("href", "") if link_el else ""
 
-                title   = title_el.get_text(strip=True) if title_el else ""
-                company = company_el.get_text(strip=True) if company_el else ""
-                loc     = loc_el.get_text(strip=True) if loc_el else location
-                date_str = date_el.get("datetime", "") if date_el else ""
-                link    = link_el.get("href", "") if link_el else ""
+                    if not title or not link:
+                        continue
 
-                if not title or not link:
+                    # Filter by date
+                    if date_str:
+                        try:
+                            posted = datetime.fromisoformat(date_str[:10])
+                            if (datetime.now() - posted).days > days_ago:
+                                continue
+                        except Exception:
+                            pass
+
+                    # Avoid duplicate links within this scrape run
+                    link_clean = link.split("?")[0]
+                    if any(j["url"] == link_clean for j in jobs):
+                        continue
+
+                    # Get JD from job page
+                    jd_text = _fetch_page_text(link_clean, headers)
+                    random_delay(1, 2)
+
+                    jobs.append({
+                        "title": title,
+                        "company": company,
+                        "location": loc,
+                        "date_posted": date_str[:10] if date_str else datetime.now().strftime("%Y-%m-%d"),
+                        "url": link_clean,
+                        "jd_text": jd_text,
+                        "platform": "LinkedIn",
+                    })
+                except Exception as e:
+                    logger.warning(f"LinkedIn card error: {e}")
                     continue
+            
+            # Delay between pages
+            random_delay(2, 4)
 
-                # Filter by date
-                if date_str:
-                    try:
-                        posted = datetime.fromisoformat(date_str[:10])
-                        if (datetime.now() - posted).days > days_ago:
-                            continue
-                    except Exception:
-                        pass
-
-                # Get JD from job page
-                jd_text = _fetch_page_text(link.split("?")[0], headers)
-                random_delay(1, 2)
-
-                jobs.append({
-                    "title": title,
-                    "company": company,
-                    "location": loc,
-                    "date_posted": date_str[:10] if date_str else datetime.now().strftime("%Y-%m-%d"),
-                    "url": link.split("?")[0],
-                    "jd_text": jd_text,
-                    "platform": "LinkedIn",
-                })
-            except Exception as e:
-                logger.warning(f"LinkedIn card error: {e}")
-                continue
-
-    except Exception as e:
-        logger.error(f"LinkedIn scraper error: {e}")
+        except Exception as e:
+            logger.error(f"LinkedIn scraper page {page+1} error: {e}")
+            break
 
     return jobs
 

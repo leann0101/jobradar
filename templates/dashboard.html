@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — JobRadar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h2>Job Dashboard</h2>
+    <p>
+      Product Manager roles in Germany · AI-matched weekly
+      {% if last_run %}
+        · Last scraped: <strong>{{ last_run[:10] }}</strong>
+      {% else %}
+        · Not yet scraped
+      {% endif %}
+    </p>
+  </div>
+  <button id="scrape-btn" class="btn btn-primary" {% if is_scraping %}disabled{% endif %}>
+    {% if is_scraping %}
+      <span class="spinner"></span> Scraping...
+    {% else %}
+      🔍 Run Scraper Now
+    {% endif %}
+  </button>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+  <div class="stat-card blue">
+    <div class="stat-value">{{ total }}</div>
+    <div class="stat-label">Total Jobs Found</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-value">{{ best_count }}</div>
+    <div class="stat-label">Best Matches</div>
+  </div>
+  <div class="stat-card amber">
+    <div class="stat-value">{{ medium_count }}</div>
+    <div class="stat-label">Medium Matches</div>
+  </div>
+  <div class="stat-card purple">
+    <div class="stat-value">{{ total - best_count - medium_count }}</div>
+    <div class="stat-label">Low Matches</div>
+  </div>
+</div>
+
+<!-- Best Match Section -->
+<div class="section-header">
+  <div class="section-title">🏆 Best Matches</div>
+  <span class="section-badge badge-best">{{ best_count }} jobs</span>
+</div>
+
+{% if best_jobs %}
+<div class="jobs-grid">
+  {% for job in best_jobs %}
+  <a href="{{ url_for('job_detail', job_id=job.id) }}" class="job-card best-match" id="card-{{ job.id }}">
+    <div class="job-card-header">
+      <div>
+        <div class="job-title">{{ job.title }}</div>
+        <div class="job-company">{{ job.company }}</div>
+      </div>
+      <!-- Score ring SVG -->
+      <div class="job-score-ring" title="Match score: {{ job.match_score }}%">
+        <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="25" cy="25" r="20" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="4"/>
+          <circle cx="25" cy="25" r="20" fill="none"
+            stroke="#22d3a0" stroke-width="4"
+            stroke-dasharray="{{ (job.match_score / 100 * 125.66) | round(1) }} 125.66"
+            stroke-dashoffset="31.4"
+            stroke-linecap="round"/>
+          <text x="25" y="25" class="score-text">{{ job.match_score }}%</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="job-meta">
+      <span class="job-meta-item">📍 {{ job.location or 'Germany' }}</span>
+      <span class="job-meta-item">📅 {{ job.date_posted or '—' }}</span>
+      <span class="badge-platform">{{ job.platform }}</span>
+    </div>
+
+    {% if job.summary and job.summary != 'Analysis unavailable' %}
+    <div class="job-summary">{{ job.summary }}</div>
+    {% endif %}
+
+    <div class="keyword-tags">
+      {% for kw in (job.matched_must_have or [])[:5] %}
+        <span class="keyword-tag matched-must">✓ {{ kw }}</span>
+      {% endfor %}
+      {% for kw in (job.matched_nice_to_have or [])[:2] %}
+        <span class="keyword-tag matched-nice">+ {{ kw }}</span>
+      {% endfor %}
+    </div>
+
+    <div class="job-card-footer">
+      <span style="font-size:12px; color: var(--text-muted);">{{ job.experience_level or '' }}</span>
+      <span class="btn btn-ghost btn-sm">View Details →</span>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">🎯</div>
+  <h3>No best matches yet</h3>
+  <p>Run the scraper to find jobs that match your keywords.</p>
+</div>
+{% endif %}
+
+<div class="divider"></div>
+
+<!-- Medium Match Section -->
+<div class="section-header">
+  <div class="section-title">⚡ Medium Matches</div>
+  <span class="section-badge badge-medium">{{ medium_count }} jobs</span>
+</div>
+
+{% if medium_jobs %}
+<div class="jobs-grid">
+  {% for job in medium_jobs %}
+  <a href="{{ url_for('job_detail', job_id=job.id) }}" class="job-card medium-match" id="card-{{ job.id }}">
+    <div class="job-card-header">
+      <div>
+        <div class="job-title">{{ job.title }}</div>
+        <div class="job-company">{{ job.company }}</div>
+      </div>
+      <div class="job-score-ring" title="Match score: {{ job.match_score }}%">
+        <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="25" cy="25" r="20" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="4"/>
+          <circle cx="25" cy="25" r="20" fill="none"
+            stroke="#fbbf24" stroke-width="4"
+            stroke-dasharray="{{ (job.match_score / 100 * 125.66) | round(1) }} 125.66"
+            stroke-dashoffset="31.4"
+            stroke-linecap="round"/>
+          <text x="25" y="25" class="score-text">{{ job.match_score }}%</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="job-meta">
+      <span class="job-meta-item">📍 {{ job.location or 'Germany' }}</span>
+      <span class="job-meta-item">📅 {{ job.date_posted or '—' }}</span>
+      <span class="badge-platform">{{ job.platform }}</span>
+    </div>
+
+    {% if job.summary and job.summary != 'Analysis unavailable' %}
+    <div class="job-summary">{{ job.summary }}</div>
+    {% endif %}
+
+    <div class="keyword-tags">
+      {% for kw in (job.matched_must_have or [])[:4] %}
+        <span class="keyword-tag matched-must">✓ {{ kw }}</span>
+      {% endfor %}
+      {% for kw in (job.matched_nice_to_have or [])[:2] %}
+        <span class="keyword-tag matched-nice">+ {{ kw }}</span>
+      {% endfor %}
+    </div>
+
+    <div class="job-card-footer">
+      <span style="font-size:12px; color: var(--text-muted);">{{ job.experience_level or '' }}</span>
+      <span class="btn btn-ghost btn-sm">View Details →</span>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">⚡</div>
+  <h3>No medium matches yet</h3>
+  <p>Medium match jobs will appear here after scraping.</p>
+</div>
+{% endif %}
+
+{% endblock %}

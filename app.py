@@ -215,6 +215,10 @@ def settings_page():
         settings["score_thresholds"]["best_match"] = int(data.get("best_match", 40))
         settings["score_thresholds"]["medium_match"] = int(data.get("medium_match", 15))
         settings["search"]["days_ago"] = int(data.get("days_ago", 15))
+        settings["search"]["location"] = data.get("location", "Germany").strip()
+        settings["search"]["job_titles"] = [t.strip() for t in data.get("job_titles", []) if t.strip()]
+        if not settings["search"]["job_titles"]:
+            settings["search"]["job_titles"] = ["product manager"]
         settings["search"]["platforms"] = data.get("platforms", ["linkedin", "indeed", "glassdoor"])
         save_json(SETTINGS_FILE, settings)
         return jsonify({"status": "ok"})

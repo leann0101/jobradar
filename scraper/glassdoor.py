@@ -1,124 +1,122 @@
 import time
 import random
 import logging
-from datetime import datetime
-from playwright.sync_api import sync_playwright
+from datetime import datetime, timedelta
+import requests
+from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
 
 HEADERS_LIST = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+    {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    },
+    {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    },
 ]
 
 
-def random_delay(min_sec=2, max_sec=5):
+def random_delay(min_sec=1, max_sec=3):
     time.sleep(random.uniform(min_sec, max_sec))
 
 
 def scrape_glassdoor(search_query: str, location: str = "Germany", days_ago: int = 15) -> list[dict]:
     """
-    Scrapes Glassdoor for product manager jobs in Germany.
-    Returns a list of job dicts.
+    Scrapes Glassdoor for PM jobs in Germany using requests + BeautifulSoup.
+    Glassdoor heavily uses JavaScript; we use their public job listing pages.
     """
     jobs = []
+    headers = random.choice(HEADERS_LIST)
+
+    # Glassdoor's public job search URL (no login required for basic listing)
     url = (
         f"https://www.glassdoor.com/Job/germany-{search_query.replace(' ', '-')}-jobs-SRCH_IL.0,7_IN96_KO8,{8 + len(search_query)}.htm"
         f"?fromAge={days_ago}&sortBy=date_desc"
     )
-    # Fallback simpler URL
-    url_simple = (
-        f"https://www.glassdoor.com/Job/jobs.htm"
-        f"?sc.keyword={search_query.replace(' ', '+')}"
-        f"&locId=96&locT=N"  # Germany
-        f"&fromAge={days_ago}&sortBy=date_desc"
-    )
 
     try:
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
-            context = browser.new_context(
-                user_agent=random.choice(HEADERS_LIST),
-                viewport={"width": 1280, "height": 800},
-                locale="en-US",
-            )
-            page = context.new_page()
-            
-            # Try Glassdoor — it heavily blocks bots, use fallback gracefully
+        resp = requests.get(url, headers=headers, timeout=15)
+        soup = BeautifulSoup(resp.text, "html.parser")
+
+        cards = (
+            soup.find_all("li", attrs={"data-test": "jobListing"}) or
+            soup.find_all("article", class_="JobCard") or
+            soup.find_all("li", class_="react-job-listing")
+        )
+        logger.info(f"Glassdoor: found {len(cards)} cards")
+
+        for card in cards[:20]:
             try:
-                page.goto(url_simple, timeout=25000, wait_until="domcontentloaded")
-            except Exception:
-                page.goto(url, timeout=25000, wait_until="domcontentloaded")
-            
-            random_delay(3, 6)
+                title_el   = card.find(attrs={"data-test": "job-title"}) or card.find("a", class_="job-title")
+                company_el = card.find(attrs={"data-test": "employer-short-name"}) or card.find("div", class_="employer-name")
+                loc_el     = card.find(attrs={"data-test": "emp-location"}) or card.find("div", class_="location")
+                date_el    = card.find(attrs={"data-test": "listing-age"}) or card.find("div", class_="listing-age")
+                link_el    = card.find("a")
 
-            job_cards = page.query_selector_all('[data-test="jobListing"]')
-            if not job_cards:
-                job_cards = page.query_selector_all(".react-job-listing")
-            logger.info(f"Glassdoor: found {len(job_cards)} cards")
+                title   = title_el.get_text(strip=True) if title_el else ""
+                company = company_el.get_text(strip=True) if company_el else ""
+                loc     = loc_el.get_text(strip=True) if loc_el else location
+                date_text = date_el.get_text(strip=True) if date_el else ""
+                link_path = link_el.get("href", "") if link_el else ""
 
-            for card in job_cards[:20]:
-                try:
-                    title_el = card.query_selector('[data-test="job-title"]') or card.query_selector(".job-title")
-                    company_el = card.query_selector('[data-test="employer-short-name"]') or card.query_selector(".employer-short-name")
-                    location_el = card.query_selector('[data-test="emp-location"]') or card.query_selector(".location")
-                    date_el = card.query_selector('[data-test="listing-age"]') or card.query_selector(".listing-age")
-                    link_el = card.query_selector("a[data-test='job-title']") or card.query_selector("a.jobLink")
-
-                    title = title_el.inner_text().strip() if title_el else ""
-                    company = company_el.inner_text().strip() if company_el else ""
-                    loc = location_el.inner_text().strip() if location_el else ""
-                    date_text = date_el.inner_text().strip() if date_el else ""
-                    link_path = link_el.get_attribute("href") if link_el else ""
-
-                    if not title or not link_path:
-                        continue
-
-                    if link_path.startswith("/"):
-                        link = f"https://www.glassdoor.com{link_path}"
-                    else:
-                        link = link_path
-
-                    # Click card to load JD in panel
-                    try:
-                        card.click()
-                        random_delay(2, 3)
-                        jd_el = page.query_selector(".jobDescriptionContent") or page.query_selector('[data-test="description"]')
-                        jd_text = jd_el.inner_text().strip()[:5000] if jd_el else ""
-                    except Exception:
-                        jd_text = ""
-
-                    jobs.append({
-                        "title": title,
-                        "company": company,
-                        "location": loc,
-                        "date_posted": _parse_glassdoor_date(date_text),
-                        "url": link,
-                        "jd_text": jd_text,
-                        "platform": "Glassdoor",
-                    })
-                except Exception as e:
-                    logger.warning(f"Glassdoor card parse error: {e}")
+                if not title or not link_path:
                     continue
 
-            browser.close()
+                link = f"https://www.glassdoor.com{link_path}" if link_path.startswith("/") else link_path
+
+                jd_text = _fetch_glassdoor_jd(link, headers)
+                random_delay(1, 2)
+
+                jobs.append({
+                    "title": title,
+                    "company": company,
+                    "location": loc,
+                    "date_posted": _parse_relative_date(date_text),
+                    "url": link,
+                    "jd_text": jd_text,
+                    "platform": "Glassdoor",
+                })
+            except Exception as e:
+                logger.warning(f"Glassdoor card error: {e}")
+                continue
+
     except Exception as e:
         logger.error(f"Glassdoor scraper error: {e}")
 
     return jobs
 
 
-def _parse_glassdoor_date(date_text: str) -> str:
-    """Convert Glassdoor relative date to ISO string."""
+def _fetch_glassdoor_jd(url: str, headers: dict) -> str:
+    """Fetch Glassdoor job description."""
+    try:
+        resp = requests.get(url, headers=headers, timeout=12)
+        soup = BeautifulSoup(resp.text, "html.parser")
+        jd_el = (
+            soup.find("div", class_="jobDescriptionContent") or
+            soup.find(attrs={"data-test": "description"}) or
+            soup.find("div", id="JobDescriptionContainer")
+        )
+        if jd_el:
+            return jd_el.get_text(separator="\n", strip=True)[:4000]
+    except Exception as e:
+        logger.warning(f"Glassdoor JD error: {e}")
+    return ""
+
+
+def _parse_relative_date(date_text: str) -> str:
+    """Convert relative date to ISO format."""
     today = datetime.now()
     try:
-        if "today" in date_text.lower() or "just now" in date_text.lower():
+        text = date_text.lower()
+        if "today" in text or "just" in text or "hour" in text:
             return today.strftime("%Y-%m-%d")
-        elif "hour" in date_text.lower():
-            return today.strftime("%Y-%m-%d")
-        elif "day" in date_text.lower():
-            days = int("".join(filter(str.isdigit, date_text)) or "0")
-            from datetime import timedelta
+        elif "day" in text:
+            days = int("".join(filter(str.isdigit, text)) or "1")
             return (today - timedelta(days=days)).strftime("%Y-%m-%d")
     except Exception:
         pass

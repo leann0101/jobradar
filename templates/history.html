@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Scrape History — JobRadar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <h2>Scrape History</h2>
+    <p>Log of all past scrape runs and jobs found</p>
+  </div>
+</div>
+
+{% if history %}
+<div class="history-list">
+  {% for run in history %}
+  <div class="history-item">
+    <div>
+      <div class="history-time">{{ run.run_at[:19].replace('T', ' ') }}</div>
+      <div style="font-size:12px; color:var(--text-muted); margin-top:3px;">
+        Platforms: {{ run.platforms | join(', ') if run.platforms else '—' }}
+      </div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:20px; font-weight:800; color:var(--accent-green);">+{{ run.new_jobs_found }}</div>
+      <div style="font-size:11px; color:var(--text-muted);">new jobs</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:18px; font-weight:700; color:var(--accent-blue);">{{ run.total_jobs }}</div>
+      <div style="font-size:11px; color:var(--text-muted);">total in DB</div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">🕐</div>
+  <h3>No runs yet</h3>
+  <p>Run the scraper from the Dashboard to see history here.</p>
+</div>
+{% endif %}
+{% endblock %}

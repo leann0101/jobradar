@@ -13,6 +13,7 @@
 <!-- Hidden inputs for tag data -->
 <input type="hidden" id="must-have-hidden" value='{{ settings.must_have | tojson }}' />
 <input type="hidden" id="nice-to-have-hidden" value='{{ settings.nice_to_have | tojson }}' />
+<input type="hidden" id="job-titles-hidden" value='{{ settings.search.job_titles | tojson }}' />
 
 <div class="settings-grid">
   <!-- Must Have Keywords -->
@@ -92,11 +93,17 @@
     </div>
 
     <div style="margin-top: 24px; padding: 16px; background: var(--bg-secondary); border-radius: var(--radius-sm); border: 1px solid var(--border);">
-      <div class="form-label">Current Search Profile</div>
-      <div style="font-size:13px; color:var(--text-secondary); line-height:1.8;">
-        <div>🔍 Query: <strong>{{ settings.search.job_titles | join(', ') }}</strong></div>
-        <div>📍 Location: <strong>{{ settings.search.location }}</strong></div>
-        <div>🌍 Language: <strong>English only</strong></div>
+      <div class="form-label" style="margin-bottom: 12px;">Search Settings</div>
+      
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label class="form-label" for="search-location">📍 Search Location</label>
+        <input type="text" id="search-location" class="form-input" value="{{ settings.search.location }}" placeholder="e.g. Germany, Munich, Taiwan" />
+      </div>
+
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label">🔍 Job Titles</label>
+        <p class="desc" style="font-size: 11px; margin-bottom: 6px;">Job titles to search. Press Enter to add.</p>
+        <div class="tag-input-container" id="job-titles-input" role="group" aria-label="Job Titles"></div>
       </div>
     </div>
   </div>

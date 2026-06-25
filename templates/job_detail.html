@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block title %}Job Detail — {{ job.title }} · JobRadar{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="page-header-left">
+    <a href="{{ url_for('dashboard') }}" class="btn btn-ghost btn-sm" style="margin-bottom: 12px;">← Back to Dashboard</a>
+    <h2>{{ job.title }}</h2>
+    <p>{{ job.company }} · {{ job.location or 'Germany' }} · {{ job.platform }}</p>
+  </div>
+  <div style="display:flex; gap:10px; align-items:center;">
+    <a href="{{ job.url }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" id="apply-link">
+      🔗 View Original
+    </a>
+    <button class="btn btn-danger btn-sm" onclick="deleteJob('{{ job.id }}', document.querySelector('.detail-layout'))" id="delete-job-btn">
+      🗑 Remove
+    </button>
+  </div>
+</div>
+
+<div class="detail-layout">
+  <!-- Left: JD -->
+  <div class="detail-main">
+    <h3 style="font-size:15px; font-weight:700; margin-bottom:16px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px;">
+      Job Description
+    </h3>
+    {% if job.jd_text %}
+      <div class="detail-jd">{{ job.jd_text }}</div>
+    {% else %}
+      <div class="empty-state" style="padding: 40px 0;">
+        <div class="empty-icon">📄</div>
+        <h3>No JD text captured</h3>
+        <p>Visit the original posting for full details.</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Right: AI analysis -->
+  <div>
+    <!-- Score display -->
+    <div class="detail-main" style="margin-bottom:16px;">
+      <div class="score-display">
+        <div class="score-number {% if job.match_category == 'best' %}best{% elif job.match_category == 'medium' %}medium{% else %}low{% endif %}">
+          {{ job.match_score }}%
+        </div>
+        <div style="font-size:13px; color:var(--text-secondary); margin-top:4px;">Match Score</div>
+        <span class="section-badge
+          {% if job.match_category == 'best' %}badge-best
+          {% elif job.match_category == 'medium' %}badge-medium
+          {% else %}badge-low{% endif %}"
+          style="margin-top:10px; display:inline-block;">
+          {% if job.match_category == 'best' %}🏆 Best Match
+          {% elif job.match_category == 'medium' %}⚡ Medium Match
+          {% else %}❄️ Low Match{% endif %}
+        </span>
+      </div>
+
+      {% if job.match_explanation %}
+      <p style="font-size:12.5px; color:var(--text-secondary); font-style:italic; text-align:center; padding: 0 8px;">
+        {{ job.match_explanation }}
+      </p>
+      {% endif %}
+    </div>
+
+    <!-- Must-have keywords -->
+    <div class="detail-main" style="margin-bottom:16px;">
+      <h4 style="font-size:13px; font-weight:700; color:var(--text-secondary); margin-bottom:12px; text-transform:uppercase; letter-spacing:0.5px;">
+        Must-Have Keywords
+      </h4>
+      <ul class="match-list">
+        {% for kw in settings.must_have %}
+        <li>
+          {% if kw in (job.matched_must_have or []) %}
+            <span class="match-check">✓</span>
+            <span style="color:var(--accent-green); font-weight:600;">{{ kw }}</span>
+          {% else %}
+            <span class="match-x">○</span>
+            <span>{{ kw }}</span>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Nice-to-have keywords -->
+    <div class="detail-main" style="margin-bottom:16px;">
+      <h4 style="font-size:13px; font-weight:700; color:var(--text-secondary); margin-bottom:12px; text-transform:uppercase; letter-spacing:0.5px;">
+        Nice-to-Have Keywords
+      </h4>
+      <ul class="match-list">
+        {% for kw in settings.nice_to_have %}
+        <li>
+          {% if kw in (job.matched_nice_to_have or []) %}
+            <span class="match-check">✓</span>
+            <span style="color:var(--accent-amber); font-weight:600;">{{ kw }}</span>
+          {% else %}
+            <span class="match-x">○</span>
+            <span>{{ kw }}</span>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- AI Extracted Info -->
+    <div class="detail-main">
+      <h4 style="font-size:13px; font-weight:700; color:var(--text-secondary); margin-bottom:16px; text-transform:uppercase; letter-spacing:0.5px;">
+        AI Extracted Info
+      </h4>
+
+      {% if job.summary and job.summary != 'Analysis unavailable' %}
+      <div style="margin-bottom:16px;">
+        <div class="form-label">Summary</div>
+        <p style="font-size:13px; color:var(--text-secondary); line-height:1.6;">{{ job.summary }}</p>
+      </div>
+      {% endif %}
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div>
+          <div class="form-label">Experience Level</div>
+          <div style="font-size:13.5px; font-weight:600; color:var(--accent-blue);">{{ job.experience_level or '—' }}</div>
+        </div>
+        <div>
+          <div class="form-label">Industry</div>
+          <div style="font-size:13.5px; font-weight:600; color:var(--accent-purple);">{{ job.industry or '—' }}</div>
+        </div>
+      </div>
+
+      {% if job.language_requirements %}
+      <div style="margin-top:12px;">
+        <div class="form-label">Language Requirements</div>
+        <div class="keyword-tags">
+          {% for lang in job.language_requirements %}
+          <span class="keyword-tag">{{ lang }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if job.required_skills %}
+      <div style="margin-top:12px;">
+        <div class="form-label">Required Skills</div>
+        <div class="keyword-tags">
+          {% for skill in job.required_skills[:10] %}
+          <span class="keyword-tag">{{ skill }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if job.preferred_skills %}
+      <div style="margin-top:12px;">
+        <div class="form-label">Preferred Skills</div>
+        <div class="keyword-tags">
+          {% for skill in job.preferred_skills[:8] %}
+          <span class="keyword-tag" style="background:rgba(167,139,250,0.1);color:var(--accent-purple);border-color:rgba(167,139,250,0.2);">{{ skill }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border); font-size:12px; color:var(--text-muted);">
+        Scraped: {{ job.scraped_at[:10] if job.scraped_at else '—' }} · Posted: {{ job.date_posted or '—' }}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -54,7 +54,18 @@
     "match_score": 2,
     "id": "28b8fef2-7355-4527-95a8-8618c82a3e75",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:25:29.383402"
+    "scraped_at": "2026-06-26T06:25:29.383402",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Ecommerce",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Product Manager",
@@ -112,7 +123,18 @@
     "match_score": 5,
     "id": "83270bcf-6c26-4635-a898-9814c36d605b",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:25:30.309879"
+    "scraped_at": "2026-06-26T06:25:30.309879",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "E-commerce",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Product Manager",
@@ -173,7 +195,18 @@
     "match_score": 11,
     "id": "09d282a6-1fb1-4193-a78b-f3963844c713",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:25:31.310478"
+    "scraped_at": "2026-06-26T06:25:31.310478",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Technology/Software",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Senior Product Manager",
@@ -237,7 +270,18 @@
     "match_score": 9,
     "id": "56614da3-11ed-4f53-b4d6-29e61615d9cf",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:25:32.400948"
+    "scraped_at": "2026-06-26T06:25:32.400948",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Real Estate/PropTech",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Senior Product Manager, Exchange",
@@ -281,7 +325,18 @@
     "match_score": 0,
     "id": "3bd3c8a5-fe0e-4922-9088-26c202c4eaeb",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:25:33.580870"
+    "scraped_at": "2026-06-26T06:25:33.580870",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Product Manager - Data-Viz Startup - B2B SaaS",
@@ -337,7 +392,18 @@
     "match_score": 11,
     "id": "b24977f8-6c3e-4538-814a-7b9e142639a7",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:25:34.490113"
+    "scraped_at": "2026-06-26T06:25:34.490113",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Software/Technology",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Game Product Manager",
@@ -393,7 +459,18 @@
     "match_score": 7,
     "id": "222420ec-3e16-430f-a9ca-d056d6fcf324",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:25:35.584419"
+    "scraped_at": "2026-06-26T06:25:35.584419",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Gaming/iGaming",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Founding Product Manager",
@@ -450,7 +527,18 @@
     "match_score": 7,
     "id": "06b71650-f14a-4d3d-893d-5efeb2e13aa8",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:25:36.633118"
+    "scraped_at": "2026-06-26T06:25:36.633118",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Healthcare/Healthtech",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Junior Product Manager (m/w/d) Away-from-Home",
@@ -508,7 +596,18 @@
     "match_score": 2,
     "id": "45fd4644-c589-4069-b6bb-92b36a8e9368",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:25:48.678893"
+    "scraped_at": "2026-06-26T06:25:48.678893",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Food and Beverage",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Game Product Manager",
@@ -566,7 +665,18 @@
     "match_score": 7,
     "id": "a741fa41-e317-4fbb-8694-e38a02fe84c5",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:25:49.644956"
+    "scraped_at": "2026-06-26T06:25:49.644956",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Gaming",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Product Manager",
@@ -626,7 +736,18 @@
     "match_score": 7,
     "id": "2dcfda27-1b3a-4e37-854c-ec1a9ed6218d",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:25:54.599917"
+    "scraped_at": "2026-06-26T06:25:54.599917",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Digital Platform/Marketplace",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Senior Product Manager – Pharma Process Design & AI (m/f/d)",
@@ -686,7 +807,18 @@
     "match_score": 11,
     "id": "fee26af0-7945-4900-a937-bad7cbf36f9e",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:26:01.779489"
+    "scraped_at": "2026-06-26T06:26:01.779489",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Pharmaceutical/E-Pharmacy",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "(Senior) Product Manager (f/m/d)",
@@ -751,7 +883,18 @@
     "match_score": 11,
     "id": "13ecf424-93ed-492c-9a92-6118aa1bf980",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:26:07.858461"
+    "scraped_at": "2026-06-26T06:26:07.858461",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "B2B SaaS",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Product Manager - Growth (m/w/d)",
@@ -810,7 +953,18 @@
     "match_score": 5,
     "id": "fabd8e6b-b66e-41a2-bc19-15690c57ca6f",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:26:14.046214"
+    "scraped_at": "2026-06-26T06:26:14.046214",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "HealthTech/FemTech",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "(Senior) Product Manager (all genders)",
@@ -868,7 +1022,18 @@
     "match_score": 9,
     "id": "64ea1acb-f722-43ea-9edc-fe1ca245e8e8",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:26:21.204584"
+    "scraped_at": "2026-06-26T06:26:21.204584",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "ITK/Telekommunikation",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Senior Product Manager",
@@ -928,7 +1093,18 @@
     "match_score": 7,
     "id": "b6266470-3829-4433-862d-596417301b41",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:26:28.097187"
+    "scraped_at": "2026-06-26T06:26:28.097187",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Software/Technology",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Product Owner (m/w/d)",
@@ -983,7 +1159,18 @@
     "match_score": 16,
     "id": "601b4d28-d463-4352-91d6-1e2c284d0305",
     "match_category": "medium",
-    "scraped_at": "2026-06-26T06:26:35.254102"
+    "scraped_at": "2026-06-26T06:26:35.254102",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "PropTech/Real Estate",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "(Senior) Product Manager:in (m/w/d) – Digitale Bahnprodukte",
@@ -1041,7 +1228,18 @@
     "match_score": 11,
     "id": "81e25bd1-175f-437b-88c3-f7e3ef6688d6",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:26:42.317480"
+    "scraped_at": "2026-06-26T06:26:42.317480",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Rail Industry",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Founding Product Manager - KI-Agenten-Plattform (m/w/d)",
@@ -1094,7 +1292,18 @@
     "match_score": 16,
     "id": "c20f0132-4c6d-4973-81bc-a34b72d74c26",
     "match_category": "medium",
-    "scraped_at": "2026-06-26T06:26:51.820909"
+    "scraped_at": "2026-06-26T06:26:51.820909",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Industrial Automation/Manufacturing",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Product Line Manager (m/f/d)",
@@ -1153,7 +1362,18 @@
     "match_score": 11,
     "id": "7b97fae9-d7cf-4ee3-8f1c-6c6720655b94",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:26:57.472281"
+    "scraped_at": "2026-06-26T06:26:57.472281",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Cleanroom Solutions/Manufacturing",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Product Lead - KI-Agenten & Plattform (m/w/d)",
@@ -1207,7 +1427,19 @@
     "match_score": 20,
     "id": "963c2aa2-b315-4efa-81c7-1986dcdffcef",
     "match_category": "medium",
-    "scraped_at": "2026-06-26T06:27:06.370976"
+    "scraped_at": "2026-06-26T06:27:06.370976",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Industry 4.0/Industrial Automation",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    },
+    "jd_translated": "The Problem\nMedium-sized companies make hundreds of small decisions every day — approvals, assignments, tracking. Individually, they are not complex, but collectively, they consume entire working days. Classic automation only helps with rule-based processes. The difficult part is human judgment.\nWe are building our own platform that solves exactly this problem — with AI agents that can take over operational decisions independently, a product with a clear stance, refined through dozens of real customer projects.\nThe product exists, is actively used by customers, and is being further developed. Now we are looking for the person who will take it to the next level — as the first Product Lead for our own product.\n\nThe Role\nThe product works, the first customers pay, and demand is growing. Now it's about turning it into a standalone and scalable product - from 1 to 10, hands-on.\nYou will work directly with the founder and a growing engineering and AI consulting team that implements agents for customers. No lengthy approval loops, no ticket ping-pong. You will receive context, make decisions, and see the impact of your work within days - also because our customers actively use the platform in their projects and you receive real feedback directly.\n\nThe role has two parts that complement each other:\n60% direct customer work:\nYou are the independent point of contact for your customers — we usually work directly with the management, at eye level. You manage multiple customer projects simultaneously — from discovery to roadmap to ongoing delivery. You participate in bi-weekly check-ins, translate business goals into clear requirements, steer the engineering team, and ensure that the AI agents we build deliver real impact — our agents already save customers hundreds of thousands of euros per year. You identify new potential for agent deployment and bring it into the conversation independently.\n\n40% Own product:\nYou take ownership of the further development of our platform. You identify recurring needs from customer projects, develop the backlog, analyze the competition, and regularly develop new feature demos. The exciting thing: every customer project and every customer workshop is simultaneously a user test for our software.\n\nThe interesting thing about this role is not stakeholder management — it's the question: which features create real value? How does a manual consulting process become a scalable product? How do we develop a valuable platform that customers are willing to pay for, regardless of individual agent development?\n\nIn short:\nYou turn functioning individual solutions into a product that scales — and for which customers are willing to pay permanently.\n\nTasks\nYour daily work\nManage multiple customer projects in parallel — plan and prioritize the backlog, lead bi-weekly check-ins with customers independently\nPrepare, plan, and conduct workshops with customers — from discovery to ongoing scoping\nTranslate business goals into clear requirements and steer the engineering team\nTranslate requirements into concrete solutions — sometimes even building a Claude skill or prototype yourself\nDiscover new automation potential at the customer and translate it into business cases\nFurther develop the platform — from idea to prototype to demo (present progress every 2 weeks)\nObserve the competitive landscape and bring new inspiration\nHelp shape a delivery process for agent development that scales with 10+ developers and many parallel customer projects\n\nYour first weeks\nIn the first two weeks, you will dive into our customer projects and the platform, challenge assumptions, and get to know our consulting process. After six weeks, you will independently manage the first customer projects and have added features to the platform."
   },
   {
     "title": "Product Owner (m/f/d) Digital Products & AI",
@@ -1264,7 +1496,18 @@
     "match_score": 11,
     "id": "f91071a4-1608-40c2-9e8c-30f1cce6df62",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:27:16.071110"
+    "scraped_at": "2026-06-26T06:27:16.071110",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Software/Technology",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Principal Product Manager, Document Domain",
@@ -1321,7 +1564,18 @@
     "match_score": 11,
     "id": "2ec315d5-4f88-498b-8715-5459a28f743e",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:27:22.694457"
+    "scraped_at": "2026-06-26T06:27:22.694457",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Software/Document Workflow Automation",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Senior Product Manager (m/w/d) - zvoove Go",
@@ -1383,7 +1637,18 @@
     "match_score": 11,
     "id": "19751796-6488-45e0-a1bb-d8c57bf6ec90",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:27:28.718229"
+    "scraped_at": "2026-06-26T06:27:28.718229",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "HR tech, staffing, and workforce management",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Product Content Manager (m/f/x)",
@@ -1443,7 +1708,18 @@
     "match_score": 2,
     "id": "71513a1c-ed59-456a-ace6-bf9841375040",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:27:34.599692"
+    "scraped_at": "2026-06-26T06:27:34.599692",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "E-commerce/Fashion",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Product Line Manager Training Apparel",
@@ -1500,7 +1776,18 @@
     "match_score": 2,
     "id": "de434afa-d708-4852-a05e-9dc4baeea502",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:27:40.453542"
+    "scraped_at": "2026-06-26T06:27:40.453542",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Sporting Goods",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Senior Technical Product Manager, Agentic AI IDEs (Developer Tools)-Tech Foundations",
@@ -1554,7 +1841,18 @@
     "match_score": 11,
     "id": "c2d9c0f0-d771-4e45-8189-9d1fc61bfc13",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:27:48.411099"
+    "scraped_at": "2026-06-26T06:27:48.411099",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Technology/Software",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Product Manager, Regulatory Outputs & Product Intelligence",
@@ -1613,7 +1911,18 @@
     "match_score": 7,
     "id": "1452311c-936c-435c-8499-903958021aa6",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:27:55.324510"
+    "scraped_at": "2026-06-26T06:27:55.324510",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Sustainability/ESG",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Product Manager - Data-Viz Startup - B2B SaaS",
@@ -1673,7 +1982,18 @@
     "match_score": 7,
     "id": "9144a0a5-91cb-4a83-a490-4fdd860567e1",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:28:02.352863"
+    "scraped_at": "2026-06-26T06:28:02.352863",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Software as a Service (SaaS)",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "AI Product Manager (m/f/x)",
@@ -1731,7 +2051,18 @@
     "match_score": 11,
     "id": "67661840-5544-4554-8ad6-5d95682b6bc4",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:28:09.398734"
+    "scraped_at": "2026-06-26T06:28:09.398734",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Software/Technology",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Product Manager, SaaS (F/M/D)",
@@ -1789,7 +2120,18 @@
     "match_score": 11,
     "id": "ace91cba-663e-4b93-b850-8be7bc0aef71",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:32:20.967812"
+    "scraped_at": "2026-06-26T06:32:20.967812",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Technology/Software",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Product",
@@ -1845,7 +2187,18 @@
     "match_score": 7,
     "id": "ea8507a1-2d41-4277-92e0-fdcac3c89486",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:32:22.257335"
+    "scraped_at": "2026-06-26T06:32:22.257335",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Financial Technology",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Product Manager - No-Code/Low-Code Plattform (d/w/m)",
@@ -1903,7 +2256,18 @@
     "match_score": 11,
     "id": "1950208a-8caf-48e7-ba6d-0cc42ccf61fa",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:32:23.529407"
+    "scraped_at": "2026-06-26T06:32:23.529407",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "GovTech",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Hardware Product Manager:in (w/m/d)",
@@ -1962,7 +2326,18 @@
     "match_score": 7,
     "id": "0cb3a62b-1f13-4b84-ad01-def800191f5d",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:32:24.514308"
+    "scraped_at": "2026-06-26T06:32:24.514308",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Renewable Energy",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Product Lead",
@@ -2018,7 +2393,18 @@
     "match_score": 2,
     "id": "570ff375-54cc-4238-bd3d-fe070b75be44",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:32:25.376933"
+    "scraped_at": "2026-06-26T06:32:25.376933",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Marketing and Advertising Technology",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Product Manager Integration (m/w/d)",
@@ -2076,7 +2462,18 @@
     "match_score": 16,
     "id": "0c34f225-80a9-4e81-9066-4453889fe9fc",
     "match_category": "medium",
-    "scraped_at": "2026-06-26T06:32:26.521167"
+    "scraped_at": "2026-06-26T06:32:26.521167",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "FinTech",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Product Manager – Analytics Platform (f/m/d)",
@@ -2135,7 +2532,18 @@
     "match_score": 11,
     "id": "e104cef0-4643-4de3-b251-8a525d47d1ec",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:32:27.426757"
+    "scraped_at": "2026-06-26T06:32:27.426757",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Software/Technology",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Product Manager, CRM (m/f/d)",
@@ -2193,7 +2601,18 @@
     "match_score": 2,
     "id": "162218fb-e75f-47f4-8fb5-d6effd8a627d",
     "match_category": "low",
-    "scraped_at": "2026-06-26T06:32:28.314758"
+    "scraped_at": "2026-06-26T06:32:28.314758",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Technology/Software",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Product Manager – Platform Team (m/f/d)",
@@ -2255,7 +2674,18 @@
     "match_score": 20,
     "id": "12d617a0-40b7-4dc9-8c0d-d5f35c4dc8b3",
     "match_category": "medium",
-    "scraped_at": "2026-06-26T06:32:29.365078"
+    "scraped_at": "2026-06-26T06:32:29.365078",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Software/Technology",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   },
   {
     "title": "Product Owner / Product Manager (all genders)",
@@ -2311,6 +2741,17 @@
     "match_score": 30,
     "id": "623c4153-4425-4f8d-a3ce-d45ca6037d9a",
     "match_category": "medium",
-    "scraped_at": "2026-06-26T06:32:38.985135"
+    "scraped_at": "2026-06-26T06:32:38.985135",
+    "company_profile": {
+      "description": "Company description unavailable",
+      "business_domain": "Industrial/Manufacturing",
+      "employee_count": "Unknown"
+    },
+    "resume_match": {
+      "score": 0,
+      "strengths": [],
+      "gaps": [],
+      "explanation": "No resume analysis available"
+    }
   }
 ]

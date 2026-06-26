@@ -55,7 +55,7 @@ def save_json(path: Path, data):
 
 
 def load_settings() -> dict:
-    return load_json(SETTINGS_FILE, {
+    defaults = {
         "must_have": [],
         "nice_to_have": [],
         "score_thresholds": {"best_match": 40, "medium_match": 15},
@@ -64,12 +64,41 @@ def load_settings() -> dict:
             "location": "Germany",
             "days_ago": 15,
             "platforms": ["linkedin", "indeed", "glassdoor"],
+            "experience_levels": [],
+            "location_types": [],
+            "employment_types": [],
+            "languages": [],
         },
-    })
+        "resume_text": "",
+    }
+    data = load_json(SETTINGS_FILE, {})
+    for k, v in defaults.items():
+        if k not in data:
+            data[k] = v
+        elif isinstance(v, dict) and isinstance(data[k], dict):
+            for sub_k, sub_v in v.items():
+                if sub_k not in data[k]:
+                    data[k][sub_k] = sub_v
+    return data
 
 
 def load_jobs() -> list:
-    return load_json(JOBS_FILE, [])
+    jobs = load_json(JOBS_FILE, [])
+    for j in jobs:
+        if "company_profile" not in j or not isinstance(j["company_profile"], dict):
+            j["company_profile"] = {
+                "description": "Company description unavailable",
+                "business_domain": j.get("industry", "Technology"),
+                "employee_count": "Unknown"
+            }
+        if "resume_match" not in j or not isinstance(j["resume_match"], dict):
+            j["resume_match"] = {
+                "score": 0,
+                "strengths": [],
+                "gaps": [],
+                "explanation": "No resume analysis available"
+            }
+    return jobs
 
 
 def save_jobs(jobs: list):
@@ -154,13 +183,14 @@ def run_scrape_pipeline():
         must_have = settings.get("must_have", [])
         nice_to_have = settings.get("nice_to_have", [])
         thresholds = settings.get("score_thresholds", {"best_match": 40, "medium_match": 15})
+        resume_text = settings.get("resume_text", "")
 
         all_raw_jobs = []
         for title in job_titles:
             if "linkedin" in platforms:
                 logger.info(f"Scraping LinkedIn for '{title}'...")
                 try:
-                    all_raw_jobs.extend(scrape_linkedin(title, location, days_ago))
+                    all_raw_jobs.extend(scrape_linkedin(title, location, days_ago, filter_cfg=search_cfg))
                 except Exception as e:
                     logger.error(f"LinkedIn failed: {e}")
 
@@ -188,21 +218,30 @@ def run_scrape_pipeline():
         analyzed = []
         for job in new_raw:
             try:
-                enriched = analyze_job(job, must_have, nice_to_have)
+                enriched = analyze_job(job, must_have, nice_to_have, resume_text)
                 enriched["id"] = str(uuid.uuid4())
-                enriched["match_category"] = classify_job(enriched["match_score"], thresholds)
                 enriched["scraped_at"] = datetime.now().isoformat()
                 analyzed.append(enriched)
-                logger.info(f"  ✓ {job['title']} @ {job['company']} — score: {enriched['match_score']} ({enriched['match_category']})")
+                logger.info(f"  ✓ {job['title']} @ {job['company']} — score: {enriched.get('match_score', 0)}")
             except Exception as e:
                 logger.error(f"Analysis failed for {job.get('title')}: {e}")
 
-        # Re-score existing jobs if settings changed (optional: skip for performance)
         all_jobs = existing_jobs + analyzed
-        # Re-classify existing with current thresholds
+        
+        # Re-classify all jobs with current thresholds and language filter
+        user_languages = [lang.lower() for lang in search_cfg.get("languages", []) if lang]
         for j in all_jobs:
             if "match_score" in j:
-                j["match_category"] = classify_job(j["match_score"], thresholds)
+                lang_ok = True
+                if user_languages:
+                    job_languages = [lang.lower() for lang in j.get("language_requirements", [])]
+                    if job_languages and not any(lang in user_languages for lang in job_languages):
+                        lang_ok = False
+                
+                if lang_ok:
+                    j["match_category"] = classify_job(j["match_score"], thresholds)
+                else:
+                    j["match_category"] = "low"
 
         save_jobs(all_jobs)
 
@@ -276,9 +315,30 @@ def settings_page():
         if not settings["search"]["job_titles"]:
             settings["search"]["job_titles"] = ["product manager"]
         settings["search"]["platforms"] = data.get("platforms", ["linkedin", "indeed", "glassdoor"])
+        settings["search"]["experience_levels"] = data.get("experience_levels", [])
+        settings["search"]["location_types"] = data.get("location_types", [])
+        settings["search"]["employment_types"] = data.get("employment_types", [])
+        settings["search"]["languages"] = data.get("languages", [])
+        settings["resume_text"] = data.get("resume_text", "").strip()
         save_json(SETTINGS_FILE, settings)
         return jsonify({"status": "ok"})
     return render_template("settings.html", settings=settings)
+
+
+@app.route("/api/resume/analyze", methods=["POST"])
+def api_analyze_resume():
+    data = request.get_json() or {}
+    resume_text = data.get("resume_text", "").strip()
+    if not resume_text:
+        return jsonify({"error": "Resume text is empty"}), 400
+
+    try:
+        from ai_analyzer import recommend_from_resume
+        recommendations = recommend_from_resume(resume_text)
+        return jsonify(recommendations)
+    except Exception as e:
+        logger.error(f"Failed to analyze resume: {e}")
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/history")

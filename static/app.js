@@ -301,8 +301,11 @@ function initSettingsPage() {
         target_trajectory: document.getElementById('target-trajectory')?.value || '',
       },
       override_rules: {
+        min_problem_space: parseInt(document.getElementById('min-problem-space')?.value || 1),
         min_product_stage: parseInt(document.getElementById('min-product-stage')?.value || 3),
         min_decision_power: parseInt(document.getElementById('min-decision-power')?.value || 3),
+        min_customer_interaction: parseInt(document.getElementById('min-customer-interaction')?.value || 1),
+        min_problem_definition_clarity: parseInt(document.getElementById('min-problem-definition-clarity')?.value || 1),
       },
       days_ago: parseInt(document.getElementById('days-ago')?.value || 15),
       location: document.getElementById('search-location')?.value || 'Germany',

@@ -294,8 +294,16 @@ function initSettingsPage() {
     const payload = {
       must_have: mustInput.getValues(),
       nice_to_have: niceInput.getValues(),
-      best_match: parseInt(document.getElementById('best-threshold')?.value || 40),
-      medium_match: parseInt(document.getElementById('medium-threshold')?.value || 15),
+      best_match: parseInt(document.getElementById('best-threshold')?.value || 80),
+      medium_match: parseInt(document.getElementById('medium-threshold')?.value || 60),
+      career_objective: {
+        target_archetype: document.getElementById('target-archetype')?.value || '',
+        target_trajectory: document.getElementById('target-trajectory')?.value || '',
+      },
+      override_rules: {
+        min_product_stage: parseInt(document.getElementById('min-product-stage')?.value || 3),
+        min_decision_power: parseInt(document.getElementById('min-decision-power')?.value || 3),
+      },
       days_ago: parseInt(document.getElementById('days-ago')?.value || 15),
       location: document.getElementById('search-location')?.value || 'Germany',
       job_titles: jobTitlesInput.getValues(),

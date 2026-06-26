@@ -58,7 +58,15 @@ def load_settings() -> dict:
     defaults = {
         "must_have": [],
         "nice_to_have": [],
-        "score_thresholds": {"best_match": 40, "medium_match": 15},
+        "score_thresholds": {"best_match": 80, "medium_match": 60},
+        "career_objective": {
+            "target_archetype": "Strategic Product Builder / Early-stage Discovery PM",
+            "target_trajectory": "I want to become a strategy-driven, discovery-oriented product builder who defines problems in emerging tech."
+        },
+        "override_rules": {
+            "min_product_stage": 4,
+            "min_decision_power": 4
+        },
         "search": {
             "job_titles": ["product manager"],
             "location": "Germany",
@@ -218,7 +226,13 @@ def run_scrape_pipeline():
         analyzed = []
         for job in new_raw:
             try:
-                enriched = analyze_job(job, must_have, nice_to_have, resume_text)
+                enriched = analyze_job(
+                    job,
+                    must_have,
+                    nice_to_have,
+                    resume_text,
+                    settings.get("career_objective")
+                )
                 enriched["id"] = str(uuid.uuid4())
                 enriched["scraped_at"] = datetime.now().isoformat()
                 analyzed.append(enriched)
@@ -239,7 +253,7 @@ def run_scrape_pipeline():
                         lang_ok = False
                 
                 if lang_ok:
-                    j["match_category"] = classify_job(j["match_score"], thresholds)
+                    j["match_category"] = classify_job(j, thresholds)
                 else:
                     j["match_category"] = "low"
 
@@ -290,6 +304,7 @@ def dashboard():
         low_count=len(low),
         last_run=last_run,
         is_scraping=is_scraping,
+        settings=settings,
     )
 
 
@@ -310,8 +325,23 @@ def settings_page():
         data = request.get_json() or {}
         settings["must_have"] = [k.strip() for k in data.get("must_have", []) if k.strip()]
         settings["nice_to_have"] = [k.strip() for k in data.get("nice_to_have", []) if k.strip()]
-        settings["score_thresholds"]["best_match"] = int(data.get("best_match", 40))
-        settings["score_thresholds"]["medium_match"] = int(data.get("medium_match", 15))
+        settings["score_thresholds"]["best_match"] = int(data.get("best_match", 80))
+        settings["score_thresholds"]["medium_match"] = int(data.get("medium_match", 60))
+        
+        # Career Objectives
+        co = data.get("career_objective", {})
+        settings["career_objective"] = {
+            "target_archetype": co.get("target_archetype", "Strategic Product Builder / Early-stage Discovery PM").strip(),
+            "target_trajectory": co.get("target_trajectory", "").strip()
+        }
+        
+        # Override rules
+        ov = data.get("override_rules", {})
+        settings["override_rules"] = {
+            "min_product_stage": int(ov.get("min_product_stage", 4)),
+            "min_decision_power": int(ov.get("min_decision_power", 4))
+        }
+
         settings["search"]["days_ago"] = int(data.get("days_ago", 15))
         settings["search"]["location"] = data.get("location", "Germany").strip()
         settings["search"]["job_titles"] = [t.strip() for t in data.get("job_titles", []) if t.strip()]
@@ -324,6 +354,25 @@ def settings_page():
         settings["search"]["languages"] = data.get("languages", [])
         settings["resume_text"] = data.get("resume_text", "").strip()
         save_json(SETTINGS_FILE, settings)
+
+        # Re-classify existing jobs under new thresholds/rules
+        jobs = load_jobs()
+        thresholds = settings.get("score_thresholds", {"best_match": 80, "medium_match": 60})
+        user_languages = [lang.lower() for lang in settings.get("search", {}).get("languages", []) if lang]
+        for j in jobs:
+            if "match_score" in j:
+                lang_ok = True
+                if user_languages:
+                    job_languages = [lang.lower() for lang in j.get("language_requirements", [])]
+                    if job_languages and not any(lang in user_languages for lang in job_languages):
+                        lang_ok = False
+                
+                if lang_ok:
+                    j["match_category"] = classify_job(j, thresholds)
+                else:
+                    j["match_category"] = "low"
+        save_jobs(jobs)
+
         sync_data_to_github()
         return jsonify({"status": "ok"})
     return render_template("settings.html", settings=settings)

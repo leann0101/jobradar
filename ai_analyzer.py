@@ -18,10 +18,56 @@ def get_client() -> Groq:
     return _client
 
 
-def analyze_job(job: dict, must_have: list[str], nice_to_have: list[str]) -> dict:
+def recommend_from_resume(resume_text: str) -> dict:
+    """
+    Analyze the resume text using Groq and recommend relevant job titles and search keywords.
+    """
+    client = get_client()
+    
+    prompt = f"""You are a career consultant and ATS expert. Analyze this candidate's resume and recommend relevant job titles and search keywords for their job hunt.
+Ensure that the recommended keywords are aligned with industrial, tech, software, manufacturing, or B2B sectors if relevant.
+
+RESUME:
+{resume_text[:6000]}
+
+Respond with ONLY valid JSON, no markdown, no code blocks.
+Respond with this exact JSON structure:
+{{
+  "recommended_titles": ["title1", "title2", "title3"],
+  "recommended_keywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5", "keyword6"]
+}}
+"""
+
+    try:
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+            max_tokens=512,
+        )
+        raw = response.choices[0].message.content.strip()
+        
+        # Clean possible markdown wrapping
+        if raw.startswith("```"):
+            raw = raw.split("```")[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+        raw = raw.strip()
+        
+        res = json.loads(raw)
+        return {
+            "recommended_titles": res.get("recommended_titles", []),
+            "recommended_keywords": res.get("recommended_keywords", [])
+        }
+    except Exception as e:
+        logger.error(f"Error in recommend_from_resume: {e}")
+        raise e
+
+
+def analyze_job(job: dict, must_have: list[str], nice_to_have: list[str], resume_text: str = "") -> dict:
     """
     Send a job's JD to Groq for analysis.
-    Returns enriched job dict with AI fields and match score.
+    Returns enriched job dict with AI fields, match score, company profile, and resume match.
     """
     client = get_client()
     jd_text = job.get("jd_text", "")
@@ -32,7 +78,19 @@ def analyze_job(job: dict, must_have: list[str], nice_to_have: list[str]) -> dic
     must_have_str = ", ".join(must_have)
     nice_to_have_str = ", ".join(nice_to_have)
 
-    prompt = f"""You are an expert job analyst. Analyze this job description and respond with ONLY valid JSON, no markdown, no code blocks.
+    resume_prompt_part = ""
+    if resume_text.strip():
+        resume_prompt_part = f"""
+CANDIDATE'S RESUME:
+{resume_text[:6000]}
+
+Evaluate the match between the resume and the job description. Provide a compatibility score (0-100), key candidate strengths (matching requirements), and key gaps/missing requirements.
+"""
+    else:
+        resume_prompt_part = "\nNo candidate resume is provided. For the 'resume_match' field, return score 0, empty strengths, empty gaps, and 'Resume not provided' as the explanation.\n"
+
+    prompt = f"""You are an expert job analyst. Analyze this job description, evaluate the fit against user preferences, extract company profile information, and evaluate compatibility with the candidate's resume (if provided).
+Respond with ONLY valid JSON, no markdown, no code blocks.
 
 JOB DESCRIPTION:
 {jd_text[:4000]}
@@ -42,6 +100,7 @@ USER'S MUST-HAVE keywords (industrial/technical preferences):
 
 USER'S NICE-TO-HAVE keywords:
 {nice_to_have_str}
+{resume_prompt_part}
 
 Respond with this exact JSON structure:
 {{
@@ -54,7 +113,18 @@ Respond with this exact JSON structure:
   "matched_must_have": ["matched keyword1", "matched keyword2"],
   "matched_nice_to_have": ["matched keyword1"],
   "missing_must_have": ["missing keyword1"],
-  "match_explanation": "One sentence explaining the match quality"
+  "match_explanation": "One sentence explaining the preferences match quality",
+  "company_profile": {{
+    "description": "Brief description of the company and what it does",
+    "business_domain": "e.g. Factory Automation / Industrial Networking / IIoT Solutions",
+    "employee_count": "e.g. 50-200 / 10,000+ / Unknown"
+  }},
+  "resume_match": {{
+    "score": 85,
+    "strengths": ["list of candidate's strengths matching this job"],
+    "gaps": ["list of candidate's missing qualifications or skills"],
+    "explanation": "Brief overview of the fit with candidate's experience"
+  }}
 }}
 
 For matched keywords: list any must-have or nice-to-have keywords that appear directly or conceptually in the JD.
@@ -91,6 +161,17 @@ Be generous in concept matching (e.g. "automation" matches "Factory Automation",
             "matched_nice_to_have": [],
             "missing_must_have": must_have,
             "match_explanation": "Could not analyze this job.",
+            "company_profile": {
+                "description": "Company description unavailable",
+                "business_domain": "",
+                "employee_count": "Unknown"
+            },
+            "resume_match": {
+                "score": 0,
+                "strengths": [],
+                "gaps": [],
+                "explanation": "Analysis failed or unavailable"
+            }
         }
     except Exception as e:
         logger.error(f"Groq API error: {e}")
@@ -105,9 +186,20 @@ Be generous in concept matching (e.g. "automation" matches "Factory Automation",
             "matched_nice_to_have": [],
             "missing_must_have": must_have,
             "match_explanation": f"API error: {str(e)}",
+            "company_profile": {
+                "description": "Company description unavailable",
+                "business_domain": "",
+                "employee_count": "Unknown"
+            },
+            "resume_match": {
+                "score": 0,
+                "strengths": [],
+                "gaps": [],
+                "explanation": "Analysis failed or unavailable"
+            }
         }
 
-    # Calculate match score
+    # Calculate match score (Preferences score)
     score = _calculate_score(
         analysis.get("matched_must_have", []),
         analysis.get("matched_nice_to_have", []),

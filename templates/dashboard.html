@@ -58,17 +58,39 @@
         <div class="job-title">{{ job.title }}</div>
         <div class="job-company">{{ job.company }}</div>
       </div>
-      <!-- Score ring SVG -->
-      <div class="job-score-ring" title="Match score: {{ job.match_score }}%">
-        <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="25" cy="25" r="20" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="4"/>
-          <circle cx="25" cy="25" r="20" fill="none"
-            stroke="#22d3a0" stroke-width="4"
-            stroke-dasharray="{{ (job.match_score / 100 * 125.66) | round(1) }} 125.66"
-            stroke-dashoffset="31.4"
-            stroke-linecap="round"/>
-          <text x="25" y="25" class="score-text">{{ job.match_score }}%</text>
-        </svg>
+      <!-- Dual match scores -->
+      <div style="display: flex; gap: 10px; align-items: center; flex-shrink: 0;">
+        <div style="text-align: center;">
+          <div class="job-score-ring" title="Preference match score: {{ job.match_score }}%" style="width: 36px; height: 36px;">
+            <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" style="width: 36px; height: 36px;">
+              <circle cx="25" cy="25" r="20" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="4"/>
+              <circle cx="25" cy="25" r="20" fill="none"
+                stroke="#22d3a0" stroke-width="4"
+                stroke-dasharray="{{ (job.match_score / 100 * 125.66) | round(1) }} 125.66"
+                stroke-dashoffset="31.4"
+                stroke-linecap="round"/>
+              <text x="25" y="25" class="score-text" style="font-size: 15px; font-weight: 800;">{{ job.match_score }}</text>
+            </svg>
+          </div>
+          <div style="font-size: 8px; color: var(--text-secondary); margin-top: 2px; font-weight: 700; text-transform: uppercase;">Pref</div>
+        </div>
+
+        {% if job.resume_match and job.resume_match.score is defined and job.resume_match.score > 0 %}
+        <div style="text-align: center;">
+          <div class="job-score-ring" title="Resume match score: {{ job.resume_match.score }}%" style="width: 36px; height: 36px;">
+            <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" style="width: 36px; height: 36px;">
+              <circle cx="25" cy="25" r="20" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="4"/>
+              <circle cx="25" cy="25" r="20" fill="none"
+                stroke="#a78bfa" stroke-width="4"
+                stroke-dasharray="{{ (job.resume_match.score / 100 * 125.66) | round(1) }} 125.66"
+                stroke-dashoffset="31.4"
+                stroke-linecap="round"/>
+              <text x="25" y="25" class="score-text" style="font-size: 15px; font-weight: 800;">{{ job.resume_match.score }}</text>
+            </svg>
+          </div>
+          <div style="font-size: 8px; color: var(--text-secondary); margin-top: 2px; font-weight: 700; text-transform: uppercase;">Resume</div>
+        </div>
+        {% endif %}
       </div>
     </div>
 
@@ -123,16 +145,39 @@
         <div class="job-title">{{ job.title }}</div>
         <div class="job-company">{{ job.company }}</div>
       </div>
-      <div class="job-score-ring" title="Match score: {{ job.match_score }}%">
-        <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="25" cy="25" r="20" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="4"/>
-          <circle cx="25" cy="25" r="20" fill="none"
-            stroke="#fbbf24" stroke-width="4"
-            stroke-dasharray="{{ (job.match_score / 100 * 125.66) | round(1) }} 125.66"
-            stroke-dashoffset="31.4"
-            stroke-linecap="round"/>
-          <text x="25" y="25" class="score-text">{{ job.match_score }}%</text>
-        </svg>
+      <!-- Dual match scores -->
+      <div style="display: flex; gap: 10px; align-items: center; flex-shrink: 0;">
+        <div style="text-align: center;">
+          <div class="job-score-ring" title="Preference match score: {{ job.match_score }}%" style="width: 36px; height: 36px;">
+            <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" style="width: 36px; height: 36px;">
+              <circle cx="25" cy="25" r="20" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="4"/>
+              <circle cx="25" cy="25" r="20" fill="none"
+                stroke="#fbbf24" stroke-width="4"
+                stroke-dasharray="{{ (job.match_score / 100 * 125.66) | round(1) }} 125.66"
+                stroke-dashoffset="31.4"
+                stroke-linecap="round"/>
+              <text x="25" y="25" class="score-text" style="font-size: 15px; font-weight: 800;">{{ job.match_score }}</text>
+            </svg>
+          </div>
+          <div style="font-size: 8px; color: var(--text-secondary); margin-top: 2px; font-weight: 700; text-transform: uppercase;">Pref</div>
+        </div>
+
+        {% if job.resume_match and job.resume_match.score is defined and job.resume_match.score > 0 %}
+        <div style="text-align: center;">
+          <div class="job-score-ring" title="Resume match score: {{ job.resume_match.score }}%" style="width: 36px; height: 36px;">
+            <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" style="width: 36px; height: 36px;">
+              <circle cx="25" cy="25" r="20" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="4"/>
+              <circle cx="25" cy="25" r="20" fill="none"
+                stroke="#a78bfa" stroke-width="4"
+                stroke-dasharray="{{ (job.resume_match.score / 100 * 125.66) | round(1) }} 125.66"
+                stroke-dashoffset="31.4"
+                stroke-linecap="round"/>
+              <text x="25" y="25" class="score-text" style="font-size: 15px; font-weight: 800;">{{ job.resume_match.score }}</text>
+            </svg>
+          </div>
+          <div style="font-size: 8px; color: var(--text-secondary); margin-top: 2px; font-weight: 700; text-transform: uppercase;">Resume</div>
+        </div>
+        {% endif %}
       </div>
     </div>
 

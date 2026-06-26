@@ -342,6 +342,34 @@ def api_analyze_resume():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/api/job/translate/<job_id>", methods=["POST"])
+def api_translate_job(job_id):
+    jobs = load_jobs()
+    job = next((j for j in jobs if j.get("id") == job_id), None)
+    if not job:
+        return jsonify({"error": "Job not found"}), 404
+    
+    if job.get("jd_translated"):
+        return jsonify({"translated_text": job["jd_translated"]})
+        
+    jd_text = job.get("jd_text", "")
+    if not jd_text:
+        return jsonify({"error": "No description to translate"}), 400
+        
+    try:
+        from ai_analyzer import translate_text_to_english
+        translated = translate_text_to_english(jd_text)
+        job["jd_translated"] = translated
+        # Save back updated job
+        save_jobs(jobs)
+        # Sync immediately
+        sync_data_to_github()
+        return jsonify({"translated_text": translated})
+    except Exception as e:
+        logger.error(f"Translation failed: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/history")
 def history_page():
     history = load_history()

@@ -2,10 +2,64 @@
 {% block title %}Settings — JobRadar{% endblock %}
 
 {% block content %}
+<style>
+  .settings-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 28px;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 4px;
+  }
+  
+  .tab-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 15px;
+    font-weight: 700;
+    font-family: inherit;
+    padding: 10px 20px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  }
+  
+  .tab-btn:hover {
+    color: var(--text-primary);
+    background: rgba(255,255,255,0.02);
+  }
+  
+  .tab-btn.active {
+    color: var(--accent-blue);
+    background: rgba(79, 142, 247, 0.05);
+  }
+  
+  .tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--accent-blue);
+    border-radius: 2px;
+  }
+  
+  .settings-tab-content {
+    animation: fadeIn 0.3s ease;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
 <div class="page-header">
   <div class="page-header-left">
     <h2>Settings</h2>
-    <p>Configure your keyword preferences, resume details, and advanced scraping filters</p>
+    <p>Manage application preferences, keywords, resume and advanced filters</p>
   </div>
   <button id="save-settings-btn" class="btn btn-primary">💾 Save Settings</button>
 </div>
@@ -15,213 +69,248 @@
 <input type="hidden" id="nice-to-have-hidden" value='{{ settings.nice_to_have | tojson }}' />
 <input type="hidden" id="job-titles-hidden" value='{{ settings.search.job_titles | tojson }}' />
 
-<!-- 1. Resume & Recommendations Section -->
-<div class="settings-card" style="margin-bottom: 24px; border: 1px solid rgba(167, 139, 250, 0.2); background: linear-gradient(180deg, var(--bg-card) 0%, rgba(20, 28, 46, 0.9) 100%);">
-  <h3 style="color: var(--accent-purple); display: flex; align-items: center; gap: 8px;">
-    <span>📄</span> Candidate Resume & AI Keywords Recommendation
-  </h3>
-  <p class="desc" style="margin-bottom: 16px;">
-    Paste your plain text resume below. AI will analyze it to recommend suitable job titles and keywords. You can click recommendations to quickly append them to your settings.
-  </p>
-
-  <div class="form-group">
-    <label class="form-label" for="resume-text">Paste Resume Text</label>
-    <textarea id="resume-text" class="form-input" rows="8" placeholder="Paste your plain text resume here (education, experience, skills)..." style="resize: vertical; font-family: inherit; font-size: 13.5px; line-height: 1.6; background: rgba(10, 14, 26, 0.5);">{{ settings.resume_text }}</textarea>
-  </div>
-
-  <div style="display: flex; gap: 12px; margin-bottom: 20px;">
-    <button id="analyze-resume-btn" class="btn btn-primary" style="background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue)); border: none;">
-      🔍 Analyze Resume with AI
-    </button>
-  </div>
-
-  <!-- Recommendations Panel -->
-  <div id="recommendations-panel" style="display: none; padding: 20px; background: var(--bg-secondary); border-radius: var(--radius-md); border: 1px solid var(--border); margin-top: 16px;">
-    <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 16px; color: var(--accent-green); display: flex; align-items: center; gap: 6px;">
-      <span>💡</span> Recommended Filters (Click to add to your settings)
-    </h4>
-    
-    <div style="margin-bottom: 20px;">
-      <div class="form-label" style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">Job Titles</div>
-      <div id="rec-job-titles" class="keyword-tags" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
-    </div>
-    
-    <div>
-      <div class="form-label" style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">Must-Have Keywords</div>
-      <div id="rec-keywords" class="keyword-tags" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
-    </div>
-  </div>
+<!-- Navigation Tabs -->
+<div class="settings-tabs">
+  <button class="tab-btn active" onclick="switchTab('system-settings')" id="tab-btn-system">⚙️ System Settings</button>
+  <button class="tab-btn" onclick="switchTab('search-settings')" id="tab-btn-search">🔍 Job Search Settings</button>
 </div>
 
-<div class="settings-grid">
-  <!-- Must Have Keywords -->
-  <div class="settings-card">
-    <h3>🎯 Must-Have Keywords</h3>
-    <p class="desc">High-weight keywords. Jobs matching more of these score higher. Type and press Enter to add.</p>
-    <div class="tag-input-container" id="must-have-input" role="group" aria-label="Must-have keywords"></div>
-  </div>
+<!-- ======================================================== -->
+<!-- TAB 1: SYSTEM SETTINGS                                    -->
+<!-- ======================================================== -->
+<div id="system-settings-content" class="settings-tab-content" style="display: block;">
+  <div class="settings-grid">
+    <!-- Match Score Thresholds -->
+    <div class="settings-card">
+      <h3>📊 Match Score Thresholds</h3>
+      <p class="desc">Define the cut-off scores for Best Match and Medium Match classifications.</p>
 
-  <!-- Nice to Have Keywords -->
-  <div class="settings-card">
-    <h3>⚡ Nice-to-Have Keywords</h3>
-    <p class="desc">Lower-weight bonus keywords. They boost the score but aren't required. Press Enter to add.</p>
-    <div class="tag-input-container" id="nice-to-have-input" role="group" aria-label="Nice-to-have keywords"></div>
-  </div>
-</div>
+      <div class="form-group">
+        <label class="form-label" for="best-threshold">Best Match threshold (%)</label>
+        <input type="number" id="best-threshold" class="form-input" min="1" max="100" value="{{ settings.score_thresholds.best_match }}" />
+        <small style="font-size:12px; color:var(--text-muted);">Jobs scoring ≥ this are shown as "Best Match"</small>
+      </div>
 
-<div class="settings-grid">
-  <!-- Left Side: Basic & Advanced Search Configuration -->
-  <div class="settings-card">
-    <h3>🌐 Platforms & Search Configuration</h3>
-    <p class="desc">Specify location, target platforms, and search titles.</p>
-
-    <div class="form-group">
-      <label class="form-label">📍 Search Location</label>
-      <input type="text" id="search-location" class="form-input" value="{{ settings.search.location }}" placeholder="e.g. Germany, Munich, Taiwan" />
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label" for="medium-threshold">Medium Match threshold (%)</label>
+        <input type="number" id="medium-threshold" class="form-input" min="1" max="100" value="{{ settings.score_thresholds.medium_match }}" />
+        <small style="font-size:12px; color:var(--text-muted);">Jobs scoring ≥ this (but below Best) are "Medium Match"</small>
+      </div>
     </div>
 
-    <div class="form-group">
-      <label class="form-label">🔍 Job Titles</label>
-      <p class="desc" style="font-size: 11px; margin-bottom: 6px;">Job titles to search. Press Enter to add.</p>
-      <div class="tag-input-container" id="job-titles-input" role="group" aria-label="Job Titles"></div>
-    </div>
+    <!-- Freshness Configuration -->
+    <div class="settings-card">
+      <h3>⏳ Freshness Configuration</h3>
+      <p class="desc">How far back should we search?</p>
 
-    <div class="form-group" style="margin-top: 20px;">
-      <label class="form-label">Platforms to Scrape</label>
-      <div class="checkbox-grid">
-        {% set active_platforms = settings.search.platforms %}
-        <label class="checkbox-item {% if 'linkedin' in active_platforms %}checked{% endif %}" id="label-linkedin">
-          <input type="checkbox" id="platform-linkedin" value="linkedin" {% if 'linkedin' in active_platforms %}checked{% endif %} />
-          <div class="checkbox-dot"></div>
-          <span style="font-size:13px; font-weight:600;">LinkedIn</span>
-        </label>
-        <label class="checkbox-item {% if 'indeed' in active_platforms %}checked{% endif %}" id="label-indeed">
-          <input type="checkbox" id="platform-indeed" value="indeed" {% if 'indeed' in active_platforms %}checked{% endif %} />
-          <div class="checkbox-dot"></div>
-          <span style="font-size:13px; font-weight:600;">Indeed</span>
-        </label>
-        <label class="checkbox-item {% if 'glassdoor' in active_platforms %}checked{% endif %}" id="label-glassdoor">
-          <input type="checkbox" id="platform-glassdoor" value="glassdoor" {% if 'glassdoor' in active_platforms %}checked{% endif %} />
-          <div class="checkbox-dot"></div>
-          <span style="font-size:13px; font-weight:600;">Glassdoor</span>
-        </label>
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label" for="days-ago">Job freshness (days)</label>
+        <input type="number" id="days-ago" class="form-input" min="1" max="30" value="{{ settings.search.days_ago }}" />
+        <small style="font-size:12px; color:var(--text-muted);">Only show jobs posted within this many days</small>
       </div>
     </div>
   </div>
 
-  <!-- Right Side: Advanced Search Filters (Multi-select) -->
-  <div class="settings-card">
-    <h3>🔍 Advanced Search Filters</h3>
-    <p class="desc">LinkedIn guest search criteria. (Leave empty to fetch all results).</p>
+  <!-- Clean Up Old Jobs Block (Merged Cleanup + Danger Zone) -->
+  <div class="settings-card" style="margin-top: 24px; border: 1px solid rgba(248, 113, 113, 0.2); background: linear-gradient(180deg, var(--bg-card) 0%, rgba(20, 28, 46, 0.4) 100%);">
+    <h3 style="color: var(--accent-red); display: flex; align-items: center; gap: 8px;">
+      <span>🧹</span> Clean Up Old Jobs
+    </h3>
+    <p class="desc" style="margin-bottom: 20px;">Manage your job database. Choose to clear older inactive jobs or wipe all entries to start fresh.</p>
 
-    <!-- Experience Level -->
-    <div class="form-group">
-      <label class="form-label">⏳ Experience Level</label>
-      <div class="checkbox-grid" id="experience-levels-group">
-        {% set exp_levels = settings.search.experience_levels or [] %}
-        {% for code, label in [('internship', 'Internship'), ('entry', 'Entry Level'), ('associate', 'Associate'), ('mid-senior', 'Mid-Senior'), ('director', 'Director'), ('executive', 'Executive')] %}
-        <label class="checkbox-item {% if code in exp_levels %}checked{% endif %}" data-filter-type="experience_levels" data-value="{{ code }}">
-          <input type="checkbox" value="{{ code }}" {% if code in exp_levels %}checked{% endif %} />
-          <div class="checkbox-dot"></div>
-          <span style="font-size:12px; font-weight:600;">{{ label }}</span>
-        </label>
-        {% endfor %}
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+      <!-- Option 1: Clear Inactive Jobs -->
+      <div style="background: rgba(10, 14, 26, 0.4); padding: 18px; border-radius: var(--radius-md); border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <h4 style="font-size: 13.5px; font-weight: 700; margin-bottom: 8px; color: var(--text-primary);">Option 1: Clear Inactive Jobs</h4>
+          <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5;">Remove older postings that are likely filled or closed. Recommended: 30 days.</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <span style="font-size: 12.5px; color: var(--text-secondary);">Clear older than</span>
+          <input type="number" id="clear-days" class="form-input" min="1" max="180" value="30" style="width: 70px; text-align: center; margin: 0; padding: 6px 8px; font-size: 12.5px;" />
+          <span style="font-size: 12.5px; color: var(--text-secondary);">days</span>
+          <button class="btn btn-ghost btn-sm" id="clear-old-btn" onclick="clearOldJobs()" style="margin-left: auto;">🧹 Clear Old Jobs</button>
+        </div>
       </div>
-    </div>
 
-    <!-- Location Types -->
-    <div class="form-group">
-      <label class="form-label">🏢 Workplace Location Type</label>
-      <div class="checkbox-grid" id="location-types-group">
-        {% set loc_types = settings.search.location_types or [] %}
-        {% for code, label in [('on-site', 'On-site'), ('hybrid', 'Hybrid'), ('remote', 'Remote')] %}
-        <label class="checkbox-item {% if code in loc_types %}checked{% endif %}" data-filter-type="location_types" data-value="{{ code }}">
-          <input type="checkbox" value="{{ code }}" {% if code in loc_types %}checked{% endif %} />
-          <div class="checkbox-dot"></div>
-          <span style="font-size:12px; font-weight:600;">{{ label }}</span>
-        </label>
-        {% endfor %}
-      </div>
-    </div>
-
-    <!-- Employment Types -->
-    <div class="form-group">
-      <label class="form-label">💼 Employment Type</label>
-      <div class="checkbox-grid" id="employment-types-group">
-        {% set emp_types = settings.search.employment_types or [] %}
-        {% for code, label in [('full-time', 'Full-time'), ('part-time', 'Part-time'), ('contract', 'Contract'), ('internship', 'Internship'), ('temporary', 'Temporary')] %}
-        <label class="checkbox-item {% if code in emp_types %}checked{% endif %}" data-filter-type="employment_types" data-value="{{ code }}">
-          <input type="checkbox" value="{{ code }}" {% if code in emp_types %}checked{% endif %} />
-          <div class="checkbox-dot"></div>
-          <span style="font-size:12px; font-weight:600;">{{ label }}</span>
-        </label>
-        {% endfor %}
-      </div>
-    </div>
-
-    <!-- Languages -->
-    <div class="form-group" style="margin-bottom: 0;">
-      <label class="form-label">🗣 Languages</label>
-      <div class="checkbox-grid" id="languages-group">
-        {% set languages = settings.search.languages or [] %}
-        {% for code, label in [('english', 'English'), ('german', 'German')] %}
-        <label class="checkbox-item {% if code in languages %}checked{% endif %}" data-filter-type="languages" data-value="{{ code }}">
-          <input type="checkbox" value="{{ code }}" {% if code in languages %}checked{% endif %} />
-          <div class="checkbox-dot"></div>
-          <span style="font-size:12px; font-weight:600;">{{ label }}</span>
-        </label>
-        {% endfor %}
+      <!-- Option 2: Clear All Jobs (Danger Zone) -->
+      <div style="background: rgba(248, 113, 113, 0.03); padding: 18px; border-radius: var(--radius-md); border: 1px solid rgba(248, 113, 113, 0.15); display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <h4 style="font-size: 13.5px; font-weight: 700; margin-bottom: 8px; color: var(--accent-red);">Option 2: Danger Zone — Clear All Jobs</h4>
+          <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5;">Delete all saved jobs from the database and start completely fresh. This action cannot be undone.</p>
+        </div>
+        <div style="display: flex; justify-content: flex-end;">
+          <button class="btn btn-danger btn-sm" id="clear-jobs-btn" onclick="clearAllJobs()">🗑 Clear All Jobs</button>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Score Thresholds & freshness -->
-<div class="settings-grid">
-  <div class="settings-card">
-    <h3>📊 Match Score Thresholds</h3>
-    <p class="desc">Define the cut-off scores for Best Match and Medium Match classifications.</p>
+<!-- ======================================================== -->
+<!-- TAB 2: JOB SEARCH SETTINGS                                -->
+<!-- ======================================================== -->
+<div id="search-settings-content" class="settings-tab-content" style="display: none;">
+  <!-- Resume & Recommendations Section -->
+  <div class="settings-card" style="margin-bottom: 24px; border: 1px solid rgba(167, 139, 250, 0.2); background: linear-gradient(180deg, var(--bg-card) 0%, rgba(20, 28, 46, 0.9) 100%);">
+    <h3 style="color: var(--accent-purple); display: flex; align-items: center; gap: 8px;">
+      <span>📄</span> Candidate Resume & AI Keywords Recommendation
+    </h3>
+    <p class="desc" style="margin-bottom: 16px;">
+      Paste your plain text resume below. AI will analyze it to recommend suitable job titles and keywords. You can click recommendations to quickly append them to your settings.
+    </p>
 
     <div class="form-group">
-      <label class="form-label" for="best-threshold">Best Match threshold (%)</label>
-      <input type="number" id="best-threshold" class="form-input" min="1" max="100" value="{{ settings.score_thresholds.best_match }}" />
-      <small style="font-size:12px; color:var(--text-muted);">Jobs scoring ≥ this are shown as "Best Match"</small>
+      <label class="form-label" for="resume-text">Paste Resume Text</label>
+      <textarea id="resume-text" class="form-input" rows="8" placeholder="Paste your plain text resume here (education, experience, skills)..." style="resize: vertical; font-family: inherit; font-size: 13.5px; line-height: 1.6; background: rgba(10, 14, 26, 0.5);">{{ settings.resume_text }}</textarea>
     </div>
 
-    <div class="form-group" style="margin-bottom: 0;">
-      <label class="form-label" for="medium-threshold">Medium Match threshold (%)</label>
-      <input type="number" id="medium-threshold" class="form-input" min="1" max="100" value="{{ settings.score_thresholds.medium_match }}" />
-      <small style="font-size:12px; color:var(--text-muted);">Jobs scoring ≥ this (but below Best) are "Medium Match"</small>
+    <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+      <button id="analyze-resume-btn" class="btn btn-primary" style="background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue)); border: none;">
+        🔍 Analyze Resume with AI
+      </button>
+    </div>
+
+    <!-- Recommendations Panel -->
+    <div id="recommendations-panel" style="display: none; padding: 20px; background: var(--bg-secondary); border-radius: var(--radius-md); border: 1px solid var(--border); margin-top: 16px;">
+      <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 16px; color: var(--accent-green); display: flex; align-items: center; gap: 6px;">
+        <span>💡</span> Recommended Filters (Click to add to your settings)
+      </h4>
+      
+      <div style="margin-bottom: 20px;">
+        <div class="form-label" style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">Job Titles</div>
+        <div id="rec-job-titles" class="keyword-tags" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+      </div>
+      
+      <div>
+        <div class="form-label" style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">Must-Have Keywords</div>
+        <div id="rec-keywords" class="keyword-tags" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+      </div>
     </div>
   </div>
 
-  <div class="settings-card">
-    <h3>Freshness Configuration</h3>
-    <p class="desc">How far back should we search?</p>
+  <div class="settings-grid">
+    <!-- Must Have Keywords -->
+    <div class="settings-card">
+      <h3>🎯 Must-Have Keywords</h3>
+      <p class="desc">High-weight keywords. Jobs matching more of these score higher. Type and press Enter to add.</p>
+      <div class="tag-input-container" id="must-have-input" role="group" aria-label="Must-have keywords"></div>
+    </div>
 
-    <div class="form-group" style="margin-bottom: 0;">
-      <label class="form-label" for="days-ago">Job freshness (days)</label>
-      <input type="number" id="days-ago" class="form-input" min="1" max="30" value="{{ settings.search.days_ago }}" />
-      <small style="font-size:12px; color:var(--text-muted);">Only show jobs posted within this many days</small>
+    <!-- Nice to Have Keywords -->
+    <div class="settings-card">
+      <h3>⚡ Nice-to-Have Keywords</h3>
+      <p class="desc">Lower-weight bonus keywords. They boost the score but aren't required. Press Enter to add.</p>
+      <div class="tag-input-container" id="nice-to-have-input" role="group" aria-label="Nice-to-have keywords"></div>
     </div>
   </div>
-</div>
 
-<div style="padding: 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); margin-top: 24px; margin-bottom: 16px;">
-  <h3 style="font-size:14px; font-weight:700; margin-bottom:8px; color: var(--accent-blue);">🧹 Clean Up Old Jobs</h3>
-  <p style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;">Remove older job postings that are likely filled or closed. Recommended: 30 days.</p>
-  <div style="display:flex; align-items:center; gap:12px; flex-wrap: wrap;">
-    <span style="font-size:13.5px; color:var(--text-primary);">Clear jobs older than</span>
-    <input type="number" id="clear-days" class="form-input" min="1" max="180" value="30" style="width: 80px; text-align: center; margin: 0; padding: 6px 10px;" />
-    <span style="font-size:13.5px; color:var(--text-primary);">days</span>
-    <button class="btn btn-ghost btn-sm" id="clear-old-btn" onclick="clearOldJobs()" style="margin-left: auto;">🧹 Clear Old Jobs</button>
+  <div class="settings-grid" style="margin-top: 24px;">
+    <!-- Left Side: Basic & Platforms -->
+    <div class="settings-card">
+      <h3>🌐 Platforms & Search Configuration</h3>
+      <p class="desc">Specify location, target platforms, and search titles.</p>
+
+      <div class="form-group">
+        <label class="form-label">📍 Search Location</label>
+        <input type="text" id="search-location" class="form-input" value="{{ settings.search.location }}" placeholder="e.g. Germany, Munich, Taiwan" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">🔍 Job Titles</label>
+        <p class="desc" style="font-size: 11px; margin-bottom: 6px;">Job titles to search. Press Enter to add.</p>
+        <div class="tag-input-container" id="job-titles-input" role="group" aria-label="Job Titles"></div>
+      </div>
+
+      <div class="form-group" style="margin-top: 20px;">
+        <label class="form-label">Platforms to Scrape</label>
+        <div class="checkbox-grid">
+          {% set active_platforms = settings.search.platforms %}
+          <label class="checkbox-item {% if 'linkedin' in active_platforms %}checked{% endif %}" id="label-linkedin">
+            <input type="checkbox" id="platform-linkedin" value="linkedin" {% if 'linkedin' in active_platforms %}checked{% endif %} />
+            <div class="checkbox-dot"></div>
+            <span style="font-size:13px; font-weight:600;">LinkedIn</span>
+          </label>
+          <label class="checkbox-item {% if 'indeed' in active_platforms %}checked{% endif %}" id="label-indeed">
+            <input type="checkbox" id="platform-indeed" value="indeed" {% if 'indeed' in active_platforms %}checked{% endif %} />
+            <div class="checkbox-dot"></div>
+            <span style="font-size:13px; font-weight:600;">Indeed</span>
+          </label>
+          <label class="checkbox-item {% if 'glassdoor' in active_platforms %}checked{% endif %}" id="label-glassdoor">
+            <input type="checkbox" id="platform-glassdoor" value="glassdoor" {% if 'glassdoor' in active_platforms %}checked{% endif %} />
+            <div class="checkbox-dot"></div>
+            <span style="font-size:13px; font-weight:600;">Glassdoor</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side: Advanced Search Filters (Multi-select) -->
+    <div class="settings-card">
+      <h3>🔍 Advanced Search Filters</h3>
+      <p class="desc">LinkedIn guest search criteria. (Leave empty to fetch all results).</p>
+
+      <!-- Experience Level -->
+      <div class="form-group">
+        <label class="form-label">⏳ Experience Level</label>
+        <div class="checkbox-grid" id="experience-levels-group">
+          {% set exp_levels = settings.search.experience_levels or [] %}
+          {% for code, label in [('internship', 'Internship'), ('entry', 'Entry Level'), ('associate', 'Associate'), ('mid-senior', 'Mid-Senior'), ('director', 'Director'), ('executive', 'Executive')] %}
+          <label class="checkbox-item {% if code in exp_levels %}checked{% endif %}" data-filter-type="experience_levels" data-value="{{ code }}">
+            <input type="checkbox" value="{{ code }}" {% if code in exp_levels %}checked{% endif %} />
+            <div class="checkbox-dot"></div>
+            <span style="font-size:12px; font-weight:600;">{{ label }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Location Types -->
+      <div class="form-group">
+        <label class="form-label">🏢 Workplace Location Type</label>
+        <div class="checkbox-grid" id="location-types-group">
+          {% set loc_types = settings.search.location_types or [] %}
+          {% for code, label in [('on-site', 'On-site'), ('hybrid', 'Hybrid'), ('remote', 'Remote')] %}
+          <label class="checkbox-item {% if code in loc_types %}checked{% endif %}" data-filter-type="location_types" data-value="{{ code }}">
+            <input type="checkbox" value="{{ code }}" {% if code in loc_types %}checked{% endif %} />
+            <div class="checkbox-dot"></div>
+            <span style="font-size:12px; font-weight:600;">{{ label }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Employment Types -->
+      <div class="form-group">
+        <label class="form-label">💼 Employment Type</label>
+        <div class="checkbox-grid" id="employment-types-group">
+          {% set emp_types = settings.search.employment_types or [] %}
+          {% for code, label in [('full-time', 'Full-time'), ('part-time', 'Part-time'), ('contract', 'Contract'), ('internship', 'Internship'), ('temporary', 'Temporary')] %}
+          <label class="checkbox-item {% if code in emp_types %}checked{% endif %}" data-filter-type="employment_types" data-value="{{ code }}">
+            <input type="checkbox" value="{{ code }}" {% if code in emp_types %}checked{% endif %} />
+            <div class="checkbox-dot"></div>
+            <span style="font-size:12px; font-weight:600;">{{ label }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Languages -->
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label">🗣 Languages</label>
+        <div class="checkbox-grid" id="languages-group">
+          {% set languages = settings.search.languages or [] %}
+          {% for code, label in [('english', 'English'), ('german', 'German')] %}
+          <label class="checkbox-item {% if code in languages %}checked{% endif %}" data-filter-type="languages" data-value="{{ code }}">
+            <input type="checkbox" value="{{ code }}" {% if code in languages %}checked{% endif %} />
+            <div class="checkbox-dot"></div>
+            <span style="font-size:12px; font-weight:600;">{{ label }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
   </div>
-</div>
-
-<div style="padding: 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); margin-top: 16px;">
-  <h3 style="font-size:14px; font-weight:700; margin-bottom:8px; color: var(--accent-amber);">⚠️ Danger Zone</h3>
-  <p style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;">Clear all saved jobs and start fresh. This cannot be undone.</p>
-  <button class="btn btn-danger" id="clear-jobs-btn" onclick="clearAllJobs()">🗑 Clear All Jobs</button>
 </div>
 
 <script>
@@ -263,6 +352,19 @@ async function clearOldJobs() {
   } finally {
     btn.disabled = false;
     btn.textContent = '🧹 Clear Old Jobs';
+  }
+}
+
+function switchTab(tabId) {
+  document.querySelectorAll('.settings-tab-content').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  
+  if (tabId === 'system-settings') {
+    document.getElementById('system-settings-content').style.display = 'block';
+    document.getElementById('tab-btn-system').classList.add('active');
+  } else if (tabId === 'search-settings') {
+    document.getElementById('search-settings-content').style.display = 'block';
+    document.getElementById('tab-btn-search').classList.add('active');
   }
 }
 </script>

@@ -19,36 +19,82 @@
 </div>
 
 <div class="detail-layout">
-  <!-- Left: JD -->
-  <div class="detail-main">
-    <h3 style="font-size:15px; font-weight:700; margin-bottom:16px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px;">
-      Job Description
-    </h3>
-    {% if job.jd_text %}
-      <div class="detail-jd">{{ job.jd_text }}</div>
-    {% else %}
-      <div class="empty-state" style="padding: 40px 0;">
-        <div class="empty-icon">📄</div>
-        <h3>No JD text captured</h3>
-        <p>Visit the original posting for full details.</p>
+  <!-- Left column: Company Profile & JD -->
+  <div>
+    <!-- Company Profile Block -->
+    <div class="detail-main" style="margin-bottom: 24px; border: 1px solid rgba(79, 142, 247, 0.2); background: linear-gradient(180deg, var(--bg-card) 0%, rgba(20, 28, 46, 0.4) 100%);">
+      <h3 style="font-size:15px; font-weight:700; margin-bottom:16px; color:var(--accent-blue); text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:8px;">
+        <span>🏢</span> Company Profile: {{ job.company }}
+      </h3>
+      
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--border);">
+        <div>
+          <div class="form-label" style="font-size: 11px;">Business Domain / Industry</div>
+          <div style="font-size:14px; font-weight:600; color:var(--text-primary);">
+            {{ job.company_profile.business_domain or job.industry or 'Technology' }}
+          </div>
+        </div>
+        <div>
+          <div class="form-label" style="font-size: 11px;">Company Size (Employees)</div>
+          <div style="font-size:14px; font-weight:600; color:var(--text-primary);">
+            {{ job.company_profile.employee_count or 'Unknown' }}
+          </div>
+        </div>
       </div>
-    {% endif %}
+      
+      <div>
+        <div class="form-label" style="font-size: 11px; margin-bottom: 6px;">About the Company</div>
+        <p style="font-size:13.5px; color:var(--text-secondary); line-height:1.6;">
+          {{ job.company_profile.description or 'No company profile available.' }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Job Description -->
+    <div class="detail-main">
+      <h3 style="font-size:15px; font-weight:700; margin-bottom:16px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px;">
+        Job Description
+      </h3>
+      {% if job.jd_text %}
+        <div class="detail-jd">{{ job.jd_text }}</div>
+      {% else %}
+        <div class="empty-state" style="padding: 40px 0;">
+          <div class="empty-icon">📄</div>
+          <h3>No JD text captured</h3>
+          <p>Visit the original posting for full details.</p>
+        </div>
+      {% endif %}
+    </div>
   </div>
 
   <!-- Right: AI analysis -->
   <div>
-    <!-- Score display -->
+    <!-- Scores display -->
     <div class="detail-main" style="margin-bottom:16px;">
-      <div class="score-display">
-        <div class="score-number {% if job.match_category == 'best' %}best{% elif job.match_category == 'medium' %}medium{% else %}low{% endif %}">
-          {{ job.match_score }}%
+      <div style="display: flex; justify-content: space-around; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border); margin-bottom: 16px;">
+        <div class="score-display" style="border: none; padding: 0; margin: 0; text-align: center;">
+          <div class="score-number {% if job.match_category == 'best' %}best{% elif job.match_category == 'medium' %}medium{% else %}low{% endif %}">
+            {{ job.match_score }}%
+          </div>
+          <div style="font-size:10px; color:var(--text-secondary); margin-top:4px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Preference</div>
         </div>
-        <div style="font-size:13px; color:var(--text-secondary); margin-top:4px;">Match Score</div>
+
+        <div style="width: 1px; height: 50px; background: var(--border);"></div>
+
+        <div class="score-display" style="border: none; padding: 0; margin: 0; text-align: center;">
+          <div class="score-number" style="color: var(--accent-purple);">
+            {{ job.resume_match.score or 0 }}%
+          </div>
+          <div style="font-size:10px; color:var(--text-secondary); margin-top:4px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Resume</div>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-bottom: 12px;">
         <span class="section-badge
           {% if job.match_category == 'best' %}badge-best
           {% elif job.match_category == 'medium' %}badge-medium
           {% else %}badge-low{% endif %}"
-          style="margin-top:10px; display:inline-block;">
+          style="display:inline-block;">
           {% if job.match_category == 'best' %}🏆 Best Match
           {% elif job.match_category == 'medium' %}⚡ Medium Match
           {% else %}❄️ Low Match{% endif %}
@@ -56,11 +102,54 @@
       </div>
 
       {% if job.match_explanation %}
-      <p style="font-size:12.5px; color:var(--text-secondary); font-style:italic; text-align:center; padding: 0 8px;">
+      <p style="font-size:12.5px; color:var(--text-secondary); font-style:italic; text-align:center; padding: 0 8px; line-height: 1.5;">
         {{ job.match_explanation }}
       </p>
       {% endif %}
     </div>
+
+    <!-- Resume Fit Analysis -->
+    {% if job.resume_match and (job.resume_match.strengths or job.resume_match.gaps or (job.resume_match.explanation and job.resume_match.explanation != "No resume analysis available")) %}
+    <div class="detail-main" style="margin-bottom:16px; border: 1px solid rgba(167, 139, 250, 0.25);">
+      <h4 style="font-size:13px; font-weight:700; color:var(--accent-purple); margin-bottom:14px; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
+        <span>📄</span> Resume Fit Analysis
+      </h4>
+      
+      {% if job.resume_match.explanation and job.resume_match.explanation != "No resume analysis available" %}
+      <p style="font-size:12.5px; color:var(--text-secondary); margin-bottom:16px; line-height:1.6; background: rgba(167, 139, 250, 0.05); padding: 10px 12px; border-radius: var(--radius-sm); border-left: 3px solid var(--accent-purple);">
+        {{ job.resume_match.explanation }}
+      </p>
+      {% endif %}
+
+      {% if job.resume_match.strengths %}
+      <div style="margin-bottom: 16px;">
+        <div class="form-label" style="color: var(--accent-green); font-size: 11px;">Strengths / Matched Skills</div>
+        <ul style="list-style: none; padding-left: 0; margin-top: 6px;">
+          {% for strg in job.resume_match.strengths %}
+          <li style="font-size:12.5px; color:var(--text-primary); margin-bottom:6px; display:flex; align-items:flex-start; gap:8px;">
+            <span style="color:var(--accent-green); font-weight:bold;">✓</span>
+            <span>{{ strg }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      {% if job.resume_match.gaps %}
+      <div>
+        <div class="form-label" style="color: var(--accent-red); font-size: 11px;">Gaps / Missing Skills</div>
+        <ul style="list-style: none; padding-left: 0; margin-top: 6px;">
+          {% for gap in job.resume_match.gaps %}
+          <li style="font-size:12.5px; color:var(--text-secondary); margin-bottom:6px; display:flex; align-items:flex-start; gap:8px;">
+            <span style="color:var(--accent-red); font-weight:bold;">⚠</span>
+            <span>{{ gap }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
 
     <!-- Must-have keywords -->
     <div class="detail-main" style="margin-bottom:16px;">

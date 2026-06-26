@@ -148,21 +148,119 @@ function initSettingsPage() {
   const niceInput = new TagInput('nice-to-have-input', 'nice-to-have-hidden', 'nice');
   const jobTitlesInput = new TagInput('job-titles-input', 'job-titles-hidden', 'job-title');
 
-  // Checkbox toggles
+  // Checkbox toggles with safe double-toggle prevention
   document.querySelectorAll('.checkbox-item').forEach(item => {
-    item.addEventListener('click', () => {
+    item.addEventListener('click', (e) => {
       const cb = item.querySelector('input[type="checkbox"]');
-      cb.checked = !cb.checked;
+      if (e.target !== cb) {
+        e.preventDefault();
+        cb.checked = !cb.checked;
+      }
       item.classList.toggle('checked', cb.checked);
     });
   });
+
+  // Resume Analysis Logic
+  const analyzeBtn = document.getElementById('analyze-resume-btn');
+  const resumeTextarea = document.getElementById('resume-text');
+  const recPanel = document.getElementById('recommendations-panel');
+  const recTitlesDiv = document.getElementById('rec-job-titles');
+  const recKeywordsDiv = document.getElementById('rec-keywords');
+
+  if (analyzeBtn && resumeTextarea) {
+    analyzeBtn.addEventListener('click', async () => {
+      const resumeText = resumeTextarea.value.trim();
+      if (!resumeText) {
+        showToast('Please paste your resume text first.', 'error');
+        return;
+      }
+
+      analyzeBtn.disabled = true;
+      analyzeBtn.innerHTML = '<span class="spinner"></span> Analyzing...';
+      recPanel.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/resume/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ resume_text: resumeText })
+        });
+        
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error || 'Analysis failed');
+        }
+
+        const data = await res.json();
+        
+        // Render Job Titles
+        recTitlesDiv.innerHTML = '';
+        if (data.recommended_titles && data.recommended_titles.length > 0) {
+          data.recommended_titles.forEach(title => {
+            const badge = document.createElement('span');
+            badge.className = 'keyword-tag';
+            badge.style.cursor = 'pointer';
+            badge.style.background = 'rgba(79, 142, 247, 0.15)';
+            badge.style.borderColor = 'rgba(79, 142, 247, 0.3)';
+            badge.style.color = 'var(--accent-blue)';
+            badge.innerHTML = `+ ${title}`;
+            badge.addEventListener('click', () => {
+              jobTitlesInput.addTag(title);
+              showToast(`Added title: "${title}"`, 'success');
+            });
+            recTitlesDiv.appendChild(badge);
+          });
+        } else {
+          recTitlesDiv.innerHTML = '<span style="font-size:12px; color:var(--text-muted);">No title recommendations</span>';
+        }
+
+        // Render Keywords
+        recKeywordsDiv.innerHTML = '';
+        if (data.recommended_keywords && data.recommended_keywords.length > 0) {
+          data.recommended_keywords.forEach(kw => {
+            const badge = document.createElement('span');
+            badge.className = 'keyword-tag';
+            badge.style.cursor = 'pointer';
+            badge.style.background = 'rgba(167, 139, 250, 0.15)';
+            badge.style.borderColor = 'rgba(167, 139, 250, 0.3)';
+            badge.style.color = 'var(--accent-purple)';
+            badge.innerHTML = `+ ${kw}`;
+            badge.addEventListener('click', () => {
+              mustInput.addTag(kw);
+              showToast(`Added keyword: "${kw}"`, 'success');
+            });
+            recKeywordsDiv.appendChild(badge);
+          });
+        } else {
+          recKeywordsDiv.innerHTML = '<span style="font-size:12px; color:var(--text-muted);">No keyword recommendations</span>';
+        }
+
+        recPanel.style.display = 'block';
+        showToast('Resume analysis complete!', 'success');
+      } catch (e) {
+        showToast('Error analyzing resume: ' + e.message, 'error');
+      } finally {
+        analyzeBtn.disabled = false;
+        analyzeBtn.textContent = '🔍 Analyze Resume with AI';
+      }
+    });
+  }
 
   const saveBtn = document.getElementById('save-settings-btn');
   if (!saveBtn) return;
 
   saveBtn.addEventListener('click', async () => {
+    // Helper to get checked values inside a container ID
+    const getCheckedList = (containerId) => {
+      const container = document.getElementById(containerId);
+      if (!container) return [];
+      return Array.from(
+        container.querySelectorAll('.checkbox-item.checked input')
+      ).map(cb => cb.value);
+    };
+
     const platforms = Array.from(
-      document.querySelectorAll('.checkbox-item.checked input')
+      document.querySelectorAll('input[id^="platform-"]:checked')
     ).map(cb => cb.value);
 
     const payload = {
@@ -174,6 +272,11 @@ function initSettingsPage() {
       location: document.getElementById('search-location')?.value || 'Germany',
       job_titles: jobTitlesInput.getValues(),
       platforms,
+      experience_levels: getCheckedList('experience-levels-group'),
+      location_types: getCheckedList('location-types-group'),
+      employment_types: getCheckedList('employment-types-group'),
+      languages: getCheckedList('languages-group'),
+      resume_text: resumeTextarea ? resumeTextarea.value.trim() : "",
     };
 
     saveBtn.disabled = true;

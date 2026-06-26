@@ -128,7 +128,7 @@ def sync_data_to_github():
         "User-Agent": "JobRadar-Sync"
     }
     
-    files_to_sync = ["data/jobs.json", "data/history.json"]
+    files_to_sync = ["data/jobs.json", "data/history.json", "data/settings.json"]
     
     for rel_path in files_to_sync:
         local_path = BASE_DIR / rel_path
@@ -321,6 +321,7 @@ def settings_page():
         settings["search"]["languages"] = data.get("languages", [])
         settings["resume_text"] = data.get("resume_text", "").strip()
         save_json(SETTINGS_FILE, settings)
+        sync_data_to_github()
         return jsonify({"status": "ok"})
     return render_template("settings.html", settings=settings)
 

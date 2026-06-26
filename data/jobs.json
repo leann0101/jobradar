@@ -1732,5 +1732,585 @@
     "id": "67661840-5544-4554-8ad6-5d95682b6bc4",
     "match_category": "low",
     "scraped_at": "2026-06-26T06:28:09.398734"
+  },
+  {
+    "title": "Product Manager, SaaS (F/M/D)",
+    "company": "NavVis",
+    "location": "Munich, Bavaria, Germany",
+    "date_posted": "2026-06-25",
+    "url": "https://de.linkedin.com/jobs/view/product-manager-saas-f-m-d-at-navvis-4433089352",
+    "jd_text": "OUR VISION\nWhen people use our technology to \"bridge the gap\" between the physical and digital worlds, they don't just capture reality - they create a new one. In this new reality, they are smarter, more productive, more streamlined, and more creative - because they have the digital foundation to build the world they want to live in.\nThat's what NavVis offers in all our products and services: the tools to not just map the world as it is, but to pave the way to a better future. To forge something new. Physical or digital, there is only one reality. And it's the reality NavVis empowers people to build better.\nTHE OPPORTUNITY\nDoes the opportunity to contribute to the strategic vision and roadmap of the NavVis' cloud-based 3d visualization software appeal to you?\nIn this role, you will closely work with our engineers, UX designers, product managers, and customer-facing teams, to determine strategic priorities and translate them into product enhancements. You will be a crucial part of our Product Reality Access team, which manages NavVis IVION and NVC products. People that are part of this team actively shape the future of 3D reality capture and visualization technologies, bringing state-of-the-art cloud-based software to customers around the globe.\nWe are looking for your expertise to shape the discovery & development processes and further empower our product teams!\nHow You Will Make An Impact\nYou will use your curiosity for continuous improvement by deep-diving into our customers' needs, their \"job-to-be-done\" and workflows, as well as the reality capture industry\nYou will play an active part in translating opportunities into product requirements and prioritizing them accordingly\nYou will be empowered to successfully deliver solutions in very close collaboration with our engineers, designers, and program managers\nYou will proactively bring together all stakeholder voices to the table, driving key decisions, and removing roadblocks for the team to deliver\nYou will leverage your analytical and problem-solving skills to measure our products' progress towards NavVis' business and strategic goals and translate this data into action\nWhat Will Help You Succeed In The Role\nA university degree in business, science or engineering\nAt least 3 years' experience in a software product management role, preferably managing a B2B SaaS product\nDemonstrated experience with agile software development processes from prototyping to release\nA natural curiosity and interest to collaborate with our engineers to understand technical feasibility, dependencies and opportunities deeply\nProven track record of managing diverse stakeholder needs\nData driven approach to tackling product decisions\nFluency in English as it is our official language of communication\nGerman would be an added benefit\nHow We Will Know We Are a Perfect Match\nYour recruiting partner for this role is Rina (she/her). You can expect to go through a screening call, and up to 3 rounds of interviews, where we would love to discover your passion and interests, introduce you to who we are and what drives us, and finally understand how we can potentially add value to each other's growth.\nHow We Will Keep You Smiling\nIt's important to take a break from work! We offer 30 days of paid time off per year\nAffordable access to a vast network of fitness and wellness facilities through EGYM Wellpass subsidy\nDeutschlandticket subsidy to support sustainable travel using public transport\nWe offer flexible working hours and a hybrid work setup, enabling you to plan your work around your life, and not your life around work!\nWe offer full visa and relocation support for international candidates\nAn attractive bike leasing model through JobRad, in line with our commitment towards sustainable mobility\nA competitive compensation package that values the skills and experience you bring\nUp to 4000 EUR employee referral bonus\nFinancial support for local language classes to help you in your journey of integrating into th",
+    "platform": "LinkedIn",
+    "summary": "The role is for a product manager to contribute to the strategic vision and roadmap of NavVis' cloud-based 3D visualization software, working closely with engineers, UX designers, and customer-facing teams. The ideal candidate will have experience in software product management, agile development processes, and a data-driven approach to decision-making. The goal is to shape the discovery and development processes and empower product teams to deliver state-of-the-art cloud-based software to customers globally.",
+    "required_skills": [
+      "software product management",
+      "agile development",
+      "data-driven decision-making"
+    ],
+    "preferred_skills": [
+      "business",
+      "science",
+      "engineering",
+      "B2B SaaS product management"
+    ],
+    "industry": "Technology/Software",
+    "experience_level": "Mid/Senior",
+    "language_requirements": [
+      "English",
+      "German"
+    ],
+    "matched_must_have": [
+      "B2B",
+      "Software Product"
+    ],
+    "matched_nice_to_have": [
+      "Roadmap"
+    ],
+    "missing_must_have": [
+      "Industry 4.0",
+      "IIoT",
+      "Industrial IoT",
+      "Manufacturing",
+      "Factory Automation",
+      "OT/IT",
+      "OT IT Integration",
+      "Hardware",
+      "Robotics",
+      "Automation",
+      "Sensors",
+      "Edge Computing",
+      "SCADA",
+      "MES",
+      "ERP",
+      "Embedded Systems",
+      "Firmware"
+    ],
+    "match_explanation": "The job description matches some of the nice-to-have keywords, but lacks direct mentions of most must-have keywords related to Industry 4.0 and industrial technologies.",
+    "match_score": 11,
+    "id": "ace91cba-663e-4b93-b850-8be7bc0aef71",
+    "match_category": "low",
+    "scraped_at": "2026-06-26T06:32:20.967812"
+  },
+  {
+    "title": "Product",
+    "company": "Augustus",
+    "location": "Berlin, Berlin, Germany",
+    "date_posted": "2026-06-11",
+    "url": "https://de.linkedin.com/jobs/view/product-at-augustus-4427547294",
+    "jd_text": "Few people get to build a bank from scratch. Even fewer get to build one at a moment when banking itself is being reinvented.\nThe dollar is the best product in the history of the world, with practically infinite global demand, but distribution is broken. Global clearing runs on legacy banks that are closed 115 days a year, built for humans and take two days to settle. Augustus is the update to the internet era. We received conditional approval from the OCC to charter America’s first stablecoin-native clearing bank that is always open, made for machines, at the speed of compute.\nWe are a group of operators, unicorn early employees, ex-founders and people who walked away from degrees because they believe this is an industry and career defining opportunity. We're backed with $40M from Peter Thiel’s Valar Ventures, Creandum and founders of Ramp, Deel and Circle.\nWe are regulated in Europe and live with Euro and Stablecoin clearing today. Now, we are building the US team from the ground up, while continuing to grow rapidly in Europe.\nThe Role\nYou own the heart of the programmable bank: Payments and Accounts. The full global payment stack - US rails (ACH, FedWire, FedNow), international Swift, European schemes (SEPA, SEPA Instant, FPS), and the programmable accounts layer: DDAs, FBOs, and virtual accounts. Each is both a technical layer and a commercial product.\nThe end state: enterprise customers plug into Augustus via API and move money anywhere in the world, instantly, 24/7. Your job is to challenge the status quo - to understand what's possible on these rails and push further. Every product you ship should offer our customers something they've never been able to get from a bank before.\nYou'll work on Marble, our proprietary bank core. Your product decisions directly shape what robust, scalable, and fast means in practice. You'll get deep into the use cases our customers are building: how a stablecoin operator structures flows, how an OTC desk runs settlement, how a correspondent bank thinks about reconciliation. That understanding lets you work with design and engineering to develop our platform to uniquely solve for our customers needs.\nYou report to Will, Head of Product, and work closely with Simon, our CTO. You're expected to operate with full autonomy on your team's roadmap.\nYour First 6 Months\nMonths 1-2: You take over day-to-day ownership of your product team - the roadmap, the ways of working, the hard decisions. You establish yourself with customers and key partners, getting deep on what they're building and where we're falling short. You define and ship your first project.\nMonths 3-4: Full execution mode. You're unblocking engineering daily, making hard prioritisation calls, and keeping the roadmap moving. You're spending time with customers, feeding what you learn straight back into the product, and already shaping the mid- to long-term roadmap.\nMonths 5-6: You're working with live customers on the products you've built, and deposit and payment volumes are scaling. You've moved from execution to platform mode - evolving the roadmap based on what your first customers are actually building on top of Augustus, and pushing the product further than any of them expected a bank could go.\nWho Will Thrive At Augustus\nWe believe throwing smart people with high agency at big problems produces the best outcomes. The people who succeed here share the following traits:\nRelentless: You can't leave something broken. You don't stop because it got hard or because no one is watching.\nSet the bar: You're harder on yourself than anyone else would be. You don't need external accountability to care about quality.\nShape the Game: You don't wait for a playbook and you don't need one. You walk into genuinely new territory and figure it out. You move before anyone asked you to.\nSystems first: You don't solve problems by adding people or effort. You build systems that make the problem smaller. Your first instinct is to automate, not to handle it",
+    "platform": "LinkedIn",
+    "summary": "The role is for a product owner of the payments and accounts team at Augustus, a stablecoin-native clearing bank, where the goal is to build a programmable bank with a global payment stack and programmable accounts layer. The successful candidate will own the roadmap, work with customers and partners, and develop the platform to solve customer needs. The role requires autonomy, relentless drive, and the ability to shape the game in a new territory.",
+    "required_skills": [
+      "product ownership",
+      "payment systems",
+      "banking"
+    ],
+    "preferred_skills": [
+      "API development",
+      "banking regulations",
+      "financial technology"
+    ],
+    "industry": "Financial Technology",
+    "experience_level": "Senior",
+    "language_requirements": [
+      "English"
+    ],
+    "matched_must_have": [
+      "Automation"
+    ],
+    "matched_nice_to_have": [
+      "Roadmap"
+    ],
+    "missing_must_have": [
+      "Industry 4.0",
+      "IIoT",
+      "Manufacturing",
+      "Factory Automation",
+      "OT/IT",
+      "OT IT Integration",
+      "Hardware",
+      "Software Product",
+      "B2B Industrial",
+      "B2B Enterprise",
+      "Robotics",
+      "Sensors",
+      "Edge Computing",
+      "SCADA",
+      "MES",
+      "ERP",
+      "Embedded Systems",
+      "Firmware"
+    ],
+    "match_explanation": "The job description matches some of the nice-to-have keywords, but lacks direct references to the must-have keywords related to Industry 4.0 and Industrial IoT.",
+    "match_score": 7,
+    "id": "ea8507a1-2d41-4277-92e0-fdcac3c89486",
+    "match_category": "low",
+    "scraped_at": "2026-06-26T06:32:22.257335"
+  },
+  {
+    "title": "Product Manager - No-Code/Low-Code Plattform (d/w/m)",
+    "company": "Rulemapping Group",
+    "location": "Berlin, Germany",
+    "date_posted": "2026-06-22",
+    "url": "https://de.linkedin.com/jobs/view/product-manager-no-code-low-code-plattform-d-w-m-at-rulemapping-group-4431659033",
+    "jd_text": "Du standardisierst und produktisierst die Lösungsmodule, die wir in unserer No-Code/Low-Code-Software erarbeiten, und machst aus wiederkehrender Projektarbeit skalierbare Produkte. Als Teil des Delivery-Teams bist du nah an der Anwendungspraxis unserer Kunden und Partner und überführst diese Erfahrung in Standards, die das Team und die Partner produktiver machen und mittelfristig Self-Service-Produkte wie Workflow-Templates und API-Produkte ermöglichen.\nDeine Aufgaben\nDu standardisierst und produktisierst Lösungsmodule wie Regelwerke und Workflows und steigerst damit die Produktivität von Team und Partnern\nDu gestaltest und leitest den Produktisierungs-Prozess von Discovery und Priorisierung über Abstraktion und Dokumentation bis zur Bereitstellung\nMit dem Product-Team stimmst du ab, welche Elemente vor dem Hintergrund der Roadmap priorisiert werden und welche perspektivisch in die Plattform übergehen\nGemeinsam mit Sales bewertest du das Marktpotenzial einzelner Elemente und verankerst Produktisierung in der Go-To-Market-Strategie\nZur Erfolgsmessung konzipierst du KPIs wie Wiederverwendungsrate und Reduktion der Implementierungszeit und schärfst damit den Produktisierungs-Ansatz\nDein Profil\nCa. 5 Jahre Erfahrung in der Produktisierung / Standardisierung von Softwarelösungen (No-Code/ Low-Code, B2B SaaS, Consulting).\nErfahrung mit RuleEngines, Workflows oder konfigurationsgetriebenen Systemen.\nNachgewiesene Fähigkeit, konkrete Anforderungen in wiederverwendbare, allgemeingültige Lösungen zu überführen.\nNachgewiesene Fähigkeit, komplexe technische Produkte schnell zu durchdringen.\nTechnisches Verständnis für APIs, Integrationen, Systemlogiken.\nAbgeschlossenes Studium in einer relevanten Disziplin (wie z.B. Innovationsmanagement / Entrepreneurship, Wirtschaftsinformatik, Jura).\nFließende Deutschkenntnisse (C2) und sehr gutes Englisch (mind.C1).\nWarum wir?\nEine verantwortungsvolle Schlüsselrolle in einem wachsenden GovTech-Unternehmen mit einzigartiger Technologie und KI-Anwendungen.\nEine moderne Unternehmenskultur, die Eigenverantwortung fördert.\nEin zentral gelegenes Office in Berlin-Mitte.\nInnovative Projekte mit direkter gesellschaftlicher Wirkung und klare Karriereperspektiven.\nEin dynamisches, interdisziplinäres Team mit viel Gestaltungsspielraum für deine Ideen.\nEin attraktives Gehaltspaket und die Möglichkeit, deine Rolle im Zuge unseres SaaS-Wachstums aktiv mitzugestalten.",
+    "platform": "LinkedIn",
+    "summary": "The role involves standardizing and productizing solution modules for a No-Code/Low-Code software, working closely with the delivery team and customers to create scalable products. The ideal candidate will have experience in productizing software solutions, particularly in B2B SaaS and consulting. The role requires strong technical understanding, ability to work with cross-functional teams, and excellent language skills in German and English.",
+    "required_skills": [
+      "No-Code/Low-Code software",
+      "B2B SaaS",
+      "Software productization",
+      "APIs",
+      "Integration",
+      "System logic"
+    ],
+    "preferred_skills": [
+      "RuleEngines",
+      "Workflows",
+      "Configuration-driven systems"
+    ],
+    "industry": "GovTech",
+    "experience_level": "Senior",
+    "language_requirements": [
+      "English",
+      "German"
+    ],
+    "matched_must_have": [
+      "B2B",
+      "Software Product"
+    ],
+    "matched_nice_to_have": [
+      "Roadmap"
+    ],
+    "missing_must_have": [
+      "Industry 4.0",
+      "IIoT",
+      "Manufacturing",
+      "Factory Automation",
+      "OT/IT",
+      "Hardware",
+      "Robotics",
+      "Automation",
+      "Sensors",
+      "Edge Computing",
+      "SCADA",
+      "MES",
+      "ERP",
+      "Embedded Systems",
+      "Firmware"
+    ],
+    "match_explanation": "The job description matches some of the user's must-have keywords conceptually, but lacks direct mentions of Industry 4.0, IIoT, and other technical preferences.",
+    "match_score": 11,
+    "id": "1950208a-8caf-48e7-ba6d-0cc42ccf61fa",
+    "match_category": "low",
+    "scraped_at": "2026-06-26T06:32:23.529407"
+  },
+  {
+    "title": "Hardware Product Manager:in (w/m/d)",
+    "company": "Enpal",
+    "location": "Berlin, Berlin, Germany",
+    "date_posted": "2026-06-24",
+    "url": "https://de.linkedin.com/jobs/view/hardware-product-manager-in-w-m-d-at-enpal-4432836426",
+    "jd_text": "Unser Ziel ist eine Solaranlage auf jedem Dach, ein Speicher in jedem Haus und ein E-Auto in jeder Garage. Enpal macht das möglich mit einer integrierten Gesamtlösung für dezentrale Energie – von Solaranlage und Batteriespeicher über Wallbox, Smart Meter bis zur Wärmepumpe. Herzstück ist unsere KI-gestützte Plattform Enpal.One+, die tausende Systeme intelligent vernetzt und Strombezug sowie -einspeisung effizient am Energiemarkt optimiert.\nBist Du bereit für Lösungen, die mehr als nur ein Versprechen sind und täglich echte Lebensqualität in tausende Haushalte bringen? Was du bei Enpal gestaltest, liefert morgen sauberen Strom und verändert nachhaltig, wie wir Energie nutzen.\nDeine Aufgaben\nAls Hardware Product Manager (w/m/d) im Bereich Photovoltaik & Heimspeicher bei Enpal entwickelst und skalierst Du innovative Energieprodukte, von Batteriespeichern bis zu Wechselrichtern - und trägst damit aktiv dazu bei, die Energiewende für tausende Haushalte voranzutreiben.\nProduktverantwortung mit Tiefe: Du begleitest neue Produkte von der ersten Idee über Discovery, Business Case und Pilotierung bis hin zum erfolgreichen Rollout und der Skalierung.\nStrategisches Produktdenken: Du analysierst Markttrends, Nutzerbedürfnisse und technische Anforderungen und entwickelst daraus eine überzeugende Produktstrategie.\nTechnologie & Business vereinen: Du arbeitest mit Hardware-Ingenieur:innen, Softwareentwickler:innen, den Operations Teams und Lieferanten – und denkst dabei immer aus Kundensicht.\nGo-to-Market mit End-to-End-Verantwortung: Du denkst Produkte ganzheitlich mit Fokus auf Markteinführung, Kundenintegration und die organisatorische Skalierung.\nDatenbasierte Weiterentwicklung: Du misst den Erfolg Deiner Produkte anhand relevanter KPIs, identifizierst Optimierungspotenziale und leitest konkrete Maßnahmen für die Weiterentwicklung und Skalierung ab.\nDein Profil\n2–4 Jahre Erfahrung im Consulting, Produktmanagement, Projektmanagement oder einem schnelllebigen Scale-up-Umfeld optimalerweise mit Hardware Fokus.\nExzellenter Studienabschluss in Ingenieurwesen, Wirtschafts- oder Naturwissenschaften\nTechnisches Grundverständnis - oder die Bereitschaft, es dir anzueignen. Du musst kein:e Ingenieur:in sein, aber du willst Technik nicht nur verstehen, sondern mitgestalten.\nDu übernimmst Verantwortung, treibst Themen eigenständig voran und schaffst es, unterschiedliche Stakeholder für gemeinsame Ziele zu gewinnen.\nDeutsch und Englisch fließend (C1+)\nDu bist interessiert, auch wenn du nicht alle Anforderungen erfüllst? Bewirb dich trotzdem! Wir freuen uns darauf, dein Potenzial zu entdecken - unabhängig davon, ob deine Erfahrung jede einzelne Voraussetzung erfüllt. ☀️\nDarauf kannst Du Dich freuen\nArbeite in Deutschlands erstem grünen Unicorn - Gestalte aktiv die solare Energiewende mit.\nDie Sonne scheint auf der ganzen Welt - Bei Enpal arbeitest du mit einem hochmotivierten, diversen Team aus über 65 Nationalitäten.\nDas ideale Setup für deinen Fokus - Wir sind überzeugt, dass exzellente Ergebnisse dort entstehen, wo die Bedingungen stimmen. Deshalb setzen wir auf ein hybrides Arbeitskonzept, das dir die Freiheit gibt, immer genau so zu arbeiten, wie es am besten zu deinen Aufgaben passt. Du brauchst neue Impulse auf internationalem Niveau? Mit Workflex bieten wir, abhängig von deiner Verantwortung, die Möglichkeit, deine Tätigkeit bis zu 30 Tage im Jahr ins Ausland zu verlegen.\nGrown-up Business & Startup Spirit - In unserem modernen Office in Berlin-Friedrichshain findest du von höhenverstellbaren Tischen, Tischtennisplatte bis gefüllten Getränkekühlschränken und Barista-Coffee alles was das Herz begehrt.\nDein Kick-start bei Enpal - Onboarding-Tag mit Welcome Bag, Buddy-Programm und einem Team, das dich wirklich abholt.\nBleib auf dem Laufenden & gestalte mit - Transparente All-Hands, kurze Entscheidungswege und eine offene Feedback-Kultur, denn ohne Fehler gibt es keinen Fortschritt.\nEnergiewende geht nur gemeinsam - Bei Enpal erwartet dich ein legen",
+    "platform": "LinkedIn",
+    "summary": "The role of Hardware Product Manager at Enpal involves developing and scaling innovative energy products, such as batteries and inverters, to drive the energy transition for thousands of households. The ideal candidate will have 2-4 years of experience in consulting, product management, or a similar field, with a strong technical understanding and excellent communication skills. The company offers a dynamic work environment, flexible working hours, and opportunities for professional growth and development.",
+    "required_skills": [
+      "Product Management",
+      "Hardware Development",
+      "Technical Understanding",
+      "Communication Skills"
+    ],
+    "preferred_skills": [
+      "Consulting Experience",
+      "Project Management",
+      "Business Development"
+    ],
+    "industry": "Renewable Energy",
+    "experience_level": "Mid",
+    "language_requirements": [
+      "English",
+      "German"
+    ],
+    "matched_must_have": [
+      "Hardware"
+    ],
+    "matched_nice_to_have": [
+      "Cross-functional"
+    ],
+    "missing_must_have": [
+      "Industry 4.0",
+      "IIoT",
+      "Industrial IoT",
+      "Manufacturing",
+      "Factory Automation",
+      "OT/IT",
+      "OT IT Integration",
+      "Software Product",
+      "B2B Industrial",
+      "B2B Enterprise",
+      "Robotics",
+      "Automation",
+      "Sensors",
+      "Edge Computing",
+      "SCADA",
+      "MES",
+      "ERP",
+      "Embedded Systems",
+      "Firmware"
+    ],
+    "match_explanation": "The job description matches some of the must-have keywords conceptually, such as hardware, but lacks direct matches for most of the industrial and technical preferences.",
+    "match_score": 7,
+    "id": "0cb3a62b-1f13-4b84-ad01-def800191f5d",
+    "match_category": "low",
+    "scraped_at": "2026-06-26T06:32:24.514308"
+  },
+  {
+    "title": "Product Lead",
+    "company": "Almedia",
+    "location": "Berlin, Germany",
+    "date_posted": "2026-06-23",
+    "url": "https://de.linkedin.com/jobs/view/product-lead-at-almedia-4432412704",
+    "jd_text": "This isn’t your regular job. Almedia is a place where those who want to push harder can accelerate their careers faster than anywhere else. We’re aiming to become Germany’s second bootstrapped unicorn. Almedia is already Europe’s #3 fastest-growing company in 2025 (FT1000).\nWe are building the future of marketing by rewarding our community of over 70 million users for engaging with our advertisers’ products. We are offering a new way to acquire users for the biggest companies in the world.\nProduct Manager\n€120K – €160K\nOffers Equity\nFreecash is the product. Almedia is the engagement engine behind it: the smartest way for mobile game studios to turn high-potential users into high-value ones. We're the leader in our category, profitable, and expanding fast.\nWe're hiring one exceptional Product Leader. Not a fixed lane: real scope, real ownership, and a path to leading a team. If you think like a founder and can't sleep until the data tells you why, keep reading.\nWhat You'll Own\nEnd-to-end outcomes, not tickets. Hypothesis, roadmap, build, metrics, result: you own all of it. You find the highest-impact bets before anyone asks, and you execute. Discovery and delivery are the same job.\nThe hard, ambiguous problems. Form a sharp point of view, validate against the data, ship with conviction, kill it honestly when the numbers disagree.\nScope that grows. We point you at the biggest opportunity. As you earn it, that expands across Freecash and into new verticals.\nWhat You'll Bring\nYou think like a founder. You make the call with incomplete information, hold a strong opinion about what will work and why, then prove or disprove it. You don't wait to be told what matters.\nYou live in the data. You dig in yourself, follow the thread, and come back with the insight nobody else found. Data tells you what to solve. Creativity decides how. Comfortable in Amplitude, Hex, and Looker.\nYou prioritize ruthlessly. Anyone can list a hundred things. You pick the few that matter right now.\nYou execute. Ideation to launch to iteration. You bring developers, data, design, and BD with you without slowing down.\nYou know consumer products. Built and shipped consumer-facing apps.\nWhat Puts You Ahead\nYou've been a founder. You know what it means to own an outcome with no one to hand it off to.\nYou've scaled through hyper-growth. 50 to 200+ people, building the plane mid-flight: familiar territory.\nMobile gaming or advertising background. You know the players, the incentives, the dynamics.\nWhy Almedia?\nOwn Our Growth: We offer all Berlin-based employees equity in Almedia to truly be a part of our success.\nScale With Almedia: Grow alongside a startup that has been profitable from day one.\nCentral Berlin Office: Work from a fully-stocked modern office built for collaboration, accessible from all around Berlin.\nOther Benefits: Transport subsidy, breakfasts and lunches, language learning, Urban Sports Club, and more.\nWe believe in fostering talent, evaluating all skill levels during the hiring process, and providing a clear path for growth. Almedia is an equal opportunity employer. We embrace and celebrate diversity, and encourage individuals from all backgrounds to apply.",
+    "platform": "LinkedIn",
+    "summary": "Almedia is seeking a Product Manager to lead the development of their product Freecash, with a focus on end-to-end outcomes, hypothesis-driven roadmaps, and data-driven decision making. The ideal candidate will have a strong product mindset, ability to prioritize ruthlessly, and experience in consumer-facing apps. The role offers a competitive salary, equity, and opportunities for growth in a fast-paced and profitable company.",
+    "required_skills": [
+      "Product Management",
+      "Data Analysis",
+      "Consumer Products"
+    ],
+    "preferred_skills": [
+      "Founder Experience",
+      "Hyper-Growth Scaling",
+      "Mobile Gaming or Advertising Background"
+    ],
+    "industry": "Marketing and Advertising Technology",
+    "experience_level": "Senior/Lead",
+    "language_requirements": [
+      "English"
+    ],
+    "matched_must_have": [],
+    "matched_nice_to_have": [
+      "Roadmap"
+    ],
+    "missing_must_have": [
+      "Industry 4.0",
+      "IIoT",
+      "Industrial IoT",
+      "Manufacturing",
+      "Factory Automation",
+      "OT/IT",
+      "OT IT Integration",
+      "Hardware",
+      "Software Product",
+      "B2B Industrial",
+      "B2B Enterprise",
+      "Robotics",
+      "Automation",
+      "Sensors",
+      "Edge Computing",
+      "SCADA",
+      "MES",
+      "ERP",
+      "Embedded Systems",
+      "Firmware"
+    ],
+    "match_explanation": "The job description does not match the user's must-have keywords, but it does mention roadmap planning, which is a nice-to-have keyword.",
+    "match_score": 2,
+    "id": "570ff375-54cc-4238-bd3d-fe070b75be44",
+    "match_category": "low",
+    "scraped_at": "2026-06-26T06:32:25.376933"
+  },
+  {
+    "title": "Product Manager Integration (m/w/d)",
+    "company": "Riverty",
+    "location": "Berlin, Berlin, Germany",
+    "date_posted": "2026-06-17",
+    "url": "https://de.linkedin.com/jobs/view/product-manager-integration-m-w-d-at-riverty-4399584178",
+    "jd_text": "Jede Geschichte zählt. Gestalte deine eigene – gemeinsam mit uns bei Riverty.\nUnd wohin führt dich das?\nIn eine unserer 30 hybriden Arbeitsumgebungen – gestaltet für den Austausch von Ideen, gemeinsames Lernen und die Mitgestaltung unserer Arbeitsweise. Werde Teil einer internationalen Community mit über 4.000 Menschen aus fast 80 Nationen in 11 Ländern. Vereint durch eine gemeinsame Mission: Mit Empathie, moderner Technologie und datengestützten Erkenntnissen dafür zu sorgen, dass Menschen und Unternehmen im Fluss bleiben. Mit Zahlungsprozessen, die für sie erledigt werden – damit sie sich darum keine Sorgen machen müssen.\nUnd das ist noch nicht alles:\nWir sind Teil der Bertelsmann-Gruppe, die in Familienbesitz ist. Etabliert. Unternehmerisch. In einer dynamischen Branche. Wir ermöglichen flexible Bezahloptionen in verschiedenen Branchen, vereinfachen das Finanzmanagement bekannter Marken und unterstützen Menschen dabei, Schulden abzubauen und finanzielle Sicherheit zu gewinnen. Kurz gesagt: Wir gestalten FinTech.\nWir suchen Unterstützung als\nProduct Manager Integration (m/w/d)\n(befristet, Vollzeit) Schließe dich unserem Team an unserem Standort in Berlin, Verl oder Baden-Baden an – flexible Arbeitsbedingungen verfügbar\nAls Product Manager übernimmst du die Verantwortung für einen der kritischsten Hebel unseres Wachstums:\nDie schnelle, skalierbare und standardisierte Integration neuer Kund:innen auf unsere Plattform. Mit zunehmender Digitalisierung vernetzen wir uns stärker mit unseren Kund:Innen. Anstelle kundenspezifischer Lösungen wollen wir mit wiederverwendbaren Bausteinen Synergieeffekte heben und die Grundlage für weitere Automatisierungen in unseren Kundenbeziehungen schaffen.\nDeine Aufgabe ist es, daraus ein skalierbares, klar strukturiertes System mit Produktcharakter zu entwickeln. Du bewegst dich dabei an der Schnittstelle von Produkt, Plattform, Operations und Kundenteams.\nDas sind deine Verantwortungsbereiche:\nIntegration & Onboarding skalierbar machen\nDu entwickelst standardisierte Komponenten, Templates und Konfigurationslösungen, damit neue Integrationen auf unserer Plattform schnell, automatisch und effizient umgesetzt werden können\nAbhängigkeiten reduzieren\nDu sorgst dafür, dass interne Teams, Konfigurationen eigenständig und zuverlässig umsetzen können, indem du Standards definierst, deren Einsatz schulst und reviewst. Damit sorgst du für schnelle Rollouts und einen stabilen Betrieb unserer Lösungen\nPlattform-Standards vorantreiben\nDu definierst gemeinsam mit anderen Produktteams klare Standards für Integrationen und stellst sicher, dass diese im Alltag gelebt werden\nSystembausteine verstehen und mitgestalten\nDu kennst bestehende Systembausteine und weißt diese in konkreten Situationen anzuwenden\nDu vermittelst zwischen Anforderungen und bestehenden Lösungen und gestaltest diese mit\nTeams verbinden\nDu arbeitest eng mit Produkt-, Technik-, Operations- und kundenverantwortlichen Teams zusammen und sorgst für klare Prioritäten\nDas bringst du mit:\nDu verfügst über sehr gute Deutsch- und Englischkenntnisse (C1+)\nDu hast mehrjährige Erfahrung (5+ Jahre) in leitenden Produktrollen, idealerweise im Inkasso-, B2B-SaaS-, FinTech- oder regulierten Umfeld, und weißt, wie man kundenzentrierte Lösungen erfolgreich umsetzt\nDu bist sicher im Umgang mit großen Unternehmenskunden und bewegst dich souverän in komplexen Stakeholder-Strukturen\nDu hast Erfahrung im Aufbau und in der Führung cross-funktionaler Teams und arbeitest routiniert mit agilen Methoden, um Zusammenarbeit und Leistungsfähigkeit zu stärken\nDu bringst ein gutes Verständnis für Systemlandschaften mit und hast Freude daran, bestehende Plattformen zu modernisieren und in skalierbare, zukunftsfähige Architekturen zu überführen\nEqual Opportunity Employer Statement\nWir wollen ein fairer und inclusiver Arbeitgeber sein. Wir schätzen die unterschiedlichen Perspektiven, die eine vielfältige Belegschaft einbringt. Daher suchen wir aktiv nach Menschen, die unser Unter",
+    "platform": "LinkedIn",
+    "summary": "The Product Manager Integration role at Riverty involves developing a scalable and standardized system for integrating new customers onto the company's platform, working with cross-functional teams, and defining standards for integrations. The ideal candidate has experience in leading product roles, preferably in the FinTech or B2B SaaS industry, and is skilled in working with large enterprise customers and complex stakeholder structures. The role requires strong German and English language skills, as well as experience with agile methods and system landscapes.",
+    "required_skills": [
+      "Product Management",
+      "Integration",
+      "Scalability",
+      "Standardization",
+      "Agile Methods"
+    ],
+    "preferred_skills": [
+      "FinTech",
+      "B2B SaaS",
+      "Cross-functional Team Management"
+    ],
+    "industry": "FinTech",
+    "experience_level": "Senior",
+    "language_requirements": [
+      "English",
+      "German"
+    ],
+    "matched_must_have": [
+      "B2B",
+      "Integration",
+      "Automation"
+    ],
+    "matched_nice_to_have": [
+      "Cross-functional"
+    ],
+    "missing_must_have": [
+      "Industry 4.0",
+      "IIoT",
+      "Manufacturing",
+      "Factory Automation",
+      "OT/IT",
+      "Hardware",
+      "Software Product",
+      "Robotics",
+      "Sensors",
+      "Edge Computing",
+      "SCADA",
+      "MES",
+      "ERP",
+      "Embedded Systems",
+      "Firmware"
+    ],
+    "match_explanation": "The job description matches some of the must-have keywords conceptually, such as integration and automation, but lacks direct matches for most of the industrial and technical preferences.",
+    "match_score": 16,
+    "id": "0c34f225-80a9-4e81-9066-4453889fe9fc",
+    "match_category": "medium",
+    "scraped_at": "2026-06-26T06:32:26.521167"
+  },
+  {
+    "title": "Product Manager – Analytics Platform (f/m/d)",
+    "company": "VoiceLine",
+    "location": "Munich, Bavaria, Germany",
+    "date_posted": "2026-06-17",
+    "url": "https://de.linkedin.com/jobs/view/product-manager-%E2%80%93-analytics-platform-f-m-d-at-voiceline-4427350337",
+    "jd_text": "Über Uns\nDo you want to take ownership from day one and actively shape the future in a growing company? VoiceLine is a fast-growing, VC-backed startup based in Munich. We build an AI-powered solution that helps field sales and service teams turn conversations into structured data efficiently. This enables customer information to be documented, analyzed, and seamlessly integrated into existing systems. Together with leading enterprise customers, we are working to make field sales future ready.\nDeine Aufgaben\nOwn and evolve the Analytics & Coaching Platform\nTake over full ownership of the Analytics Platform roadmap from the CPO.\nDevelop a deep understanding of how sales organisations work, how they measure performance, and what good revenue intelligence looks like.\nTalk directly with senior sales executives and revenue operations leaders at our customers to understand their BI requirements and translate them into clear, well-prioritised product cases.\nSteer the product tribe around the Analytics Platform as it grows.\nDrive product operations end-to-end\nCollect, structure, and prioritise customer feedback from Sales, Customer Success, and direct customer interactions.\nTranslate feedback and opportunities into well-specified features ready for engineering.\nEnsure clean handoffs from product decisions through development to release.\nAlign teams and communicate product\nPrepare and communicate releases internally and externally — to go-to-market, engineering, and customers.\nAct as a connector between Product, Engineering, Customer Success, and Sales, ensuring shared context and minimal friction.\nDrive alignment proactively, without relying on hierarchy.\nPartner with the CPO across product initiatives\nAct as a close operational partner to the CPO, contributing to cross-cutting product initiatives beyond the Analytics Platform.\nMaintain clear product documentation and drive continuous improvement of product processes.\nDein Profil\nWe are open to two distinct backgrounds for this role — what matters is that you bring strong product instincts, a deep understanding of sales organisations, and the communication skills to work with senior stakeholders:\nProduct management background: You have 2–4 years of experience in a product role, ideally in B2B SaaS or enterprise software. You know how to run discovery, write specs, prioritise a backlog, and work with engineering. You are looking for a role where you can own a product area end-to-end from day one.\nCommercial or sales background: You have built your career in sales, field sales, revenue operations, or a similar commercial role. You have worked hands-on with sales dashboards and BI tools, driven revenue performance, and understand from the inside how sales organisations operate. You are now ready to transition into product management and bring that frontline expertise with you.\nAcross both profiles, we are looking for someone who:\nHas a deep understanding of how sales organisations work — pipelines, forecasting, coaching, revenue intelligence — either from working in them or building products for them.\nIs an outstanding communicator — outspoken, structured, and confident talking with senior executives. You can run a customer discovery conversation and come out with clear, actionable requirements.\nHas a basic understanding of how software is built — you understand concepts like APIs, data models, and development cycles well enough to work closely with engineers, ask the right questions, and write clear specifications.\nIs analytically minded and data-fluent — comfortable with BI concepts and able to define what good analytics look like for a sales organisation.\nIs ownership-oriented — you take full responsibility for outcomes, drive decisions without waiting for direction, and improve things when they are unclear or inefficient.\nUses AI-first workflows and is comfortable with tools like Claude, ChatGPT, Notion AI, or automation platforms to move faster and do more.\nIs business-fluent in both",
+    "platform": "LinkedIn",
+    "summary": "The role is for a product manager to own and evolve the Analytics & Coaching Platform, driving product operations end-to-end and partnering with the CPO across product initiatives. The ideal candidate has a deep understanding of sales organisations and strong product instincts, with experience in B2B SaaS or enterprise software. The role requires outstanding communication skills, analytical mindset, and data fluency, with the ability to work closely with engineers and senior stakeholders.",
+    "required_skills": [
+      "product management",
+      "sales organisations understanding",
+      "communication skills",
+      "analytical mindset",
+      "data fluency"
+    ],
+    "preferred_skills": [
+      "B2B SaaS experience",
+      "enterprise software experience",
+      "AI-first workflows",
+      "cross-functional team experience"
+    ],
+    "industry": "Software/Technology",
+    "experience_level": "Mid",
+    "language_requirements": [
+      "English",
+      "German"
+    ],
+    "matched_must_have": [
+      "B2B Enterprise",
+      "Software Product"
+    ],
+    "matched_nice_to_have": [
+      "Roadmap"
+    ],
+    "missing_must_have": [
+      "Industry 4.0",
+      "IIoT",
+      "Manufacturing",
+      "Factory Automation",
+      "OT/IT",
+      "OT IT Integration",
+      "Hardware",
+      "Robotics",
+      "Automation",
+      "Sensors",
+      "Edge Computing",
+      "SCADA",
+      "MES",
+      "ERP",
+      "Embedded Systems",
+      "Firmware"
+    ],
+    "match_explanation": "The job description matches some of the user's must-have keywords conceptually, but lacks direct matches for most industrial and technical preferences.",
+    "match_score": 11,
+    "id": "e104cef0-4643-4de3-b251-8a525d47d1ec",
+    "match_category": "low",
+    "scraped_at": "2026-06-26T06:32:27.426757"
+  },
+  {
+    "title": "Product Manager, CRM (m/f/d)",
+    "company": "Awin Global",
+    "location": "Berlin, Germany",
+    "date_posted": "2026-06-13",
+    "url": "https://de.linkedin.com/jobs/view/product-manager-crm-m-f-d-at-awin-global-4406075933",
+    "jd_text": "Purpose of Position\nThe Salesforce Product Manager combines strong product and operational process expertise with creative problem-solving, translating complex commercial needs into scalable solutions in line with the CRM roadmap and vision. Working in a fast-paced, global environment, this role brings teams together, leads stakeholders across functional while driving meaningful outcomes in a complex and evolving systems landscape.\nKey Tasks\nAct as primary product linkage between business stakeholders, the Salesforce team, and Product & Technology, ensuring business priorities are clearly understood and reflected in the CRM roadmap.\nSupport the definition, maintenance, and delivery of the CRM roadmap, working closely with CRM and Billing & Payments leadership and teams, to surface synergies and address cross-team dependencies early.\nLead structured assessments of current (“as-is”) business processes and contribute to the definition of future (“to-be”) processes, helping identify opportunities, benefits and impacts of proposed changes.\nTranslate commercial, contractual, and operational needs, challenge assumptions and translate them into clear, actionable product requirements that support effective delivery within a complex systems landscape.\nWork closely with the Salesforce Business Partners and engineering teams to ensure solutions align with agreed process models and integrate effectively across platforms.\nSupport scalable and well governed CRM data foundations that enable reliable reporting, analytics, and downstream use cases.\nDrive change and adoption by promoting new ways of working, supporting users through transitions, and helping teams realise value from the CRM platform.\nClearly communicate priorities, progress, trade-offs, and outcomes to a broad set of stakeholders through strong narratives and data-backed decision making.\nSkills & Expertise\n3+ years of product management experience, with hands-on involvement in CRM products, Salesforce experience preferred.\nStrong product mindset, with the ability to frame problems, make trade-offs, and keep teams focused on outcomes in complex system landscape.\nExperience translating complex business, contractual, or operational needs into clear product requirements, roadmaps, and prioritized backlogs.\nData-driven approach, using data to inform decisions while applying sound business judgement where information is incomplete.\nDemonstrated analytical and problem-solving skills, able to identify gaps and contribute practical, scalable solutions to cross-functional challenges.\nStrong communication skills, with the ability to create clear product narratives, explain trade-offs, and support stakeholders through change.\nConfidence working with and influencing a broad set of stakeholders across technical and non-technical teams in a global environment.\nAdaptability to changing priorities and environments.\nStrong analytical skills with the ability to interpret complex information.\nClient-oriented mindset with a focus on delivering value.\nExperience working in cross-functional teams and engaging stakeholders plus strong negotiation and influencing skills.\nOur Offer\nFlexi-Week: We prioritise your mental health and wellbeing by offering you a four-day Flexi-Week (with one lighter or completely disconnected day per week) at full pay, with no reduction to your annual holiday allowance.\nFlexi-office: We offer an international culture and flexibility through our hybrid/remote working scheme which is designed to foster a culture of mutual trust and working flexibility.\nWork Expense Contribution & Remote Working Furniture: You will receive a monthly allowance to cover part of your running costs, as well as a furniture package to support you in setting up a comfortable workspace when working from home.\nHealth and Wellbeing: With our support and access to various initiatives and sports offers, you can focus on your mental and physical wellbeing.\nDevelopment: We’ve built our extensive training suite",
+    "platform": "LinkedIn",
+    "summary": "The Salesforce Product Manager role combines product and operational process expertise to translate complex commercial needs into scalable solutions, working in a fast-paced global environment to drive meaningful outcomes. The role involves acting as a primary product linkage between stakeholders, supporting the definition and delivery of the CRM roadmap, and leading structured assessments of business processes. The ideal candidate will have strong product management experience, a data-driven approach, and excellent communication skills.",
+    "required_skills": [
+      "product management",
+      "CRM",
+      "Salesforce",
+      "data analysis",
+      "problem-solving"
+    ],
+    "preferred_skills": [
+      "Salesforce experience",
+      "cross-functional team experience",
+      "negotiation and influencing skills"
+    ],
+    "industry": "Technology/Software",
+    "experience_level": "Senior",
+    "language_requirements": [
+      "English"
+    ],
+    "matched_must_have": [],
+    "matched_nice_to_have": [
+      "Roadmap"
+    ],
+    "missing_must_have": [
+      "Industry 4.0",
+      "IIoT",
+      "Industrial IoT",
+      "Manufacturing",
+      "Factory Automation",
+      "OT/IT",
+      "OT IT Integration",
+      "Hardware",
+      "Software Product",
+      "B2B Industrial",
+      "B2B Enterprise",
+      "Robotics",
+      "Automation",
+      "Sensors",
+      "Edge Computing",
+      "SCADA",
+      "MES",
+      "ERP",
+      "Embedded Systems",
+      "Firmware"
+    ],
+    "match_explanation": "The job description does not match any of the must-have keywords, but it does conceptually match the nice-to-have keyword 'Roadmap' through the mention of 'CRM roadmap' and 'roadmap planning'.",
+    "match_score": 2,
+    "id": "162218fb-e75f-47f4-8fb5-d6effd8a627d",
+    "match_category": "low",
+    "scraped_at": "2026-06-26T06:32:28.314758"
+  },
+  {
+    "title": "Product Manager – Platform Team (m/f/d)",
+    "company": "DocuWare",
+    "location": "Merzig, Saarland, Germany",
+    "date_posted": "2026-06-19",
+    "url": "https://de.linkedin.com/jobs/view/product-manager-%E2%80%93-platform-team-m-f-d-at-docuware-4428228190",
+    "jd_text": "Why Us?\nDocuWare stands for globally distributed, international teams and an open corporate culture that invites you to help shape it. Mobile work and flexible working hours are part of our everyday life. Would you like to be part of an innovative company whose solutions are digitizing everyday work in a wide range of industries? In that case, we are happy to welcome you to the team.\nYour Responsibilities\nAs a Product Manager – Platform Team (m/f/d), you shape the foundational platform, cloud operations, integrations, and base services that all DocuWare AI Hub teams depend on. The AI Hub platform operates NLP, Computer Vision, and Large Language Models at scale – served via inference infrastructure such as NVIDIA Triton. Treating internal engineering teams as your customers, you ensure they have a reliable, scalable, and developer-friendly foundation to build upon – while acting as the team's spokesperson in OKR planning, roadmap reviews, and cross-team alignment.\nYour responsibilities\nYou define and continuously refine the product vision, strategy, and roadmap for the platform, cloud operations, integrations, and base services – prioritizing investments, evaluating build vs. buy decisions, and driving adoption across all AI Hub teams while building business cases that demonstrate ROI through productivity gains, cost savings, and reliability improvements.\nThrough continuous user research with AI Hub engineering teams, you validate platform improvement ideas, identify and remove friction in developer workflows, and prioritize competing requests – all while assessing new technological opportunities in cloud infrastructure, container orchestration, CI/CD, observability, and integration patterns to enhance self-service capabilities and developer autonomy.\nYou coordinate the timely, high-quality delivery of platform increments in an interdisciplinary, agile team – working closely with Engineering and Machine Learning to clarify requirements, resolve blockers, and support technical decision-making, while constructively challenging complexity and fostering an iterative, data-driven development approach with fast learning cycles.\nYou define and monitor platform success metrics – including deployment frequency, lead time, MTTR, developer satisfaction, and cloud spend efficiency – driving cost optimization strategies and deriving concrete improvement initiatives from data, experiments, and developer feedback.\nAs the spokesperson for the Platform Team, you communicate strategy, roadmap, and progress transparently to stakeholders and leadership – translating technical work and debt into tangible business outcomes, driving adoption through evangelism and change management, and building consensus across a matrix organization by influencing without authority.\nWhat You Need To Succeed\nYou hold a degree in Computer Science, Software Engineering, Business Informatics, or a comparable field, combined with several years of Product Management experience in platform engineering, DevOps, or infrastructure products.\nYou bring a strong platform engineering mindset – treating internal developers as customers – with a proven track record in roadmapping, building business cases, and driving platform adoption through research, evangelism, and change management.\nYou have conceptual knowledge of cloud platforms (Azure or equivalent), Kubernetes, container orchestration, and infrastructure-as-code, CI/CD (e.g., GitLab), observability patterns, and integration architectures (event handling, messaging, shared APIs), as well as operational awareness of AI/ML model serving and inference infrastructure (e.g., NVIDIA Triton) – you do not need to train models, but you should understand the operational challenges of running them at scale.\nYou have a strong sense for technical feasibility, with the ability to challenge complexity, make data-driven decisions, and navigate ambiguity.\nYour exceptional communication skills enable you to convey platform value to both tech",
+    "platform": "LinkedIn",
+    "summary": "The Product Manager – Platform Team role at DocuWare involves shaping the foundational platform, cloud operations, integrations, and base services for AI Hub teams, ensuring a reliable and scalable foundation for internal engineering teams. The role requires defining and refining the product vision, strategy, and roadmap, as well as coordinating the delivery of platform increments and defining success metrics. The ideal candidate has a strong platform engineering mindset, experience in roadmapping and driving platform adoption, and conceptual knowledge of cloud platforms, Kubernetes, and infrastructure-as-code.",
+    "required_skills": [
+      "Product Management",
+      "Platform Engineering",
+      "Cloud Platforms",
+      "Kubernetes",
+      "Infrastructure-as-code"
+    ],
+    "preferred_skills": [
+      "DevOps",
+      "CI/CD",
+      "Observability Patterns",
+      "Integration Architectures"
+    ],
+    "industry": "Software/Technology",
+    "experience_level": "Senior",
+    "language_requirements": [
+      "English"
+    ],
+    "matched_must_have": [
+      "Cloud Platforms",
+      "Industrial IoT",
+      "Automation"
+    ],
+    "matched_nice_to_have": [
+      "Roadmap",
+      "Roadmap Planning",
+      "Cross-functional Team"
+    ],
+    "missing_must_have": [
+      "Industry 4.0",
+      "Manufacturing",
+      "Factory Automation",
+      "OT/IT",
+      "OT IT Integration",
+      "Hardware",
+      "Software Product",
+      "B2B Industrial",
+      "B2B Enterprise",
+      "Robotics",
+      "Sensors",
+      "Edge Computing",
+      "SCADA",
+      "MES",
+      "ERP",
+      "Embedded Systems",
+      "Firmware"
+    ],
+    "match_explanation": "The job description matches some of the must-have keywords conceptually, such as cloud platforms and automation, but lacks direct mentions of Industry 4.0, manufacturing, and other specific industrial domains.",
+    "match_score": 20,
+    "id": "12d617a0-40b7-4dc9-8c0d-d5f35c4dc8b3",
+    "match_category": "medium",
+    "scraped_at": "2026-06-26T06:32:29.365078"
+  },
+  {
+    "title": "Product Owner / Product Manager (all genders)",
+    "company": "EnopAI",
+    "location": "Munich, Bavaria, Germany",
+    "date_posted": "2026-06-22",
+    "url": "https://de.linkedin.com/jobs/view/product-owner-product-manager-all-genders-at-enopai-4424740075",
+    "jd_text": "Deine Aufgaben\nKunden verstehen & Produkt gestalten\nDu arbeitest eng mit deutschsprachigen Kunden, Partnern, Beta-Kunden und internen Stakeholdern zusammen, um Herausforderungen, Anforderungen und neue Chancen zu identifizieren.\nDu führst qualitative und quantitative Kundeninterviews, Discovery-Gespräche, Workshops und Anforderungsanalysen durch.\nDu hörst sehr gut zu, stellst die richtigen Fragen und erkennst auch unausgesprochene Kundenbedürfnisse.\nDu übersetzt Kundenfeedback, Interview-Ergebnisse, Marktanforderungen und Geschäftsziele in klare Produktentscheidungen, Roadmap-Themen und priorisierte Anforderungen.\nDu arbeitest mit Beta-Kunden an frühen Produktversionen, testest Hypothesen, sammelst strukturiertes Feedback und leitest daraus konkrete Verbesserungen ab.\nDu validierst Annahmen frühzeitig und stellst sicher, dass wir die richtigen Probleme lösen, bevor Entwicklungskapazität investiert wird.\nTechnische Produktentwicklung steuern\nDu verantwortest und priorisierst den Product Backlog – nicht nur aus Kundensicht, sondern auch mit Blick auf technische Machbarkeit, Abhängigkeiten und langfristige Produktqualität.\nDu übersetzt Anforderungen in klare User Stories, Akzeptanzkriterien und technische Kontexte, mit denen Engineering sinnvoll arbeiten kann.\nDu arbeitest sehr eng mit Backend Engineers, Data Science und Fullstack Development zusammen – von der ersten Idee bis zum produktiven Einsatz beim Kunden.\nDu bist aktiv in Refinements, Sprint Plannings, Daily Standups und Release-Prozesse eingebunden.\nDu kannst technische Diskussionen mitführen, Fragen stellen, Annahmen hinterfragen und Begriffe wie APIs, Endpunkte, Payloads oder Postman sicher einordnen.\nDu sorgst dafür, dass Features mit Klarheit, Qualität und messbarem Mehrwert ausgeliefert werden.\nPriorisieren, entscheiden & Klarheit schaffen\nDu bringst eine echte Produktperspektive ein und verstehst dich nicht als reine Koordinationsfunktion.\nDu hinterfragst Anforderungen, erkennst Zielkonflikte und triffst fundierte Entscheidungen auf Basis von Kundennutzen, Geschäftswert und technischer Umsetzbarkeit.\nDu schaffst Klarheit zwischen Kunden, Geschäftsführung und Engineering und sorgst dafür, dass alle Beteiligten verstehen, warum wir etwas bauen – oder bewusst nicht bauen.\nDu hilfst dem Team, fokussiert zu bleiben und High-Impact-Features schnell und pragmatisch auszuliefern.\nNutzererlebnis & Produktqualität verbessern\nDu denkst über Features hinaus und beschäftigst dich mit Workflows, Nutzererlebnis und Bedienbarkeit.\nDu hinterfragst Komplexität und suchst nach Möglichkeiten, anspruchsvolle technische Prozesse für Anwender:innen einfacher und verständlicher zu machen.\nDu arbeitest mit Mockups, Prototypen und KI-gestützten Tools, um Ideen schnell zu testen und zu validieren.\nDu stellst sicher, dass unsere technisch anspruchsvollen Lösungen für Kunden intuitiv nutzbar bleiben.\nErfolg messen & Produkt weiterentwickeln\nDu definierst Erfolgsmetriken für neue Features und Produktinitiativen.\nDu kombinierst qualitative Insights aus Kundeninterviews mit quantitativen Daten aus Nutzung, Feedback und Produktkennzahlen.\nDu validierst neue Funktionen anhand von Beta-Kunden, Nutzerfeedback, Experimenten und – wo sinnvoll – A/B-Tests.\nDu arbeitest aktiv an der Weiterentwicklung unserer Produktstrategie und Roadmap mit.\nDein Profil\nMindestens 3 Jahre Erfahrung als Product Owner, Product Manager, Technical Product Manager oder in einer vergleichbaren Produktrolle.\nVerhandlungssicheres Deutsch ist ein absolutes Muss, da du regelmäßig mit deutschsprachigen Kunden arbeitest. Gute Englischkenntnisse sind für die Zusammenarbeit im internationalen Team erforderlich.\nAusgeprägte Kommunikations- und Stakeholder-Management-Fähigkeiten. Du kannst gut zuhören, die richtigen Fragen stellen und echte Kundenprobleme in klare Produktanforderungen übersetzen.\nTechnisches Verständnis und die Fähigkeit, mit Backend Engineers auf Augenhöhe zu kommunizieren. Begriffe wie APIs, Endpunkte, Payloads oder T",
+    "platform": "LinkedIn",
+    "summary": "The role is for a Product Owner who will work closely with customers, partners, and internal stakeholders to identify challenges and opportunities, and translate customer feedback into clear product decisions. The candidate will be responsible for prioritizing and steering the product backlog, and working with engineering teams to deliver high-quality features. The ideal candidate will have a strong technical understanding and excellent communication skills, with the ability to work with cross-functional teams and drive product development.",
+    "required_skills": [
+      "Product Ownership",
+      "Technical Product Management",
+      "Stakeholder Management",
+      "Communication",
+      "Technical Understanding"
+    ],
+    "preferred_skills": [
+      "Roadmap Planning",
+      "Cross-functional Team Management"
+    ],
+    "industry": "Industrial/Manufacturing",
+    "experience_level": "Senior",
+    "language_requirements": [
+      "German",
+      "English"
+    ],
+    "matched_must_have": [
+      "Industrial",
+      "Automation",
+      "Hardware",
+      "Software Product",
+      "B2B Industrial",
+      "B2B Enterprise"
+    ],
+    "matched_nice_to_have": [
+      "Roadmap"
+    ],
+    "missing_must_have": [
+      "Industry 4.0",
+      "IIoT",
+      "OT/IT Integration",
+      "Robotics",
+      "Sensors",
+      "Edge Computing",
+      "SCADA",
+      "MES",
+      "ERP",
+      "Embedded Systems",
+      "Firmware"
+    ],
+    "match_explanation": "The job description matches some of the must-have keywords conceptually, but lacks specific mentions of Industry 4.0, IIoT, and other technical terms, resulting in a moderate match quality.",
+    "match_score": 30,
+    "id": "623c4153-4425-4f8d-a3ce-d45ca6037d9a",
+    "match_category": "medium",
+    "scraped_at": "2026-06-26T06:32:38.985135"
   }
 ]

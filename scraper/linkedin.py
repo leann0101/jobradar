@@ -25,12 +25,38 @@ def random_delay(min_sec=1, max_sec=3):
     time.sleep(random.uniform(min_sec, max_sec))
 
 
-def scrape_linkedin(search_query: str, location: str = "Germany", days_ago: int = 15) -> list[dict]:
+def scrape_linkedin(search_query: str, location: str = "Germany", days_ago: int = 15, filter_cfg: dict = None) -> list[dict]:
     """
     Scrapes LinkedIn public job search page using requests (no browser needed).
     Note: LinkedIn heavily blocks scrapers; this uses the public JSON API endpoint.
     """
     jobs = []
+    
+    wt_list = []
+    jt_list = []
+    e_list = []
+    
+    if filter_cfg:
+        wt_map = {"on-site": "1", "remote": "2", "hybrid": "3"}
+        jt_map = {"full-time": "F", "part-time": "P", "contract": "C", "internship": "I", "temporary": "T"}
+        e_map = {"internship": "1", "entry": "2", "associate": "3", "mid-senior": "4", "director": "5", "executive": "6"}
+        
+        for wt in filter_cfg.get("location_types", []):
+            if wt in wt_map:
+                wt_list.append(wt_map[wt])
+        for jt in filter_cfg.get("employment_types", []):
+            if jt in jt_map:
+                jt_list.append(jt_map[jt])
+        for e_val in filter_cfg.get("experience_levels", []):
+            if e_val in e_map:
+                e_list.append(e_map[e_val])
+    else:
+        # Default to full-time if no filters are provided to keep previous behavior
+        jt_list = ["F"]
+
+    jt_param = f"&f_JT={','.join(jt_list)}" if jt_list else ""
+    wt_param = f"&f_WT={','.join(wt_list)}" if wt_list else ""
+    e_param = f"&f_E={','.join(e_list)}" if e_list else ""
     
     # Scrape up to 3 pages (start = 0, 25, 50) to get up to 75 job cards
     for page in range(3):
@@ -43,7 +69,9 @@ def scrape_linkedin(search_query: str, location: str = "Germany", days_ago: int 
             f"?keywords={search_query.replace(' ', '%20')}"
             f"&location={location.replace(' ', '%20')}"
             f"&f_TPR=r{days_ago * 86400}"   # Convert days to seconds
-            f"&f_JT=F"                       # Full-time
+            f"{jt_param}"
+            f"{wt_param}"
+            f"{e_param}"
             f"&sortBy=DD"                    # Sort by date
             f"&start={start_val}"
         )
@@ -59,6 +87,9 @@ def scrape_linkedin(search_query: str, location: str = "Germany", days_ago: int 
                         f"?keywords={search_query.replace(' ', '+')}"
                         f"&location={location.replace(' ', '+')}"
                         f"&f_TPR=r{min(days_ago, 14) * 86400}"
+                        f"{jt_param}"
+                        f"{wt_param}"
+                        f"{e_param}"
                         f"&sortBy=DD"
                     )
                     resp = requests.get(url2, headers=headers, timeout=15)

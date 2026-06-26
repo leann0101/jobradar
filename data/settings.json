@@ -1,17 +1,35 @@
 {
   "must_have": [
-    "Industry 4.0",
-    "IIoT",
-    "Industrial IoT",
-    "networking technologies",
-    "product marketing",
     "market research",
-    "industrial ethernet",
-    "B2B"
+    "Strategy",
+    "Innovation",
+    "Product Definition",
+    "Go-to-Market",
+    "product strategy",
+    "emerging"
   ],
   "nice_to_have": [
     "Roadmap",
-    "Cross-functional"
+    "Cross-functional",
+    "IIoT",
+    "Industry 4.0",
+    "networking technologies",
+    "ethernet switch",
+    "industrial ethernet",
+    "B2B",
+    "product marketing",
+    "Business Development",
+    "Digital Transformation",
+    "Smart Manufacturing",
+    "Deep Tech",
+    "Industrial Automation",
+    "Industrial Software",
+    "Value Proposition",
+    "Commercialization",
+    "New Market",
+    "Ethernet-APL",
+    "Single-pair Ethernet",
+    "ecosystems"
   ],
   "score_thresholds": {
     "best_match": 40,
@@ -19,7 +37,10 @@
   },
   "search": {
     "job_titles": [
-      "product manager"
+      "product manager",
+      "Innovation Manager",
+      "Strategy Manager",
+      "New Business Development"
     ],
     "location": "Germany",
     "language": "English",

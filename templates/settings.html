@@ -207,7 +207,18 @@
   </div>
 </div>
 
-<div style="padding: 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); margin-top: 24px;">
+<div style="padding: 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); margin-top: 24px; margin-bottom: 16px;">
+  <h3 style="font-size:14px; font-weight:700; margin-bottom:8px; color: var(--accent-blue);">🧹 Clean Up Old Jobs</h3>
+  <p style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;">Remove older job postings that are likely filled or closed. Recommended: 30 days.</p>
+  <div style="display:flex; align-items:center; gap:12px; flex-wrap: wrap;">
+    <span style="font-size:13.5px; color:var(--text-primary);">Clear jobs older than</span>
+    <input type="number" id="clear-days" class="form-input" min="1" max="180" value="30" style="width: 80px; text-align: center; margin: 0; padding: 6px 10px;" />
+    <span style="font-size:13.5px; color:var(--text-primary);">days</span>
+    <button class="btn btn-ghost btn-sm" id="clear-old-btn" onclick="clearOldJobs()" style="margin-left: auto;">🧹 Clear Old Jobs</button>
+  </div>
+</div>
+
+<div style="padding: 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); margin-top: 16px;">
   <h3 style="font-size:14px; font-weight:700; margin-bottom:8px; color: var(--accent-amber);">⚠️ Danger Zone</h3>
   <p style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;">Clear all saved jobs and start fresh. This cannot be undone.</p>
   <button class="btn btn-danger" id="clear-jobs-btn" onclick="clearAllJobs()">🗑 Clear All Jobs</button>
@@ -220,6 +231,38 @@ async function clearAllJobs() {
   if (res.ok) {
     showToast('All jobs cleared.', 'success');
     setTimeout(() => window.location.href = '/', 1500);
+  }
+}
+
+async function clearOldJobs() {
+  const daysInput = document.getElementById('clear-days');
+  const days = parseInt(daysInput ? daysInput.value : 30);
+  if (isNaN(days) || days < 1) return;
+  
+  if (!confirm(`Delete all saved jobs posted more than ${days} days ago?`)) return;
+  
+  const btn = document.getElementById('clear-old-btn');
+  btn.disabled = true;
+  btn.textContent = 'Clearing...';
+  
+  try {
+    const res = await fetch('/api/jobs/clear-old', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ days })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      showToast(`Successfully cleared ${data.cleared_count} old jobs.`, 'success');
+      setTimeout(() => window.location.reload(), 1500);
+    } else {
+      showToast('Failed to clear old jobs', 'error');
+    }
+  } catch (e) {
+    showToast('Network error', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🧹 Clear Old Jobs';
   }
 }
 </script>

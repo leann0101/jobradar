@@ -10,7 +10,7 @@
   </div>
   <div style="display:flex; gap:10px; align-items:center;">
     <a href="{{ job.url }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" id="apply-link">
-      🔗 View Original
+      🔗 Job Link
     </a>
     <button class="btn btn-danger btn-sm" onclick="deleteJob('{{ job.id }}', document.querySelector('.detail-layout'))" id="delete-job-btn">
       🗑 Remove
@@ -52,9 +52,16 @@
 
     <!-- Job Description -->
     <div class="detail-main">
-      <h3 style="font-size:15px; font-weight:700; margin-bottom:16px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px;">
-        Job Description
-      </h3>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:15px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px; margin:0;">
+          Job Description
+        </h3>
+        {% if job.jd_text %}
+        <button id="translate-btn" class="btn btn-ghost btn-sm" onclick="translateJD('{{ job.id }}')">
+          🌐 Translate to English
+        </button>
+        {% endif %}
+      </div>
       {% if job.jd_text %}
         <div class="detail-jd">{{ job.jd_text }}</div>
       {% else %}

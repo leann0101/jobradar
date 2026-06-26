@@ -64,10 +64,10 @@ Respond with this exact JSON structure:
         raise e
 
 
-def analyze_job(job: dict, must_have: list[str], nice_to_have: list[str], resume_text: str = "") -> dict:
+def analyze_job(job: dict, must_have: list[str], nice_to_have: list[str], resume_text: str = "", career_objective: dict = None) -> dict:
     """
-    Send a job's JD to Groq for analysis.
-    Returns enriched job dict with AI fields, match score, company profile, and resume match.
+    Send a job's JD to Groq for career preferences analysis.
+    Returns enriched job dict with AI scorecard, career trajectory fit, why_match, why_not_match, etc.
     """
     client = get_client()
     jd_text = job.get("jd_text", "")
@@ -77,6 +77,17 @@ def analyze_job(job: dict, must_have: list[str], nice_to_have: list[str], resume
 
     must_have_str = ", ".join(must_have)
     nice_to_have_str = ", ".join(nice_to_have)
+
+    target_archetype = ""
+    target_trajectory = ""
+    if career_objective:
+        target_archetype = career_objective.get("target_archetype", "")
+        target_trajectory = career_objective.get("target_trajectory", "")
+    
+    if not target_archetype:
+        target_archetype = "Strategic Product Builder / Early-stage Discovery PM"
+    if not target_trajectory:
+        target_trajectory = "I want to become a strategy-driven, discovery-oriented product builder who defines problems in emerging tech."
 
     resume_prompt_part = ""
     if resume_text.strip():
@@ -89,18 +100,71 @@ Evaluate the match between the resume and the job description. Provide a compati
     else:
         resume_prompt_part = "\nNo candidate resume is provided. For the 'resume_match' field, return score 0, empty strengths, empty gaps, and 'Resume not provided' as the explanation.\n"
 
-    prompt = f"""You are an expert job analyst. Analyze this job description, evaluate the fit against user preferences, extract company profile information, and evaluate compatibility with the candidate's resume (if provided).
-Respond with ONLY valid JSON, no markdown, no code blocks.
+    prompt = f"""You are an expert job analyst. Analyze this job description, evaluate the fit against the user's career objectives and preferences, extract company profile information, and evaluate compatibility with the candidate's resume (if provided).
 
 JOB DESCRIPTION:
 {jd_text[:4000]}
 
-USER'S MUST-HAVE keywords (industrial/technical preferences):
+USER'S MUST-HAVE keywords (informational references for technical/domain preferences):
 {must_have_str}
 
 USER'S NICE-TO-HAVE keywords:
 {nice_to_have_str}
+
+CANDIDATE'S CAREER OBJECTIVES:
+- Target Role Archetype: {target_archetype}
+- Desired Career Trajectory: {target_trajectory}
+
 {resume_prompt_part}
+
+Evaluate the job against the following 5 dimensions. For each dimension, assign a score from 1 to 5, a short descriptive label, and extract a direct quote from the job description as evidence.
+
+Dimensions:
+1. Problem Space Type
+   - 5: Emerging tech / new market / 0→1
+   - 4: New application of existing tech
+   - 3: Optimization of mature product
+   - 1 or 2: Operational / maintenance work
+2. Product Stage
+   - 5: 0→1 discovery
+   - 4: Early product (pre PMF)
+   - 3: Scaling (1→10)
+   - 2: Mature product (10→100)
+   - 1: Legacy / maintenance
+3. Decision Power
+   - 5: Defines product direction
+   - 4: Influences roadmap
+   - 3: Contributes to decisions
+   - 2: Executes roadmap
+   - 1: Pure execution
+4. Customer Interaction Level
+   - 5: Deep customer discovery
+   - 4: Frequent customer interaction
+   - 3: Occasional exposure
+   - 2: Indirect exposure
+   - 1: No customer interaction
+5. Problem Definition Clarity
+   - 5: Completely undefined problem (highly ambiguous / unstructured)
+   - 4: High ambiguity
+   - 3: Medium ambiguity
+   - 2: Low ambiguity
+   - 1: Fully defined problem (completely clear / structured)
+
+Also evaluate Career Trajectory Fit (CTF) from 1 to 5 based on how well this job moves the candidate toward their target identity: "{target_archetype}" and trajectory: "{target_trajectory}".
+Evaluate skill compounding, decision surface exposure, and system position (Creating vs. Shaping vs. Running system).
+Assign:
+- 5: Strongly moves toward target identity
+- 4: Clearly positive trajectory
+- 3: Neutral
+- 2: Slight drift away
+- 1: Strong drift away
+Provide a direct quote from the JD as evidence for this CTF score.
+
+Provide detailed explanations for the match:
+- why_match: Deep explanation of why this job matches the user's career objectives (which aspects, dimensions, or duties align well).
+- why_not_match: Deep explanation of why this job might NOT match the user's career objectives, any potential gaps, or risks of drifting away from the target trajectory.
+
+Respond with ONLY valid JSON, no markdown, no code blocks.
 
 Respond with this exact JSON structure:
 {{
@@ -116,19 +180,50 @@ Respond with this exact JSON structure:
   "match_explanation": "One sentence explaining the preferences match quality",
   "company_profile": {{
     "description": "Brief description of the company and what it does",
-    "business_domain": "e.g. Factory Automation / Industrial Networking / IIoT Solutions",
-    "employee_count": "e.g. 50-200 / 10,000+ / Unknown"
+    "business_domain": "business domain",
+    "employee_count": "employee count"
   }},
   "resume_match": {{
     "score": 85,
-    "strengths": ["list of candidate's strengths matching this job"],
-    "gaps": ["list of candidate's missing qualifications or skills"],
-    "explanation": "Brief overview of the fit with candidate's experience"
-  }}
+    "strengths": ["strengths"],
+    "gaps": ["gaps"],
+    "explanation": "overview"
+  }},
+  "scorecard": {{
+    "problem_space_type": {{
+      "score": 4,
+      "label": "New application of existing tech",
+      "evidence": "quote from JD"
+    }},
+    "product_stage": {{
+      "score": 3,
+      "label": "Scaling (1->10)",
+      "evidence": "quote from JD"
+    }},
+    "decision_power": {{
+      "score": 4,
+      "label": "Influences roadmap",
+      "evidence": "quote from JD"
+    }},
+    "customer_interaction": {{
+      "score": 5,
+      "label": "Deep customer discovery",
+      "evidence": "quote from JD"
+    }},
+    "problem_definition_clarity": {{
+      "score": 3,
+      "label": "Medium ambiguity",
+      "evidence": "quote from JD"
+    }}
+  }},
+  "career_trajectory_fit": {{
+    "score": 4,
+    "label": "Clearly positive trajectory",
+    "evidence": "quote from JD"
+  }},
+  "why_match": "Detailed explanation of positive match factors...",
+  "why_not_match": "Detailed explanation of negative/risk match factors..."
 }}
-
-For matched keywords: list any must-have or nice-to-have keywords that appear directly or conceptually in the JD.
-Be generous in concept matching (e.g. "automation" matches "Factory Automation", "IoT" matches "IIoT").
 """
 
     try:
@@ -136,7 +231,7 @@ Be generous in concept matching (e.g. "automation" matches "Factory Automation",
             model="llama-3.3-70b-versatile",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.1,
-            max_tokens=1024,
+            max_tokens=1536,
         )
         raw = response.choices[0].message.content.strip()
         
@@ -148,33 +243,8 @@ Be generous in concept matching (e.g. "automation" matches "Factory Automation",
         raw = raw.strip()
         
         analysis = json.loads(raw)
-    except json.JSONDecodeError as e:
-        logger.error(f"JSON parse error from Groq: {e}, raw: {raw[:200]}")
-        analysis = {
-            "summary": "Analysis unavailable",
-            "required_skills": [],
-            "preferred_skills": [],
-            "industry": "",
-            "experience_level": "",
-            "language_requirements": [],
-            "matched_must_have": [],
-            "matched_nice_to_have": [],
-            "missing_must_have": must_have,
-            "match_explanation": "Could not analyze this job.",
-            "company_profile": {
-                "description": "Company description unavailable",
-                "business_domain": "",
-                "employee_count": "Unknown"
-            },
-            "resume_match": {
-                "score": 0,
-                "strengths": [],
-                "gaps": [],
-                "explanation": "Analysis failed or unavailable"
-            }
-        }
     except Exception as e:
-        logger.error(f"Groq API error: {e}")
+        logger.error(f"Groq API or JSON parse error: {e}")
         analysis = {
             "summary": "Analysis unavailable",
             "required_skills": [],
@@ -185,7 +255,7 @@ Be generous in concept matching (e.g. "automation" matches "Factory Automation",
             "matched_must_have": [],
             "matched_nice_to_have": [],
             "missing_must_have": must_have,
-            "match_explanation": f"API error: {str(e)}",
+            "match_explanation": f"Analysis failed: {str(e)}",
             "company_profile": {
                 "description": "Company description unavailable",
                 "business_domain": "",
@@ -196,51 +266,111 @@ Be generous in concept matching (e.g. "automation" matches "Factory Automation",
                 "strengths": [],
                 "gaps": [],
                 "explanation": "Analysis failed or unavailable"
-            }
+            },
+            "scorecard": {
+                "problem_space_type": {"score": 1, "label": "Operational / maintenance work", "evidence": ""},
+                "product_stage": {"score": 1, "label": "Legacy / maintenance", "evidence": ""},
+                "decision_power": {"score": 1, "label": "Pure execution", "evidence": ""},
+                "customer_interaction": {"score": 1, "label": "No customer interaction", "evidence": ""},
+                "problem_definition_clarity": {"score": 1, "label": "Fully defined problem", "evidence": ""}
+            },
+            "career_trajectory_fit": {"score": 1, "label": "Strong drift away", "evidence": ""},
+            "why_match": "Analysis failed.",
+            "why_not_match": "Analysis failed."
         }
 
-    # Calculate match score (Preferences score)
-    score = _calculate_score(
-        analysis.get("matched_must_have", []),
-        analysis.get("matched_nice_to_have", []),
-        must_have,
-        nice_to_have,
-    )
+    # Extract score from scorecard
+    scorecard = analysis.get("scorecard", {})
+    if not scorecard:
+        scorecard = {
+            "problem_space_type": {"score": 1, "label": "Operational / maintenance work", "evidence": ""},
+            "product_stage": {"score": 1, "label": "Legacy / maintenance", "evidence": ""},
+            "decision_power": {"score": 1, "label": "Pure execution", "evidence": ""},
+            "customer_interaction": {"score": 1, "label": "No customer interaction", "evidence": ""},
+            "problem_definition_clarity": {"score": 1, "label": "Fully defined problem", "evidence": ""}
+        }
+        analysis["scorecard"] = scorecard
+        
+    problem_space = scorecard.get("problem_space_type", {}).get("score", 1)
+    product_stage = scorecard.get("product_stage", {}).get("score", 1)
+    decision_power = scorecard.get("decision_power", {}).get("score", 1)
+    customer_interaction = scorecard.get("customer_interaction", {}).get("score", 1)
+    problem_definition_clarity = scorecard.get("problem_definition_clarity", {}).get("score", 1)
+    
+    try: problem_space = int(problem_space)
+    except: problem_space = 1
+    try: product_stage = int(product_stage)
+    except: product_stage = 1
+    try: decision_power = int(decision_power)
+    except: decision_power = 1
+    try: customer_interaction = int(customer_interaction)
+    except: customer_interaction = 1
+    try: problem_definition_clarity = int(problem_definition_clarity)
+    except: problem_definition_clarity = 1
 
-    return {**job, **analysis, "match_score": score}
+    # Ensure clean numeric values in scorecard dict
+    scorecard.setdefault("problem_space_type", {})["score"] = problem_space
+    scorecard.setdefault("product_stage", {})["score"] = product_stage
+    scorecard.setdefault("decision_power", {})["score"] = decision_power
+    scorecard.setdefault("customer_interaction", {})["score"] = customer_interaction
+    scorecard.setdefault("problem_definition_clarity", {})["score"] = problem_definition_clarity
+
+    # Job Fit Score (weighted average of 5 dimensions)
+    fit_score = (problem_space * 5) + (product_stage * 5) + (decision_power * 4) + (customer_interaction * 3) + (problem_definition_clarity * 3)
+
+    return {**job, **analysis, "match_score": fit_score}
 
 
-def _calculate_score(
-    matched_must: list,
-    matched_nice: list,
-    total_must: list,
-    total_nice: list,
-) -> int:
+def classify_job(job_or_score, thresholds: dict) -> str:
     """
-    Weighted match score:
-      must_have keywords weight = 2
-      nice_to_have keywords weight = 1
-    Score = 0–100
+    Returns 'best', 'medium', or 'low' based on score thresholds and override gating rules.
+    Accepts either a full job dict or an integer score for backward compatibility.
     """
-    must_weight = 2
-    nice_weight = 1
+    best_threshold = thresholds.get("best_match", 80)
+    medium_threshold = thresholds.get("medium_match", 60)
+    
+    if not isinstance(job_or_score, dict):
+        # Backward compatibility fallback
+        if job_or_score >= best_threshold:
+            return "best"
+        elif job_or_score >= medium_threshold:
+            return "medium"
+        return "low"
 
-    max_score = len(total_must) * must_weight + len(total_nice) * nice_weight
-    if max_score == 0:
-        return 0
-
-    earned = len(matched_must) * must_weight + len(matched_nice) * nice_weight
-    return round((earned / max_score) * 100)
-
-
-def classify_job(score: int, thresholds: dict) -> str:
-    """Returns 'best', 'medium', or 'low' based on score thresholds."""
-    best = thresholds.get("best_match", 40)
-    medium = thresholds.get("medium_match", 15)
-    if score >= best:
-        return "best"
-    elif score >= medium:
+    job = job_or_score
+    score = job.get("match_score", 0)
+    scorecard = job.get("scorecard", {})
+    ctf_info = job.get("career_trajectory_fit", {})
+    ctf_score = ctf_info.get("score", 1)
+    
+    product_stage = scorecard.get("product_stage", {}).get("score", 1)
+    decision_power = scorecard.get("decision_power", {}).get("score", 1)
+    
+    try: ctf_score = int(ctf_score)
+    except: ctf_score = 1
+    try: product_stage = int(product_stage)
+    except: product_stage = 1
+    try: decision_power = int(decision_power)
+    except: decision_power = 1
+    
+    # Rule 1: CTF <= 2 -> Low Match (forced)
+    if ctf_score <= 2:
+        return "low"
+        
+    # Rule 2: High Match qualifications
+    if score >= best_threshold:
+        # Check gating requirements: CTF >= 4, Product Stage >= 3, Decision Power >= 3
+        # If any of these fail, downgrade to Medium Match
+        if ctf_score >= 4 and product_stage >= 3 and decision_power >= 3:
+            return "best"
+        else:
+            return "medium"
+            
+    # Rule 3: Medium Match
+    if score >= medium_threshold:
         return "medium"
+        
+    # Rule 4: Low Match
     return "low"
 
 

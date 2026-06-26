@@ -321,16 +321,16 @@ Respond with this exact JSON structure:
     return {**job, **analysis, "match_score": fit_score}
 
 
-def classify_job(job_or_score, thresholds: dict) -> str:
+def classify_job(job_or_score, settings: dict) -> str:
     """
     Returns 'best', 'medium', or 'low' based on score thresholds and override gating rules.
     Accepts either a full job dict or an integer score for backward compatibility.
     """
-    best_threshold = thresholds.get("best_match", 80)
-    medium_threshold = thresholds.get("medium_match", 60)
+    score_thresholds = settings.get("score_thresholds", settings)
+    best_threshold = score_thresholds.get("best_match", 80)
+    medium_threshold = score_thresholds.get("medium_match", 60)
     
     if not isinstance(job_or_score, dict):
-        # Backward compatibility fallback
         if job_or_score >= best_threshold:
             return "best"
         elif job_or_score >= medium_threshold:
@@ -345,6 +345,9 @@ def classify_job(job_or_score, thresholds: dict) -> str:
     
     product_stage = scorecard.get("product_stage", {}).get("score", 1)
     decision_power = scorecard.get("decision_power", {}).get("score", 1)
+    problem_space = scorecard.get("problem_space_type", {}).get("score", 1)
+    customer_interaction = scorecard.get("customer_interaction", {}).get("score", 1)
+    problem_definition_clarity = scorecard.get("problem_definition_clarity", {}).get("score", 1)
     
     try: ctf_score = int(ctf_score)
     except: ctf_score = 1
@@ -352,6 +355,31 @@ def classify_job(job_or_score, thresholds: dict) -> str:
     except: product_stage = 1
     try: decision_power = int(decision_power)
     except: decision_power = 1
+    try: problem_space = int(problem_space)
+    except: problem_space = 1
+    try: customer_interaction = int(customer_interaction)
+    except: customer_interaction = 1
+    try: problem_definition_clarity = int(problem_definition_clarity)
+    except: problem_definition_clarity = 1
+    
+    # Load gating rules from settings override_rules
+    override_rules = settings.get("override_rules", {})
+    min_ps = override_rules.get("min_problem_space", 1)
+    min_stage = override_rules.get("min_product_stage", 3)
+    min_dec = override_rules.get("min_decision_power", 3)
+    min_cust = override_rules.get("min_customer_interaction", 1)
+    min_clarity = override_rules.get("min_problem_definition_clarity", 1)
+    
+    try: min_ps = int(min_ps)
+    except: min_ps = 1
+    try: min_stage = int(min_stage)
+    except: min_stage = 3
+    try: min_dec = int(min_dec)
+    except: min_dec = 3
+    try: min_cust = int(min_cust)
+    except: min_cust = 1
+    try: min_clarity = int(min_clarity)
+    except: min_clarity = 1
     
     # Rule 1: CTF <= 2 -> Low Match (forced)
     if ctf_score <= 2:
@@ -359,9 +387,13 @@ def classify_job(job_or_score, thresholds: dict) -> str:
         
     # Rule 2: High Match qualifications
     if score >= best_threshold:
-        # Check gating requirements: CTF >= 4, Product Stage >= 3, Decision Power >= 3
-        # If any of these fail, downgrade to Medium Match
-        if ctf_score >= 4 and product_stage >= 3 and decision_power >= 3:
+        # Check gating requirements: CTF >= 4 AND all dimensions satisfy user minimums
+        if (ctf_score >= 4 and 
+            problem_space >= min_ps and 
+            product_stage >= min_stage and 
+            decision_power >= min_dec and 
+            customer_interaction >= min_cust and 
+            problem_definition_clarity >= min_clarity):
             return "best"
         else:
             return "medium"

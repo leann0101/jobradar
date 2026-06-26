@@ -43,9 +43,9 @@
   </div>
 </div>
 
-<!-- Best Match Section -->
+<!-- High Matches Section -->
 <div class="section-header">
-  <div class="section-title">🏆 Best Matches</div>
+  <div class="section-title">🏆 High Matches</div>
   <span class="section-badge badge-best">{{ best_count }} jobs</span>
 </div>
 
@@ -58,7 +58,7 @@
         <div class="job-title">{{ job.title }}</div>
         <div class="job-company">{{ job.company }}</div>
       </div>
-      <!-- Dual match scores -->
+      <!-- Triple match scores -->
       <div style="display: flex; gap: 10px; align-items: center; flex-shrink: 0;">
         <div style="text-align: center;">
           <div class="job-score-ring" title="Preference match score: {{ job.match_score }}%" style="width: 36px; height: 36px;">
@@ -73,6 +73,14 @@
             </svg>
           </div>
           <div style="font-size: 8px; color: var(--text-secondary); margin-top: 2px; font-weight: 700; text-transform: uppercase;">Pref</div>
+        </div>
+
+        <!-- Career Trajectory Fit (CTF) Score -->
+        <div style="text-align: center;">
+          <div class="job-score-ring" title="Career Trajectory Fit: {{ (job.get('career_trajectory_fit', {}) or {}).get('score', 1) }}/5" style="width: 36px; height: 36px; background: rgba(255, 255, 255, 0.03); border: 2.5px solid {% if ((job.get('career_trajectory_fit', {}) or {}).get('score', 1) | int) >= 4 %}#22d3a0{% elif ((job.get('career_trajectory_fit', {}) or {}).get('score', 1) | int) >= 3 %}#fbbf24{% else %}#f87171{% endif %}; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
+            <span style="font-size: 13.5px; font-weight: 800; color: var(--text-primary);">{{ (job.get('career_trajectory_fit', {}) or {}).get('score', 1) }}</span>
+          </div>
+          <div style="font-size: 8px; color: var(--text-secondary); margin-top: 2px; font-weight: 700; text-transform: uppercase;">CTF</div>
         </div>
 
         {% if job.resume_match and job.resume_match.score is defined and job.resume_match.score > 0 %}
@@ -113,6 +121,29 @@
       {% endfor %}
     </div>
 
+    <!-- 5-dimension scorecard progress bars -->
+    <div class="mini-scorecard" style="margin-top: 14px; padding-top: 10px; border-top: 1px dashed rgba(255, 255, 255, 0.08); display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;">
+      {% set dimensions = [
+        ('problem_space_type', 'PS', 'Problem Space'),
+        ('product_stage', 'STG', 'Product Stage'),
+        ('decision_power', 'DEC', 'Decision Power'),
+        ('customer_interaction', 'CUST', 'Customer Interaction'),
+        ('problem_definition_clarity', 'CLR', 'Problem Clarity')
+      ] %}
+      {% for key, label, full_name in dimensions %}
+        {% set d_val = ((job.get('scorecard', {}) or {}).get(key, {}) or {}).get('score', 1) | int %}
+        <div title="{{ full_name }}: {{ d_val }}/5" style="display: flex; flex-direction: column; gap: 4px;">
+          <div style="display: flex; justify-content: space-between; font-size: 8px; color: var(--text-muted); font-weight: 700;">
+            <span>{{ label }}</span>
+            <span>{{ d_val }}</span>
+          </div>
+          <div style="height: 3px; background: rgba(255,255,255,0.05); border-radius: 1.5px; overflow: hidden; display: flex;">
+            <div style="width: {{ d_val * 20 }}%; height: 100%; border-radius: 1.5px; background: {% if d_val >= 4 %}var(--accent-green){% elif d_val >= 3 %}var(--accent-blue){% else %}var(--text-muted){% endif %};"></div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
     <div class="job-card-footer">
       <span style="font-size:12px; color: var(--text-muted);">{{ job.experience_level or '' }}</span>
       <span class="btn btn-ghost btn-sm">View Details →</span>
@@ -123,8 +154,8 @@
 {% else %}
 <div class="empty-state">
   <div class="empty-icon">🎯</div>
-  <h3>No best matches yet</h3>
-  <p>Run the scraper to find jobs that match your keywords.</p>
+  <h3>No high matches yet</h3>
+  <p>Run the scraper to find jobs that match your career intelligence blueprint.</p>
 </div>
 {% endif %}
 
@@ -145,7 +176,7 @@
         <div class="job-title">{{ job.title }}</div>
         <div class="job-company">{{ job.company }}</div>
       </div>
-      <!-- Dual match scores -->
+      <!-- Triple match scores -->
       <div style="display: flex; gap: 10px; align-items: center; flex-shrink: 0;">
         <div style="text-align: center;">
           <div class="job-score-ring" title="Preference match score: {{ job.match_score }}%" style="width: 36px; height: 36px;">
@@ -160,6 +191,14 @@
             </svg>
           </div>
           <div style="font-size: 8px; color: var(--text-secondary); margin-top: 2px; font-weight: 700; text-transform: uppercase;">Pref</div>
+        </div>
+
+        <!-- Career Trajectory Fit (CTF) Score -->
+        <div style="text-align: center;">
+          <div class="job-score-ring" title="Career Trajectory Fit: {{ (job.get('career_trajectory_fit', {}) or {}).get('score', 1) }}/5" style="width: 36px; height: 36px; background: rgba(255, 255, 255, 0.03); border: 2.5px solid {% if ((job.get('career_trajectory_fit', {}) or {}).get('score', 1) | int) >= 4 %}#22d3a0{% elif ((job.get('career_trajectory_fit', {}) or {}).get('score', 1) | int) >= 3 %}#fbbf24{% else %}#f87171{% endif %}; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
+            <span style="font-size: 13.5px; font-weight: 800; color: var(--text-primary);">{{ (job.get('career_trajectory_fit', {}) or {}).get('score', 1) }}</span>
+          </div>
+          <div style="font-size: 8px; color: var(--text-secondary); margin-top: 2px; font-weight: 700; text-transform: uppercase;">CTF</div>
         </div>
 
         {% if job.resume_match and job.resume_match.score is defined and job.resume_match.score > 0 %}
@@ -200,6 +239,29 @@
       {% endfor %}
     </div>
 
+    <!-- 5-dimension scorecard progress bars -->
+    <div class="mini-scorecard" style="margin-top: 14px; padding-top: 10px; border-top: 1px dashed rgba(255, 255, 255, 0.08); display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;">
+      {% set dimensions = [
+        ('problem_space_type', 'PS', 'Problem Space'),
+        ('product_stage', 'STG', 'Product Stage'),
+        ('decision_power', 'DEC', 'Decision Power'),
+        ('customer_interaction', 'CUST', 'Customer Interaction'),
+        ('problem_definition_clarity', 'CLR', 'Problem Clarity')
+      ] %}
+      {% for key, label, full_name in dimensions %}
+        {% set d_val = ((job.get('scorecard', {}) or {}).get(key, {}) or {}).get('score', 1) | int %}
+        <div title="{{ full_name }}: {{ d_val }}/5" style="display: flex; flex-direction: column; gap: 4px;">
+          <div style="display: flex; justify-content: space-between; font-size: 8px; color: var(--text-muted); font-weight: 700;">
+            <span>{{ label }}</span>
+            <span>{{ d_val }}</span>
+          </div>
+          <div style="height: 3px; background: rgba(255,255,255,0.05); border-radius: 1.5px; overflow: hidden; display: flex;">
+            <div style="width: {{ d_val * 20 }}%; height: 100%; border-radius: 1.5px; background: {% if d_val >= 4 %}var(--accent-green){% elif d_val >= 3 %}var(--accent-blue){% else %}var(--text-muted){% endif %};"></div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
     <div class="job-card-footer">
       <span style="font-size:12px; color: var(--text-muted);">{{ job.experience_level or '' }}</span>
       <span class="btn btn-ghost btn-sm">View Details →</span>
@@ -226,7 +288,7 @@
 {% if low_jobs %}
 <details class="low-matches-details" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; cursor: pointer; display: block; margin-bottom: 32px;">
   <summary style="font-size: 13.5px; font-weight: 600; color: var(--text-secondary); list-style: none; display: flex; align-items: center; justify-content: space-between; outline: none; user-select: none;">
-    <span>🔍 Click to expand/collapse low compatibility jobs (< 15% preference fit)</span>
+    <span>🔍 Click to expand/collapse low compatibility jobs (score < {{ settings.score_thresholds.medium_match }}% or low trajectory)</span>
     <span class="toggle-icon" style="transition: transform 0.2s;">▼</span>
   </summary>
   <div style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px; display: flex; flex-direction: column; gap: 8px; cursor: default; overflow-x: auto;" onclick="event.stopPropagation()">

@@ -71,14 +71,15 @@
 
 <!-- Navigation Tabs -->
 <div class="settings-tabs">
-  <button class="tab-btn active" onclick="switchTab('system-settings')" id="tab-btn-system">⚙️ Career Intelligence Settings</button>
+  <button class="tab-btn active" onclick="switchTab('career-settings')" id="tab-btn-career">⚙️ Career Intelligence Settings</button>
+  <button class="tab-btn" onclick="switchTab('system-settings')" id="tab-btn-system">⚙️ System Settings</button>
   <button class="tab-btn" onclick="switchTab('search-settings')" id="tab-btn-search">🔍 Job Search Settings</button>
 </div>
 
 <!-- ======================================================== -->
-<!-- TAB 1: CAREER INTELLIGENCE & SYSTEM SETTINGS              -->
+<!-- TAB 1: CAREER INTELLIGENCE SETTINGS                      -->
 <!-- ======================================================== -->
-<div id="system-settings-content" class="settings-tab-content" style="display: block;">
+<div id="career-settings-content" class="settings-tab-content" style="display: block;">
   <!-- Career Objective Settings -->
   <div class="settings-card" style="margin-bottom: 24px;">
     <h3>🎯 Career Objective Settings</h3>
@@ -177,8 +178,13 @@
       </div>
     </div>
   </div>
+</div>
 
-  <div class="settings-grid" style="margin-top: 24px;">
+<!-- ======================================================== -->
+<!-- TAB 2: SYSTEM SETTINGS                                    -->
+<!-- ======================================================== -->
+<div id="system-settings-content" class="settings-tab-content" style="display: none;">
+  <div class="settings-grid">
     <!-- Freshness Configuration -->
     <div class="settings-card" style="margin-bottom: 0;">
       <h3>⏳ Freshness Configuration</h3>
@@ -440,7 +446,10 @@ function switchTab(tabId) {
   document.querySelectorAll('.settings-tab-content').forEach(el => el.style.display = 'none');
   document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
   
-  if (tabId === 'system-settings') {
+  if (tabId === 'career-settings') {
+    document.getElementById('career-settings-content').style.display = 'block';
+    document.getElementById('tab-btn-career').classList.add('active');
+  } else if (tabId === 'system-settings') {
     document.getElementById('system-settings-content').style.display = 'block';
     document.getElementById('tab-btn-system').classList.add('active');
   } else if (tabId === 'search-settings') {

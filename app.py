@@ -64,8 +64,11 @@ def load_settings() -> dict:
             "target_trajectory": "I want to become a strategy-driven, discovery-oriented product builder who defines problems in emerging tech."
         },
         "override_rules": {
-            "min_product_stage": 4,
-            "min_decision_power": 4
+            "min_problem_space": 1,
+            "min_product_stage": 3,
+            "min_decision_power": 3,
+            "min_customer_interaction": 1,
+            "min_problem_definition_clarity": 1
         },
         "search": {
             "job_titles": ["product manager"],
@@ -253,7 +256,7 @@ def run_scrape_pipeline():
                         lang_ok = False
                 
                 if lang_ok:
-                    j["match_category"] = classify_job(j, thresholds)
+                    j["match_category"] = classify_job(j, settings)
                 else:
                     j["match_category"] = "low"
 
@@ -338,8 +341,11 @@ def settings_page():
         # Override rules
         ov = data.get("override_rules", {})
         settings["override_rules"] = {
-            "min_product_stage": int(ov.get("min_product_stage", 4)),
-            "min_decision_power": int(ov.get("min_decision_power", 4))
+            "min_problem_space": int(ov.get("min_problem_space", 1)),
+            "min_product_stage": int(ov.get("min_product_stage", 3)),
+            "min_decision_power": int(ov.get("min_decision_power", 3)),
+            "min_customer_interaction": int(ov.get("min_customer_interaction", 1)),
+            "min_problem_definition_clarity": int(ov.get("min_problem_definition_clarity", 1))
         }
 
         settings["search"]["days_ago"] = int(data.get("days_ago", 15))
@@ -357,7 +363,6 @@ def settings_page():
 
         # Re-classify existing jobs under new thresholds/rules
         jobs = load_jobs()
-        thresholds = settings.get("score_thresholds", {"best_match": 80, "medium_match": 60})
         user_languages = [lang.lower() for lang in settings.get("search", {}).get("languages", []) if lang]
         for j in jobs:
             if "match_score" in j:
@@ -368,7 +373,7 @@ def settings_page():
                         lang_ok = False
                 
                 if lang_ok:
-                    j["match_category"] = classify_job(j, thresholds)
+                    j["match_category"] = classify_job(j, settings)
                 else:
                     j["match_category"] = "low"
         save_jobs(jobs)

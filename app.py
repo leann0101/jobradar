@@ -219,9 +219,8 @@ def run_scrape_pipeline():
 
         logger.info(f"Scrape complete. {len(analyzed)} new jobs added.")
 
-        # Sync to GitHub if running locally
-        if os.environ.get("RENDER") != "true":
-            sync_data_to_github()
+        # Sync to GitHub (keeps data persistent across restarts/deploys)
+        sync_data_to_github()
     finally:
         with scrape_lock:
             is_scraping = False

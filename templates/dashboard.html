@@ -215,4 +215,63 @@
 </div>
 {% endif %}
 
+<div class="divider"></div>
+
+<!-- Low Match Section -->
+<div class="section-header" style="margin-top: 32px;">
+  <div class="section-title" style="color: var(--text-secondary);">❄️ Low Matches</div>
+  <span class="section-badge" style="background: rgba(248, 113, 113, 0.1); color: var(--accent-red); border: 1px solid rgba(248, 113, 113, 0.2);">{{ low_count }} jobs</span>
+</div>
+
+{% if low_jobs %}
+<details class="low-matches-details" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; cursor: pointer; display: block; margin-bottom: 32px;">
+  <summary style="font-size: 13.5px; font-weight: 600; color: var(--text-secondary); list-style: none; display: flex; align-items: center; justify-content: space-between; outline: none; user-select: none;">
+    <span>🔍 Click to expand/collapse low compatibility jobs (< 15% preference fit)</span>
+    <span class="toggle-icon" style="transition: transform 0.2s;">▼</span>
+  </summary>
+  <div style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px; display: flex; flex-direction: column; gap: 8px; cursor: default; overflow-x: auto;" onclick="event.stopPropagation()">
+    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; min-width: 600px;">
+      <thead>
+        <tr style="border-bottom: 1px solid var(--border); color: var(--text-muted); text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px;">
+          <th style="padding: 8px;">Job Title</th>
+          <th style="padding: 8px;">Company</th>
+          <th style="padding: 8px;">Location</th>
+          <th style="padding: 8px; text-align: center;">Pref</th>
+          <th style="padding: 8px; text-align: center;">Resume</th>
+          <th style="padding: 8px; text-align: right;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for job in low_jobs %}
+        <tr style="border-bottom: 1px solid rgba(255,255,255,0.03); color: var(--text-secondary); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+          <td style="padding: 10px 8px; font-weight: 600;"><a href="{{ url_for('job_detail', job_id=job.id) }}" style="color: var(--text-primary); text-decoration: none;">{{ job.title }}</a></td>
+          <td style="padding: 10px 8px;">{{ job.company }}</td>
+          <td style="padding: 10px 8px; font-size: 12px;">📍 {{ job.location or '—' }}</td>
+          <td style="padding: 10px 8px; text-align: center; font-weight: 700; color: var(--accent-red);">{{ job.match_score }}%</td>
+          <td style="padding: 10px 8px; text-align: center; font-weight: 700; color: var(--accent-purple);">{{ job.resume_match.score or 0 }}%</td>
+          <td style="padding: 10px 8px; text-align: right;">
+            <a href="{{ url_for('job_detail', job_id=job.id) }}" class="btn btn-ghost btn-sm" style="padding: 4px 8px; font-size: 11px;">View →</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</details>
+<style>
+  .low-matches-details[open] .toggle-icon {
+    transform: rotate(180deg);
+  }
+  .low-matches-details summary::-webkit-details-marker {
+    display: none;
+  }
+</style>
+{% else %}
+<div class="empty-state" style="margin-bottom: 32px;">
+  <div class="empty-icon">❄️</div>
+  <h3>No low match jobs filtered</h3>
+  <p>All found jobs match your configured preference thresholds.</p>
+</div>
+{% endif %}
+
 {% endblock %}

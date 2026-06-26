@@ -5,7 +5,7 @@
 <div class="page-header">
   <div class="page-header-left">
     <h2>Settings</h2>
-    <p>Configure your keyword preferences and scraping options</p>
+    <p>Configure your keyword preferences, resume details, and advanced scraping filters</p>
   </div>
   <button id="save-settings-btn" class="btn btn-primary">💾 Save Settings</button>
 </div>
@@ -14,6 +14,44 @@
 <input type="hidden" id="must-have-hidden" value='{{ settings.must_have | tojson }}' />
 <input type="hidden" id="nice-to-have-hidden" value='{{ settings.nice_to_have | tojson }}' />
 <input type="hidden" id="job-titles-hidden" value='{{ settings.search.job_titles | tojson }}' />
+
+<!-- 1. Resume & Recommendations Section -->
+<div class="settings-card" style="margin-bottom: 24px; border: 1px solid rgba(167, 139, 250, 0.2); background: linear-gradient(180deg, var(--bg-card) 0%, rgba(20, 28, 46, 0.9) 100%);">
+  <h3 style="color: var(--accent-purple); display: flex; align-items: center; gap: 8px;">
+    <span>📄</span> Candidate Resume & AI Keywords Recommendation
+  </h3>
+  <p class="desc" style="margin-bottom: 16px;">
+    Paste your plain text resume below. AI will analyze it to recommend suitable job titles and keywords. You can click recommendations to quickly append them to your settings.
+  </p>
+
+  <div class="form-group">
+    <label class="form-label" for="resume-text">Paste Resume Text</label>
+    <textarea id="resume-text" class="form-input" rows="8" placeholder="Paste your plain text resume here (education, experience, skills)..." style="resize: vertical; font-family: inherit; font-size: 13.5px; line-height: 1.6; background: rgba(10, 14, 26, 0.5);">{{ settings.resume_text }}</textarea>
+  </div>
+
+  <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+    <button id="analyze-resume-btn" class="btn btn-primary" style="background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue)); border: none;">
+      🔍 Analyze Resume with AI
+    </button>
+  </div>
+
+  <!-- Recommendations Panel -->
+  <div id="recommendations-panel" style="display: none; padding: 20px; background: var(--bg-secondary); border-radius: var(--radius-md); border: 1px solid var(--border); margin-top: 16px;">
+    <h4 style="font-size: 14px; font-weight: 700; margin-bottom: 16px; color: var(--accent-green); display: flex; align-items: center; gap: 6px;">
+      <span>💡</span> Recommended Filters (Click to add to your settings)
+    </h4>
+    
+    <div style="margin-bottom: 20px;">
+      <div class="form-label" style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">Job Titles</div>
+      <div id="rec-job-titles" class="keyword-tags" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+    </div>
+    
+    <div>
+      <div class="form-label" style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">Must-Have Keywords</div>
+      <div id="rec-keywords" class="keyword-tags" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+    </div>
+  </div>
+</div>
 
 <div class="settings-grid">
   <!-- Must Have Keywords -->
@@ -31,7 +69,114 @@
   </div>
 </div>
 
-<!-- Thresholds + Search config -->
+<div class="settings-grid">
+  <!-- Left Side: Basic & Advanced Search Configuration -->
+  <div class="settings-card">
+    <h3>🌐 Platforms & Search Configuration</h3>
+    <p class="desc">Specify location, target platforms, and search titles.</p>
+
+    <div class="form-group">
+      <label class="form-label">📍 Search Location</label>
+      <input type="text" id="search-location" class="form-input" value="{{ settings.search.location }}" placeholder="e.g. Germany, Munich, Taiwan" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">🔍 Job Titles</label>
+      <p class="desc" style="font-size: 11px; margin-bottom: 6px;">Job titles to search. Press Enter to add.</p>
+      <div class="tag-input-container" id="job-titles-input" role="group" aria-label="Job Titles"></div>
+    </div>
+
+    <div class="form-group" style="margin-top: 20px;">
+      <label class="form-label">Platforms to Scrape</label>
+      <div class="checkbox-grid">
+        {% set active_platforms = settings.search.platforms %}
+        <label class="checkbox-item {% if 'linkedin' in active_platforms %}checked{% endif %}" id="label-linkedin">
+          <input type="checkbox" id="platform-linkedin" value="linkedin" {% if 'linkedin' in active_platforms %}checked{% endif %} />
+          <div class="checkbox-dot"></div>
+          <span style="font-size:13px; font-weight:600;">LinkedIn</span>
+        </label>
+        <label class="checkbox-item {% if 'indeed' in active_platforms %}checked{% endif %}" id="label-indeed">
+          <input type="checkbox" id="platform-indeed" value="indeed" {% if 'indeed' in active_platforms %}checked{% endif %} />
+          <div class="checkbox-dot"></div>
+          <span style="font-size:13px; font-weight:600;">Indeed</span>
+        </label>
+        <label class="checkbox-item {% if 'glassdoor' in active_platforms %}checked{% endif %}" id="label-glassdoor">
+          <input type="checkbox" id="platform-glassdoor" value="glassdoor" {% if 'glassdoor' in active_platforms %}checked{% endif %} />
+          <div class="checkbox-dot"></div>
+          <span style="font-size:13px; font-weight:600;">Glassdoor</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side: Advanced Search Filters (Multi-select) -->
+  <div class="settings-card">
+    <h3>🔍 Advanced Search Filters</h3>
+    <p class="desc">LinkedIn guest search criteria. (Leave empty to fetch all results).</p>
+
+    <!-- Experience Level -->
+    <div class="form-group">
+      <label class="form-label">⏳ Experience Level</label>
+      <div class="checkbox-grid" id="experience-levels-group">
+        {% set exp_levels = settings.search.experience_levels or [] %}
+        {% for code, label in [('internship', 'Internship'), ('entry', 'Entry Level'), ('associate', 'Associate'), ('mid-senior', 'Mid-Senior'), ('director', 'Director'), ('executive', 'Executive')] %}
+        <label class="checkbox-item {% if code in exp_levels %}checked{% endif %}" data-filter-type="experience_levels" data-value="{{ code }}">
+          <input type="checkbox" value="{{ code }}" {% if code in exp_levels %}checked{% endif %} />
+          <div class="checkbox-dot"></div>
+          <span style="font-size:12px; font-weight:600;">{{ label }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Location Types -->
+    <div class="form-group">
+      <label class="form-label">🏢 Workplace Location Type</label>
+      <div class="checkbox-grid" id="location-types-group">
+        {% set loc_types = settings.search.location_types or [] %}
+        {% for code, label in [('on-site', 'On-site'), ('hybrid', 'Hybrid'), ('remote', 'Remote')] %}
+        <label class="checkbox-item {% if code in loc_types %}checked{% endif %}" data-filter-type="location_types" data-value="{{ code }}">
+          <input type="checkbox" value="{{ code }}" {% if code in loc_types %}checked{% endif %} />
+          <div class="checkbox-dot"></div>
+          <span style="font-size:12px; font-weight:600;">{{ label }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Employment Types -->
+    <div class="form-group">
+      <label class="form-label">💼 Employment Type</label>
+      <div class="checkbox-grid" id="employment-types-group">
+        {% set emp_types = settings.search.employment_types or [] %}
+        {% for code, label in [('full-time', 'Full-time'), ('part-time', 'Part-time'), ('contract', 'Contract'), ('internship', 'Internship'), ('temporary', 'Temporary')] %}
+        <label class="checkbox-item {% if code in emp_types %}checked{% endif %}" data-filter-type="employment_types" data-value="{{ code }}">
+          <input type="checkbox" value="{{ code }}" {% if code in emp_types %}checked{% endif %} />
+          <div class="checkbox-dot"></div>
+          <span style="font-size:12px; font-weight:600;">{{ label }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Languages -->
+    <div class="form-group" style="margin-bottom: 0;">
+      <label class="form-label">🗣 Languages</label>
+      <div class="checkbox-grid" id="languages-group">
+        {% set languages = settings.search.languages or [] %}
+        {% for code, label in [('english', 'English'), ('german', 'German')] %}
+        <label class="checkbox-item {% if code in languages %}checked{% endif %}" data-filter-type="languages" data-value="{{ code }}">
+          <input type="checkbox" value="{{ code }}" {% if code in languages %}checked{% endif %} />
+          <div class="checkbox-dot"></div>
+          <span style="font-size:12px; font-weight:600;">{{ label }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Score Thresholds & freshness -->
 <div class="settings-grid">
   <div class="settings-card">
     <h3>📊 Match Score Thresholds</h3>
@@ -39,77 +184,30 @@
 
     <div class="form-group">
       <label class="form-label" for="best-threshold">Best Match threshold (%)</label>
-      <input type="number" id="best-threshold" class="form-input"
-        min="1" max="100" value="{{ settings.score_thresholds.best_match }}"
-        aria-describedby="best-threshold-hint" />
-      <small id="best-threshold-hint" style="font-size:12px; color:var(--text-muted);">
-        Jobs scoring ≥ this are shown as "Best Match"
-      </small>
+      <input type="number" id="best-threshold" class="form-input" min="1" max="100" value="{{ settings.score_thresholds.best_match }}" />
+      <small style="font-size:12px; color:var(--text-muted);">Jobs scoring ≥ this are shown as "Best Match"</small>
     </div>
 
-    <div class="form-group">
+    <div class="form-group" style="margin-bottom: 0;">
       <label class="form-label" for="medium-threshold">Medium Match threshold (%)</label>
-      <input type="number" id="medium-threshold" class="form-input"
-        min="1" max="100" value="{{ settings.score_thresholds.medium_match }}" />
-      <small style="font-size:12px; color:var(--text-muted);">
-        Jobs scoring ≥ this (but below Best) are "Medium Match"
-      </small>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label" for="days-ago">Job freshness (days)</label>
-      <input type="number" id="days-ago" class="form-input"
-        min="1" max="30" value="{{ settings.search.days_ago }}" />
-      <small style="font-size:12px; color:var(--text-muted);">
-        Only show jobs posted within this many days
-      </small>
+      <input type="number" id="medium-threshold" class="form-input" min="1" max="100" value="{{ settings.score_thresholds.medium_match }}" />
+      <small style="font-size:12px; color:var(--text-muted);">Jobs scoring ≥ this (but below Best) are "Medium Match"</small>
     </div>
   </div>
 
   <div class="settings-card">
-    <h3>🌐 Platforms to Scrape</h3>
-    <p class="desc">Select which job platforms to include in each scrape run.</p>
+    <h3>Freshness Configuration</h3>
+    <p class="desc">How far back should we search?</p>
 
-    <div class="checkbox-grid">
-      {% set active_platforms = settings.search.platforms %}
-      <label class="checkbox-item {% if 'linkedin' in active_platforms %}checked{% endif %}" for="platform-linkedin" id="label-linkedin">
-        <input type="checkbox" id="platform-linkedin" value="linkedin"
-          {% if 'linkedin' in active_platforms %}checked{% endif %} />
-        <div class="checkbox-dot"></div>
-        <span style="font-size:13px; font-weight:600;">LinkedIn</span>
-      </label>
-      <label class="checkbox-item {% if 'indeed' in active_platforms %}checked{% endif %}" for="platform-indeed" id="label-indeed">
-        <input type="checkbox" id="platform-indeed" value="indeed"
-          {% if 'indeed' in active_platforms %}checked{% endif %} />
-        <div class="checkbox-dot"></div>
-        <span style="font-size:13px; font-weight:600;">Indeed</span>
-      </label>
-      <label class="checkbox-item {% if 'glassdoor' in active_platforms %}checked{% endif %}" for="platform-glassdoor" id="label-glassdoor">
-        <input type="checkbox" id="platform-glassdoor" value="glassdoor"
-          {% if 'glassdoor' in active_platforms %}checked{% endif %} />
-        <div class="checkbox-dot"></div>
-        <span style="font-size:13px; font-weight:600;">Glassdoor</span>
-      </label>
-    </div>
-
-    <div style="margin-top: 24px; padding: 16px; background: var(--bg-secondary); border-radius: var(--radius-sm); border: 1px solid var(--border);">
-      <div class="form-label" style="margin-bottom: 12px;">Search Settings</div>
-      
-      <div class="form-group" style="margin-bottom: 16px;">
-        <label class="form-label" for="search-location">📍 Search Location</label>
-        <input type="text" id="search-location" class="form-input" value="{{ settings.search.location }}" placeholder="e.g. Germany, Munich, Taiwan" />
-      </div>
-
-      <div class="form-group" style="margin-bottom: 0;">
-        <label class="form-label">🔍 Job Titles</label>
-        <p class="desc" style="font-size: 11px; margin-bottom: 6px;">Job titles to search. Press Enter to add.</p>
-        <div class="tag-input-container" id="job-titles-input" role="group" aria-label="Job Titles"></div>
-      </div>
+    <div class="form-group" style="margin-bottom: 0;">
+      <label class="form-label" for="days-ago">Job freshness (days)</label>
+      <input type="number" id="days-ago" class="form-input" min="1" max="30" value="{{ settings.search.days_ago }}" />
+      <small style="font-size:12px; color:var(--text-muted);">Only show jobs posted within this many days</small>
     </div>
   </div>
 </div>
 
-<div style="padding: 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md);">
+<div style="padding: 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); margin-top: 24px;">
   <h3 style="font-size:14px; font-weight:700; margin-bottom:8px; color: var(--accent-amber);">⚠️ Danger Zone</h3>
   <p style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;">Clear all saved jobs and start fresh. This cannot be undone.</p>
   <button class="btn btn-danger" id="clear-jobs-btn" onclick="clearAllJobs()">🗑 Clear All Jobs</button>

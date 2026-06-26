@@ -71,6 +71,34 @@ async function deleteJob(jobId, cardEl) {
   }
 }
 
+// ── Translate Job Description ────────────────────────────────────────────────
+async function translateJD(jobId) {
+  const btn = document.getElementById('translate-btn');
+  const jdContainer = document.querySelector('.detail-jd');
+  if (!btn || !jdContainer) return;
+  
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Translating...';
+  
+  try {
+    const res = await fetch(`/api/job/translate/${jobId}`, { method: 'POST' });
+    if (!res.ok) throw new Error('Translation request failed');
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    
+    jdContainer.style.opacity = '0';
+    setTimeout(() => {
+      jdContainer.innerHTML = data.translated_text.replace(/\n/g, '<br>');
+      jdContainer.style.opacity = '1';
+      btn.innerHTML = '✅ Translated to English';
+    }, 300);
+  } catch (e) {
+    showToast('Failed to translate: ' + e.message, 'error');
+    btn.disabled = false;
+    btn.innerHTML = '🌐 Translate to English';
+  }
+}
+
 // ── Tag input manager ──────────────────────────────────────────────────────
 class TagInput {
   constructor(containerId, hiddenInputId, tagClass = '') {
@@ -310,6 +338,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Init settings page
   if (document.querySelector('.settings-grid')) initSettingsPage();
+
+  // Mobile Menu Toggle
+  const menuToggle = document.getElementById('menu-toggle');
+  const mobileNav = document.getElementById('mobile-nav');
+  if (menuToggle && mobileNav) {
+    menuToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      mobileNav.classList.toggle('open');
+      menuToggle.textContent = mobileNav.classList.contains('open') ? '✕' : '☰';
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', () => {
+      if (mobileNav.classList.contains('open')) {
+        mobileNav.classList.remove('open');
+        menuToggle.textContent = '☰';
+      }
+    });
+  }
 
   // Animate cards on load
   document.querySelectorAll('.job-card').forEach((card, i) => {

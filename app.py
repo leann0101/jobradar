@@ -5,7 +5,7 @@ import logging
 import threading
 import base64
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -404,6 +404,41 @@ def api_delete_job(job_id):
 def api_clear_jobs():
     save_jobs([])
     return jsonify({"status": "cleared"})
+
+
+@app.route("/api/jobs/clear-old", methods=["POST"])
+def api_clear_old_jobs():
+    data = request.get_json() or {}
+    days = int(data.get("days", 30))
+    
+    jobs = load_jobs()
+    initial_count = len(jobs)
+    
+    cutoff_date = (datetime.now() - timedelta(days=days)).date()
+    
+    filtered_jobs = []
+    for j in jobs:
+        date_str = j.get("date_posted", "")
+        keep = True
+        if date_str:
+            try:
+                posted_date = datetime.strptime(date_str[:10], "%Y-%m-%d").date()
+                if posted_date < cutoff_date:
+                    keep = False
+            except Exception:
+                pass
+        if keep:
+            filtered_jobs.append(j)
+            
+    save_jobs(filtered_jobs)
+    sync_data_to_github()
+    
+    cleared_count = initial_count - len(filtered_jobs)
+    return jsonify({
+        "status": "ok",
+        "cleared_count": cleared_count,
+        "total_remaining": len(filtered_jobs)
+    })
 
 
 # ── Scheduler ─────────────────────────────────────────────────────────────────

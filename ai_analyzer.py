@@ -242,3 +242,28 @@ def classify_job(score: int, thresholds: dict) -> str:
     elif score >= medium:
         return "medium"
     return "low"
+
+
+def translate_text_to_english(text: str) -> str:
+    """
+    Translate a job description into English using Llama 3.3.
+    """
+    client = get_client()
+    prompt = f"""You are a professional business translator. Translate the following job description into clear, fluent, professional business English.
+Keep the original layout, formatting, line breaks, and bullet points exactly the same.
+Do NOT include any introductory or concluding remarks, explanations, or notes. Output ONLY the translated text.
+
+TEXT TO TRANSLATE:
+{text[:4000]}
+"""
+    try:
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.2,
+            max_tokens=2048,
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        logger.error(f"Error in translate_text_to_english: {e}")
+        raise e

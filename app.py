@@ -276,15 +276,18 @@ def dashboard():
     jobs_sorted = sorted(jobs, key=lambda x: x.get("match_score", 0), reverse=True)
     best = [j for j in jobs_sorted if j.get("match_category") == "best"]
     medium = [j for j in jobs_sorted if j.get("match_category") == "medium"]
+    low = [j for j in jobs_sorted if j.get("match_category") == "low"]
 
     last_run = history[0]["run_at"] if history else None
     return render_template(
         "dashboard.html",
         best_jobs=best,
         medium_jobs=medium,
+        low_jobs=low,
         total=len(jobs),
         best_count=len(best),
         medium_count=len(medium),
+        low_count=len(low),
         last_run=last_run,
         is_scraping=is_scraping,
     )

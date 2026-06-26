@@ -1,5 +1,15 @@
 [
   {
+    "run_at": "2026-06-26T06:32:38.993125",
+    "new_jobs_found": 10,
+    "total_jobs": 40,
+    "platforms": [
+      "linkedin",
+      "indeed",
+      "glassdoor"
+    ]
+  },
+  {
     "run_at": "2026-06-26T06:28:09.405786",
     "new_jobs_found": 30,
     "total_jobs": 30,

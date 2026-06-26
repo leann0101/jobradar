@@ -9,6 +9,29 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
 </head>
 <body>
+
+<!-- Mobile Header -->
+<header class="mobile-header">
+  <div style="display: flex; align-items: center; gap: 8px;">
+    <span style="font-size: 20px;">🎯</span>
+    <span style="font-weight: 800; font-size: 16px; letter-spacing: -0.3px;">JobRadar</span>
+  </div>
+  <button id="menu-toggle" aria-label="Toggle Menu" class="menu-btn">☰</button>
+</header>
+
+<!-- Mobile Nav Menu (Overlay) -->
+<nav id="mobile-nav" class="mobile-nav">
+  <a href="{{ url_for('dashboard') }}" class="mobile-nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+    📊 Dashboard
+  </a>
+  <a href="{{ url_for('settings_page') }}" class="mobile-nav-item {% if request.endpoint == 'settings_page' %}active{% endif %}">
+    ⚙️ Settings
+  </a>
+  <a href="{{ url_for('history_page') }}" class="mobile-nav-item {% if request.endpoint == 'history_page' %}active{% endif %}">
+    🕐 History
+  </a>
+</nav>
+
 <div class="page-wrapper">
 
   <!-- Sidebar -->
@@ -16,7 +39,7 @@
     <div class="sidebar-logo">
       <div class="logo-icon" aria-hidden="true">🎯</div>
       <h1>JobRadar</h1>
-      <p>PM Jobs · Germany</p>
+      <p>Job Scrape</p>
     </div>
     <nav class="sidebar-nav">
       <a href="{{ url_for('dashboard') }}" class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}" id="nav-dashboard">

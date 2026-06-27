@@ -152,12 +152,14 @@ Dimensions:
 
 Also evaluate Career Trajectory Fit (CTF) from 1 to 5 based on how well this job moves the candidate toward their target identity: "{target_archetype}" and trajectory: "{target_trajectory}".
 Evaluate skill compounding, decision surface exposure, and system position (Creating vs. Shaping vs. Running system).
-Assign:
-- 5: Strongly moves toward target identity
-- 4: Clearly positive trajectory
-- 3: Neutral
-- 2: Slight drift away
-- 1: Strong drift away
+
+Follow these Scoring Guidelines strictly:
+- Score 5 (Strongly moves toward): If the job description explicitly focuses on leading product discovery, defining roadmaps for early-stage or emerging technologies, and handles high ambiguity (0→1 phase).
+- Score 4 (Clearly positive): If the job is a standard Product Manager role with strong strategy/discovery involvement and system shaping (1→10 scaling phase).
+- Score 3 (Neutral): If the job is a standard Product Manager role involving typical roadmap execution, backlog management, and cross-functional team coordination, but lacks direct strategic mapping to emerging tech. THIS IS THE DEFAULT PM BASELINE. Do not penalize standard PM roles down to 1 or 2.
+- Score 2 (Slight drift): If the job is primarily project coordination, delivery management, or operations with minimal product strategy exposure.
+- Score 1 (Strong drift): If the job is purely administrative, execution-tracking, or support with no product ownership or decision surface.
+
 Provide a direct quote from the JD as evidence for this CTF score.
 
 Provide detailed explanations for the match:
@@ -235,14 +237,14 @@ Respond with this exact JSON structure:
         )
         raw = response.choices[0].message.content.strip()
         
-        # Clean possible markdown wrapping
-        if raw.startswith("```"):
-            raw = raw.split("```")[1]
-            if raw.startswith("json"):
-                raw = raw[4:]
-        raw = raw.strip()
-        
-        analysis = json.loads(raw)
+        # Clean and extract JSON object cleanly
+        start_idx = raw.find('{')
+        end_idx = raw.rfind('}')
+        if start_idx != -1 and end_idx != -1:
+            raw_json = raw[start_idx:end_idx+1]
+            analysis = json.loads(raw_json)
+        else:
+            raise ValueError("No JSON object found in LLM response")
     except Exception as e:
         logger.error(f"Groq API or JSON parse error: {e}")
         analysis = {
@@ -341,6 +343,15 @@ def classify_job(job_or_score, settings: dict) -> str:
     score = job.get("match_score", 0)
     scorecard = job.get("scorecard", {})
     ctf_info = job.get("career_trajectory_fit", {})
+    
+    # Check if this is an old job analyzed before the scorecard engine was added
+    if not scorecard and not ctf_info:
+        if score >= best_threshold:
+            return "best"
+        elif score >= medium_threshold:
+            return "medium"
+        return "low"
+        
     ctf_score = ctf_info.get("score", 1)
     
     product_stage = scorecard.get("product_stage", {}).get("score", 1)

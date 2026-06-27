@@ -95,6 +95,7 @@ def load_settings() -> dict:
 
 def load_jobs() -> list:
     jobs = load_json(JOBS_FILE, [])
+    modified = False
     for j in jobs:
         if "company_profile" not in j or not isinstance(j["company_profile"], dict):
             j["company_profile"] = {
@@ -102,6 +103,7 @@ def load_jobs() -> list:
                 "business_domain": j.get("industry", "Technology"),
                 "employee_count": "Unknown"
             }
+            modified = True
         if "resume_match" not in j or not isinstance(j["resume_match"], dict):
             j["resume_match"] = {
                 "score": 0,
@@ -109,6 +111,28 @@ def load_jobs() -> list:
                 "gaps": [],
                 "explanation": "No resume analysis available"
             }
+            modified = True
+            
+        # Migrate old jobs to the new scorecard and CTF schema
+        if "scorecard" not in j or not j["scorecard"] or "career_trajectory_fit" not in j or not j["career_trajectory_fit"]:
+            j["scorecard"] = {
+                "problem_space_type": {"score": 3, "label": "Optimization of mature product", "evidence": "Pre-migration record"},
+                "product_stage": {"score": 3, "label": "Scaling (1->10)", "evidence": "Pre-migration record"},
+                "decision_power": {"score": 3, "label": "Contributes to decisions", "evidence": "Pre-migration record"},
+                "customer_interaction": {"score": 3, "label": "Occasional exposure", "evidence": "Pre-migration record"},
+                "problem_definition_clarity": {"score": 3, "label": "Medium ambiguity", "evidence": "Pre-migration record"}
+            }
+            j["career_trajectory_fit"] = {
+                "score": 3,
+                "label": "Neutral",
+                "evidence": "Pre-migration record"
+            }
+            j["why_match"] = "Pre-migration record. Run scraper to re-analyze this job."
+            j["why_not_match"] = "Pre-migration record. Run scraper to re-analyze this job."
+            modified = True
+            
+    if modified:
+        save_json(JOBS_FILE, jobs)
     return jobs
 
 

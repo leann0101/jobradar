@@ -1,5 +1,13 @@
 [
   {
+    "run_at": "2026-07-01T12:53:51.820056",
+    "new_jobs_found": 107,
+    "total_jobs": 155,
+    "platforms": [
+      "linkedin"
+    ]
+  },
+  {
     "run_at": "2026-06-25T22:27:52.336666",
     "new_jobs_found": 18,
     "total_jobs": 48,

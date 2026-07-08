@@ -25,7 +25,7 @@ def random_delay(min_sec=1, max_sec=3):
     time.sleep(random.uniform(min_sec, max_sec))
 
 
-def scrape_linkedin(search_query: str, location: str = "Germany", days_ago: int = 15, filter_cfg: dict = None) -> list[dict]:
+def scrape_linkedin(search_query: str, location: str = "Germany", days_ago: int = 15, filter_cfg: dict = None, existing_urls: set[str] = None) -> list[dict]:
     """
     Scrapes LinkedIn public job search page using requests (no browser needed).
     Note: LinkedIn heavily blocks scrapers; this uses the public JSON API endpoint.
@@ -134,6 +134,11 @@ def scrape_linkedin(search_query: str, location: str = "Germany", days_ago: int 
                     # Avoid duplicate links within this scrape run
                     link_clean = link.split("?")[0]
                     if any(j["url"] == link_clean for j in jobs):
+                        continue
+
+                    # Skip fetching JD if it already exists in the database
+                    if existing_urls and link_clean in existing_urls:
+                        logger.info(f"Skipping already-scraped LinkedIn job: {link_clean}")
                         continue
 
                     # Get JD from job page

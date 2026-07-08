@@ -342,7 +342,7 @@ def job_detail(job_id):
     jobs = load_jobs()
     job = next((j for j in jobs if j.get("id") == job_id), None)
     if not job:
-        return "Job not found", 404
+        return redirect(url_for("dashboard"))
     settings = load_settings()
     return render_template("job_detail.html", job=job, settings=settings)
 

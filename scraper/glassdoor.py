@@ -25,7 +25,7 @@ def random_delay(min_sec=1, max_sec=3):
     time.sleep(random.uniform(min_sec, max_sec))
 
 
-def scrape_glassdoor(search_query: str, location: str = "Germany", days_ago: int = 15) -> list[dict]:
+def scrape_glassdoor(search_query: str, location: str = "Germany", days_ago: int = 15, existing_urls: set[str] = None) -> list[dict]:
     """
     Scrapes Glassdoor for PM jobs in Germany using requests + BeautifulSoup.
     Glassdoor heavily uses JavaScript; we use their public job listing pages.
@@ -68,6 +68,10 @@ def scrape_glassdoor(search_query: str, location: str = "Germany", days_ago: int
                     continue
 
                 link = f"https://www.glassdoor.com{link_path}" if link_path.startswith("/") else link_path
+                link_clean = link.split("?")[0]
+                if existing_urls and link_clean in existing_urls:
+                    logger.info(f"Skipping already-scraped Glassdoor job: {link_clean}")
+                    continue
 
                 jd_text = _fetch_glassdoor_jd(link, headers)
                 random_delay(1, 2)
@@ -77,7 +81,7 @@ def scrape_glassdoor(search_query: str, location: str = "Germany", days_ago: int
                     "company": company,
                     "location": loc,
                     "date_posted": _parse_relative_date(date_text),
-                    "url": link,
+                    "url": link_clean,
                     "jd_text": jd_text,
                     "platform": "Glassdoor",
                 })

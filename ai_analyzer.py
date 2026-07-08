@@ -163,8 +163,8 @@ Follow these Scoring Guidelines strictly:
 Provide a direct quote from the JD as evidence for this CTF score.
 
 Provide detailed explanations for the match:
-- why_match: Deep explanation of why this job matches the user's career objectives (which aspects, dimensions, or duties align well).
-- why_not_match: Deep explanation of why this job might NOT match the user's career objectives, any potential gaps, or risks of drifting away from the target trajectory.
+- why_match: Deep explanation of why this job matches the user's career objectives (which aspects, dimensions, or duties align well). Write it as a bulleted list of 2-3 key positive alignments, with each point starting with a hyphen '-' and separated by a newline.
+- why_not_match: Deep explanation of why this job might NOT match the user's career objectives, any potential gaps, or risks of drifting away from the target trajectory. Write it as a bulleted list of 1-2 key risks or gaps, with each point starting with a hyphen '-' and separated by a newline.
 
 Respond with ONLY valid JSON, no markdown, no code blocks.
 

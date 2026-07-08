@@ -19,7 +19,7 @@
 </div>
 
 <div class="detail-layout">
-  <!-- Left column: Company Profile & JD -->
+  <!-- Left column: Company Profile & JD (Collapsed) -->
   <div>
     <!-- Company Profile Block -->
     <div class="detail-main" style="margin-bottom: 24px; border: 1px solid rgba(79, 142, 247, 0.2); background: linear-gradient(180deg, var(--bg-card) 0%, rgba(20, 28, 46, 0.4) 100%);">
@@ -44,14 +44,14 @@
       
       <div>
         <div class="form-label" style="font-size: 11px; margin-bottom: 6px;">About the Company</div>
-        <p style="font-size:13.5px; color:var(--text-secondary); line-height:1.6;">
+        <p style="font-size:13.5px; color:var(--text-secondary); line-height:1.6; margin: 0;">
           {{ job.company_profile.description or 'No company profile available.' }}
         </p>
       </div>
     </div>
 
-    <!-- Job Description -->
-    <div class="detail-main">
+    <!-- Job Description (Collapsed by default) -->
+    <div class="detail-main" style="position: relative;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
         <h3 style="font-size:15px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px; margin:0;">
           Job Description
@@ -63,7 +63,15 @@
         {% endif %}
       </div>
       {% if job.jd_text %}
-        <div class="detail-jd">{{ job.jd_text }}</div>
+        <div id="jd-content-wrapper" style="max-height: 250px; overflow: hidden; position: relative; transition: max-height 0.4s ease;">
+          <div class="detail-jd" style="margin-bottom: 0;">{{ job.jd_text }}</div>
+          <div id="jd-fade-overlay" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 80px; background: linear-gradient(0deg, var(--bg-card) 0%, rgba(20, 28, 46, 0) 100%); pointer-events: none;"></div>
+        </div>
+        <div style="text-align: center; margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px;">
+          <button id="toggle-jd-btn" class="btn btn-ghost btn-sm" onclick="toggleJDDescription()" style="color: var(--accent-blue); font-weight: 700; font-size: 13px;">
+            📂 Expand Job Description
+          </button>
+        </div>
       {% else %}
         <div class="empty-state" style="padding: 40px 0;">
           <div class="empty-icon">📄</div>
@@ -74,9 +82,9 @@
     </div>
   </div>
 
-  <!-- Right: AI analysis -->
+  <!-- Right column: AI Match Report (Decision Priority) -->
   <div>
-    <!-- Scores display -->
+    <!-- 1. Scores Summary Display -->
     <div class="detail-main" style="margin-bottom:16px;">
       <div style="display: flex; justify-content: space-around; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border); margin-bottom: 16px;">
         <!-- Preference Fit Score -->
@@ -127,7 +135,119 @@
       {% endif %}
     </div>
 
-    <!-- Structured Scorecard -->
+    <!-- 2. Match Reasoning Analysis (Why Match & Why NOT Match) -->
+    <div class="detail-main" style="margin-bottom:16px;">
+      <h4 style="font-size:13px; font-weight:700; color:var(--text-secondary); margin-bottom:14px; text-transform:uppercase; letter-spacing:0.5px;">
+        🧠 Match Reasoning Analysis
+      </h4>
+      
+      <!-- Why Match (Alignments) -->
+      <div style="margin-bottom:16px; background:rgba(34, 211, 160, 0.03); border:1px solid rgba(34, 211, 160, 0.15); padding:12px; border-radius:var(--radius-sm);">
+        <div style="font-size:12px; font-weight:700; color:var(--accent-green); margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+          <span>🎯</span> Why Match (Alignments)
+        </div>
+        <ul style="margin: 0; padding-left: 18px; font-size: 12.5px; color: var(--text-secondary); line-height: 1.6;">
+          {% if job.why_match %}
+            {% for item in job.why_match.split('\n') %}
+              {% if item.strip() %}
+                <li style="margin-bottom: 4px;">{{ item.strip().lstrip('-').lstrip('*').strip() }}</li>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            <li>No positive alignment details provided.</li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <!-- Why NOT Match (Risks & Gaps) -->
+      <div style="background:rgba(248, 113, 113, 0.03); border:1px solid rgba(248, 113, 113, 0.15); padding:12px; border-radius:var(--radius-sm);">
+        <div style="font-size:12px; font-weight:700; color:var(--accent-red); margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+          <span>⚠️</span> Why NOT Match (Risks & Gaps)
+        </div>
+        <ul style="margin: 0; padding-left: 18px; font-size: 12.5px; color: var(--text-secondary); line-height: 1.6;">
+          {% if job.why_not_match %}
+            {% for item in job.why_not_match.split('\n') %}
+              {% if item.strip() %}
+                <li style="margin-bottom: 4px;">{{ item.strip().lstrip('-').lstrip('*').strip() }}</li>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            <li>No risk or gap details provided.</li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+
+    <!-- 3. Resume & Keywords Fit Analysis -->
+    <div class="detail-main" style="margin-bottom:16px; border: 1px solid rgba(167, 139, 250, 0.25);">
+      <h4 style="font-size:13px; font-weight:700; color:var(--accent-purple); margin-bottom:14px; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
+        <span>📄</span> Resume & Keywords Fit Analysis
+      </h4>
+      
+      {% if job.resume_match and job.resume_match.explanation and job.resume_match.explanation != "No resume analysis available" %}
+      <p style="font-size:12.5px; color:var(--text-secondary); margin-bottom:16px; line-height:1.6; background: rgba(167, 139, 250, 0.05); padding: 10px 12px; border-radius: var(--radius-sm); border-left: 3px solid var(--accent-purple); margin-top:0;">
+        {{ job.resume_match.explanation }}
+      </p>
+      {% endif %}
+
+      <!-- Strengths & Matched Keywords -->
+      <div style="margin-bottom: 16px;">
+        <div class="form-label" style="color: var(--accent-green); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Matched Skills & Keywords</div>
+        <ul style="list-style: none; padding-left: 0; margin-top: 0; margin-bottom: 0;">
+          <!-- 1. Matched Must-Haves -->
+          {% for kw in (job.matched_must_have or []) %}
+          <li style="font-size:12.5px; color:var(--text-primary); margin-bottom:6px; display:flex; align-items:center; gap:8px;">
+            <span style="color:var(--accent-green); font-weight:bold; font-size:14px;">✓</span>
+            <span>Must-Have Keyword: <strong style="color:var(--accent-green);">{{ kw }}</strong></span>
+          </li>
+          {% endfor %}
+          
+          <!-- 2. Matched Nice-to-Haves -->
+          {% for kw in (job.matched_nice_to_have or []) %}
+          <li style="font-size:12.5px; color:var(--text-primary); margin-bottom:6px; display:flex; align-items:center; gap:8px;">
+            <span style="color:var(--accent-green); font-weight:bold; font-size:14px;">✓</span>
+            <span>Nice-to-Have Keyword: <strong style="color:var(--accent-amber);">{{ kw }}</strong></span>
+          </li>
+          {% endfor %}
+
+          <!-- 3. Resume Strengths -->
+          {% if job.resume_match and job.resume_match.strengths %}
+            {% for strg in job.resume_match.strengths %}
+            <li style="font-size:12.5px; color:var(--text-primary); margin-bottom:6px; display:flex; align-items:flex-start; gap:8px;">
+              <span style="color:var(--accent-green); font-weight:bold; font-size:14px;">✓</span>
+              <span>{{ strg }}</span>
+            </li>
+            {% endfor %}
+          {% endif %}
+        </ul>
+      </div>
+
+      <!-- Gaps & Missing Keywords -->
+      <div>
+        <div class="form-label" style="color: var(--accent-red); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Gaps & Missing Keywords</div>
+        <ul style="list-style: none; padding-left: 0; margin-top: 0; margin-bottom: 0;">
+          <!-- 1. Missing Must-Haves -->
+          {% for kw in (job.missing_must_have or []) %}
+          <li style="font-size:12.5px; color:var(--text-secondary); margin-bottom:6px; display:flex; align-items:center; gap:8px;">
+            <span style="color:var(--accent-red); font-weight:bold; font-size:14px;">⚠</span>
+            <span>Missing Keyword: <strong style="color:var(--accent-red); text-decoration: line-through; opacity: 0.7;">{{ kw }}</strong></span>
+          </li>
+          {% endfor %}
+
+          <!-- 2. Resume Gaps -->
+          {% if job.resume_match and job.resume_match.gaps %}
+            {% for gap in job.resume_match.gaps %}
+            <li style="font-size:12.5px; color:var(--text-secondary); margin-bottom:6px; display:flex; align-items:flex-start; gap:8px;">
+              <span style="color:var(--accent-red); font-weight:bold; font-size:14px;">⚠</span>
+              <span>{{ gap }}</span>
+            </li>
+            {% endfor %}
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+
+    <!-- 4. Structured Scorecard -->
     <div class="detail-main" style="margin-bottom:16px;">
       <h4 style="font-size:13px; font-weight:700; color:var(--accent-blue); margin-bottom:14px; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
         <span>📊</span> Structured Scorecard (1-5)
@@ -145,17 +265,23 @@
           {% set d_score = d_info.get('score', 1) | int %}
           {% set d_label = d_info.get('label', '—') %}
           {% set d_evidence = d_info.get('evidence', '') %}
+          {% set key_id = "evidence-" ~ key %}
           
           <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); padding:10px 12px; border-radius:var(--radius-sm);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
               <span style="font-size:12.5px; font-weight:700; color:var(--text-primary);">{{ name }}</span>
               <span style="font-size:12.5px; font-weight:800; color:{% if d_score >= 4 %}var(--accent-green){% elif d_score >= 3 %}var(--accent-blue){% else %}var(--text-muted){% endif %}; background:rgba(255,255,255,0.03); padding:2px 8px; border-radius:10px;">{{ d_score }}/5</span>
             </div>
-            <div style="font-size:12px; color:var(--text-secondary); margin-bottom:4px; font-weight:600;">
-              {{ d_label }}
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; color:var(--text-secondary); font-weight:600;">
+              <span>{{ d_label }}</span>
+              {% if d_evidence %}
+              <button onclick="toggleEvidence(this, '{{ key_id }}')" style="background:none; border:none; color:var(--accent-blue); font-size:11px; cursor:pointer; padding:0; display:flex; align-items:center; gap:2px;">
+                Evidence 📄
+              </button>
+              {% endif %}
             </div>
             {% if d_evidence %}
-            <div style="font-size:11px; color:var(--text-muted); font-style:italic; border-left:2px solid var(--border); padding-left:8px; margin-top:6px; line-height:1.4;">
+            <div id="{{ key_id }}" style="display:none; font-size:11px; color:var(--text-muted); font-style:italic; border-left:2px solid var(--border); padding-left:8px; margin-top:8px; line-height:1.4;">
               "{{ d_evidence }}"
             </div>
             {% endif %}
@@ -164,134 +290,31 @@
       </div>
     </div>
 
-    <!-- Career Trajectory Fit Detail -->
+    <!-- 5. Career Trajectory Fit Detail -->
     <div class="detail-main" style="margin-bottom:16px; border: 1px solid rgba(34, 211, 160, 0.25);">
       {% set ctf_info = job.get('career_trajectory_fit', {}) or {} %}
       {% set ctf_score = ctf_info.get('score', 1) | int %}
+      {% set ctf_evidence = ctf_info.get('evidence', '') %}
+      
       <h4 style="font-size:13px; font-weight:700; color:var(--accent-green); margin-bottom:14px; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
         <span>🎯</span> Career Trajectory Fit: {{ ctf_score }}/5
       </h4>
-      <div style="font-size:13px; color:var(--text-primary); font-weight:700; margin-bottom:6px;">
-        {{ ctf_info.get('label', '—') }}
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; color:var(--text-primary); font-weight:700; margin-bottom:6px;">
+        <span>{{ ctf_info.get('label', '—') }}</span>
+        {% if ctf_evidence %}
+        <button onclick="toggleEvidence(this, 'evidence-ctf')" style="background:none; border:none; color:var(--accent-green); font-size:11px; cursor:pointer; padding:0; display:flex; align-items:center; gap:2px;">
+          Evidence 📄
+        </button>
+        {% endif %}
       </div>
-      {% if ctf_info.get('evidence', '') %}
-      <div style="font-size:11.5px; color:var(--text-muted); font-style:italic; border-left:2.5px solid var(--accent-green); padding-left:10px; margin-top:8px; line-height:1.5;">
-        "{{ ctf_info.get('evidence', '') }}"
-      </div>
-      {% endif %}
-    </div>
-
-    <!-- Reasoning Summary -->
-    <div class="detail-main" style="margin-bottom:16px;">
-      <h4 style="font-size:13px; font-weight:700; color:var(--text-secondary); margin-bottom:14px; text-transform:uppercase; letter-spacing:0.5px;">
-        🧠 Match Reasoning Analysis
-      </h4>
-      
-      <!-- Why Match -->
-      <div style="margin-bottom:16px; background:rgba(34, 211, 160, 0.03); border:1px solid rgba(34, 211, 160, 0.15); padding:12px; border-radius:var(--radius-sm);">
-        <div style="font-size:12px; font-weight:700; color:var(--accent-green); margin-bottom:6px; display:flex; align-items:center; gap:6px;">
-          <span>🎯</span> Why Match (Alignments)
-        </div>
-        <p style="font-size:12.5px; color:var(--text-secondary); line-height:1.6; margin:0;">
-          {{ job.get('why_match', 'No positive alignment details provided.') }}
-        </p>
-      </div>
-
-      <!-- Why NOT Match -->
-      <div style="background:rgba(248, 113, 113, 0.03); border:1px solid rgba(248, 113, 113, 0.15); padding:12px; border-radius:var(--radius-sm);">
-        <div style="font-size:12px; font-weight:700; color:var(--accent-red); margin-bottom:6px; display:flex; align-items:center; gap:6px;">
-          <span>⚠️</span> Why NOT Match (Risks & Gaps)
-        </div>
-        <p style="font-size:12.5px; color:var(--text-secondary); line-height:1.6; margin:0;">
-          {{ job.get('why_not_match', 'No risk or gap details provided.') }}
-        </p>
-      </div>
-    </div>
-
-    <!-- Resume Fit Analysis -->
-    {% if job.resume_match and (job.resume_match.strengths or job.resume_match.gaps or (job.resume_match.explanation and job.resume_match.explanation != "No resume analysis available")) %}
-    <div class="detail-main" style="margin-bottom:16px; border: 1px solid rgba(167, 139, 250, 0.25);">
-      <h4 style="font-size:13px; font-weight:700; color:var(--accent-purple); margin-bottom:14px; text-transform:uppercase; letter-spacing:0.5px; display:flex; align-items:center; gap:6px;">
-        <span>📄</span> Resume Fit Analysis
-      </h4>
-      
-      {% if job.resume_match.explanation and job.resume_match.explanation != "No resume analysis available" %}
-      <p style="font-size:12.5px; color:var(--text-secondary); margin-bottom:16px; line-height:1.6; background: rgba(167, 139, 250, 0.05); padding: 10px 12px; border-radius: var(--radius-sm); border-left: 3px solid var(--accent-purple);">
-        {{ job.resume_match.explanation }}
-      </p>
-      {% endif %}
-
-      {% if job.resume_match.strengths %}
-      <div style="margin-bottom: 16px;">
-        <div class="form-label" style="color: var(--accent-green); font-size: 11px;">Strengths / Matched Skills</div>
-        <ul style="list-style: none; padding-left: 0; margin-top: 6px;">
-          {% for strg in job.resume_match.strengths %}
-          <li style="font-size:12.5px; color:var(--text-primary); margin-bottom:6px; display:flex; align-items:flex-start; gap:8px;">
-            <span style="color:var(--accent-green); font-weight:bold;">✓</span>
-            <span>{{ strg }}</span>
-          </li>
-          {% endfor %}
-        </ul>
-      </div>
-      {% endif %}
-
-      {% if job.resume_match.gaps %}
-      <div>
-        <div class="form-label" style="color: var(--accent-red); font-size: 11px;">Gaps / Missing Skills</div>
-        <ul style="list-style: none; padding-left: 0; margin-top: 6px;">
-          {% for gap in job.resume_match.gaps %}
-          <li style="font-size:12.5px; color:var(--text-secondary); margin-bottom:6px; display:flex; align-items:flex-start; gap:8px;">
-            <span style="color:var(--accent-red); font-weight:bold;">⚠</span>
-            <span>{{ gap }}</span>
-          </li>
-          {% endfor %}
-        </ul>
+      {% if ctf_evidence %}
+      <div id="evidence-ctf" style="display:none; font-size:11.5px; color:var(--text-muted); font-style:italic; border-left:2.5px solid var(--accent-green); padding-left:10px; margin-top:8px; line-height:1.5;">
+        "{{ ctf_evidence }}"
       </div>
       {% endif %}
     </div>
-    {% endif %}
 
-    <!-- Must-have keywords -->
-    <div class="detail-main" style="margin-bottom:16px;">
-      <h4 style="font-size:13px; font-weight:700; color:var(--text-secondary); margin-bottom:12px; text-transform:uppercase; letter-spacing:0.5px;">
-        Must-Have Keywords
-      </h4>
-      <ul class="match-list">
-        {% for kw in settings.must_have %}
-        <li>
-          {% if kw in (job.matched_must_have or []) %}
-            <span class="match-check">✓</span>
-            <span style="color:var(--accent-green); font-weight:600;">{{ kw }}</span>
-          {% else %}
-            <span class="match-x">○</span>
-            <span>{{ kw }}</span>
-          {% endif %}
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
-
-    <!-- Nice-to-have keywords -->
-    <div class="detail-main" style="margin-bottom:16px;">
-      <h4 style="font-size:13px; font-weight:700; color:var(--text-secondary); margin-bottom:12px; text-transform:uppercase; letter-spacing:0.5px;">
-        Nice-to-Have Keywords
-      </h4>
-      <ul class="match-list">
-        {% for kw in settings.nice_to_have %}
-        <li>
-          {% if kw in (job.matched_nice_to_have or []) %}
-            <span class="match-check">✓</span>
-            <span style="color:var(--accent-amber); font-weight:600;">{{ kw }}</span>
-          {% else %}
-            <span class="match-x">○</span>
-            <span>{{ kw }}</span>
-          {% endif %}
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
-
-    <!-- AI Extracted Info -->
+    <!-- 6. AI Extracted Info -->
     <div class="detail-main">
       <h4 style="font-size:13px; font-weight:700; color:var(--text-secondary); margin-bottom:16px; text-transform:uppercase; letter-spacing:0.5px;">
         AI Extracted Info
@@ -354,4 +377,32 @@
     </div>
   </div>
 </div>
+
+<script>
+function toggleJDDescription() {
+    const wrapper = document.getElementById('jd-content-wrapper');
+    const overlay = document.getElementById('jd-fade-overlay');
+    const btn = document.getElementById('toggle-jd-btn');
+    if (wrapper.style.maxHeight === '250px' || wrapper.style.maxHeight === '') {
+        wrapper.style.maxHeight = '20000px';
+        overlay.style.display = 'none';
+        btn.innerHTML = '📁 Collapse Job Description';
+    } else {
+        wrapper.style.maxHeight = '250px';
+        overlay.style.display = 'block';
+        btn.innerHTML = '📂 Expand Job Description';
+    }
+}
+
+function toggleEvidence(btn, containerId) {
+    const container = document.getElementById(containerId);
+    if (container.style.display === 'none' || container.style.display === '') {
+        container.style.display = 'block';
+        btn.innerHTML = 'Hide Quote ⌃';
+    } else {
+        container.style.display = 'none';
+        btn.innerHTML = 'Evidence 📄';
+    }
+}
+</script>
 {% endblock %}

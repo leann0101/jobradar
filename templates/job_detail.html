@@ -19,8 +19,70 @@
 </div>
 
 <div class="detail-layout">
-  <!-- Left column: Company Profile & JD (Collapsed) -->
+  <!-- Left column: AI Extracted Info, Company Profile & JD (Collapsed) -->
   <div>
+    <!-- AI Extracted Info -->
+    <div class="detail-main" style="margin-bottom: 24px;">
+      <h4 style="font-size:13px; font-weight:700; color:var(--text-secondary); margin-bottom:16px; text-transform:uppercase; letter-spacing:0.5px; margin-top: 0;">
+        AI Extracted Info
+      </h4>
+
+      {% if job.summary and job.summary != 'Analysis unavailable' %}
+      <div style="margin-bottom:16px;">
+        <div class="form-label">Summary</div>
+        <p style="font-size:13px; color:var(--text-secondary); line-height:1.6;">{{ job.summary }}</p>
+      </div>
+      {% endif %}
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div>
+          <div class="form-label">Experience Level</div>
+          <div style="font-size:13.5px; font-weight:600; color:var(--accent-blue);">{{ job.experience_level or '—' }}</div>
+        </div>
+        <div>
+          <div class="form-label">Industry</div>
+          <div style="font-size:13.5px; font-weight:600; color:var(--accent-purple);">{{ job.industry or '—' }}</div>
+        </div>
+      </div>
+
+      {% if job.language_requirements %}
+      <div style="margin-top:12px;">
+        <div class="form-label">Language Requirements</div>
+        <div class="keyword-tags">
+          {% for lang in job.language_requirements %}
+          <span class="keyword-tag">{{ lang }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if job.required_skills %}
+      <div style="margin-top:12px;">
+        <div class="form-label">Required Skills</div>
+        <div class="keyword-tags">
+          {% for skill in job.required_skills[:10] %}
+          <span class="keyword-tag">{{ skill }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if job.preferred_skills %}
+      <div style="margin-top:12px;">
+        <div class="form-label">Preferred Skills</div>
+        <div class="keyword-tags">
+          {% for skill in job.preferred_skills[:8] %}
+          <span class="keyword-tag" style="background:rgba(167,139,250,0.1);color:var(--accent-purple);border-color:rgba(167,139,250,0.2);">{{ skill }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border); font-size:12px; color:var(--text-muted);">
+        Scraped: {{ job.scraped_at[:10] if job.scraped_at else '—' }} · Posted: {{ job.date_posted or '—' }}
+      </div>
+    </div>
+
     <!-- Company Profile Block -->
     <div class="detail-main" style="margin-bottom: 24px; border: 1px solid rgba(79, 142, 247, 0.2); background: linear-gradient(180deg, var(--bg-card) 0%, rgba(20, 28, 46, 0.4) 100%);">
       <h3 style="font-size:15px; font-weight:700; margin-bottom:16px; color:var(--accent-blue); text-transform:uppercase; letter-spacing:1px; display:flex; align-items:center; gap:8px;">
@@ -198,7 +260,7 @@
           {% for kw in (job.matched_must_have or []) %}
           <li style="font-size:12.5px; color:var(--text-primary); margin-bottom:6px; display:flex; align-items:center; gap:8px;">
             <span style="color:var(--accent-green); font-weight:bold; font-size:14px;">✓</span>
-            <span>Must-Have Keyword: <strong style="color:var(--accent-green);">{{ kw }}</strong></span>
+            <span><strong style="color:var(--accent-green);">{{ kw }}</strong> <span style="font-size:10px; color:var(--text-muted); margin-left:4px;">(Must-Have)</span></span>
           </li>
           {% endfor %}
           
@@ -206,7 +268,7 @@
           {% for kw in (job.matched_nice_to_have or []) %}
           <li style="font-size:12.5px; color:var(--text-primary); margin-bottom:6px; display:flex; align-items:center; gap:8px;">
             <span style="color:var(--accent-green); font-weight:bold; font-size:14px;">✓</span>
-            <span>Nice-to-Have Keyword: <strong style="color:var(--accent-amber);">{{ kw }}</strong></span>
+            <span><strong style="color:var(--accent-amber);">{{ kw }}</strong> <span style="font-size:10px; color:var(--text-muted); margin-left:4px;">(Nice-to-Have)</span></span>
           </li>
           {% endfor %}
 
@@ -230,7 +292,7 @@
           {% for kw in (job.missing_must_have or []) %}
           <li style="font-size:12.5px; color:var(--text-secondary); margin-bottom:6px; display:flex; align-items:center; gap:8px;">
             <span style="color:var(--accent-red); font-weight:bold; font-size:14px;">⚠</span>
-            <span>Missing Keyword: <strong style="color:var(--accent-red); text-decoration: line-through; opacity: 0.7;">{{ kw }}</strong></span>
+            <span><strong style="color:var(--text-muted); text-decoration: line-through; opacity: 0.6;">{{ kw }}</strong> <span style="font-size:10px; color:var(--accent-red); opacity: 0.8; margin-left:4px;">(Missing Must-Have)</span></span>
           </li>
           {% endfor %}
 
@@ -312,68 +374,6 @@
         "{{ ctf_evidence }}"
       </div>
       {% endif %}
-    </div>
-
-    <!-- 6. AI Extracted Info -->
-    <div class="detail-main">
-      <h4 style="font-size:13px; font-weight:700; color:var(--text-secondary); margin-bottom:16px; text-transform:uppercase; letter-spacing:0.5px;">
-        AI Extracted Info
-      </h4>
-
-      {% if job.summary and job.summary != 'Analysis unavailable' %}
-      <div style="margin-bottom:16px;">
-        <div class="form-label">Summary</div>
-        <p style="font-size:13px; color:var(--text-secondary); line-height:1.6;">{{ job.summary }}</p>
-      </div>
-      {% endif %}
-
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-        <div>
-          <div class="form-label">Experience Level</div>
-          <div style="font-size:13.5px; font-weight:600; color:var(--accent-blue);">{{ job.experience_level or '—' }}</div>
-        </div>
-        <div>
-          <div class="form-label">Industry</div>
-          <div style="font-size:13.5px; font-weight:600; color:var(--accent-purple);">{{ job.industry or '—' }}</div>
-        </div>
-      </div>
-
-      {% if job.language_requirements %}
-      <div style="margin-top:12px;">
-        <div class="form-label">Language Requirements</div>
-        <div class="keyword-tags">
-          {% for lang in job.language_requirements %}
-          <span class="keyword-tag">{{ lang }}</span>
-          {% endfor %}
-        </div>
-      </div>
-      {% endif %}
-
-      {% if job.required_skills %}
-      <div style="margin-top:12px;">
-        <div class="form-label">Required Skills</div>
-        <div class="keyword-tags">
-          {% for skill in job.required_skills[:10] %}
-          <span class="keyword-tag">{{ skill }}</span>
-          {% endfor %}
-        </div>
-      </div>
-      {% endif %}
-
-      {% if job.preferred_skills %}
-      <div style="margin-top:12px;">
-        <div class="form-label">Preferred Skills</div>
-        <div class="keyword-tags">
-          {% for skill in job.preferred_skills[:8] %}
-          <span class="keyword-tag" style="background:rgba(167,139,250,0.1);color:var(--accent-purple);border-color:rgba(167,139,250,0.2);">{{ skill }}</span>
-          {% endfor %}
-        </div>
-      </div>
-      {% endif %}
-
-      <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border); font-size:12px; color:var(--text-muted);">
-        Scraped: {{ job.scraped_at[:10] if job.scraped_at else '—' }} · Posted: {{ job.date_posted or '—' }}
-      </div>
     </div>
   </div>
 </div>

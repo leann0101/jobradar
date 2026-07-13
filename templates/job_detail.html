@@ -449,46 +449,73 @@
 
 <script>
 const JOB_ID = "{{ job.id }}";
-const FAV_KEY = 'jobradar_favorites';
 const VIEWED_KEY = 'jobradar_viewed';
 
-function getFavs() { try { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); } catch { return []; } }
-function saveFavs(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
-
-function toggleFavorite(id, btn) {
-  let favs = getFavs();
+async function toggleFavorite(id, btn) {
   const heart = btn.querySelector('.heart-icon');
   const label = btn.querySelector('.favorite-text');
-  if (favs.includes(id)) {
-    favs = favs.filter(f => f !== id);
-    heart.textContent = '🤍';
-    label.textContent = 'Save Job';
-    btn.classList.remove('active');
+  const isFav = btn.classList.contains('active');
+  const newState = !isFav;
+
+  // Optimistic UI
+  if (newState) {
+    heart.textContent = '❤️'; label.textContent = 'Saved'; btn.classList.add('active');
   } else {
-    favs.push(id);
-    heart.textContent = '❤️';
-    label.textContent = 'Saved';
-    btn.classList.add('active');
+    heart.textContent = '🤍'; label.textContent = 'Save Job'; btn.classList.remove('active');
   }
-  saveFavs(favs);
+
+  // Update localStorage cache
+  let cache = [];
+  try { cache = JSON.parse(localStorage.getItem('jobradar_favorites_cache') || '[]'); } catch {}
+  if (newState) { if (!cache.includes(id)) cache.push(id); }
+  else { cache = cache.filter(f => f !== id); }
+  localStorage.setItem('jobradar_favorites_cache', JSON.stringify(cache));
+
+  // Persist to server
+  try {
+    await fetch('/api/jobs/favorite/' + id, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({favorite: newState})
+    });
+  } catch (e) {
+    console.warn('Failed to sync favorite to server:', e);
+  }
 }
 
-// Init: sync button state & mark as viewed
-document.addEventListener('DOMContentLoaded', function() {
-  // Mark viewed
+document.addEventListener('DOMContentLoaded', async function() {
+  // Mark as viewed
   try {
     const viewed = JSON.parse(localStorage.getItem(VIEWED_KEY) || '[]');
     if (!viewed.includes(JOB_ID)) { viewed.push(JOB_ID); localStorage.setItem(VIEWED_KEY, JSON.stringify(viewed)); }
   } catch {}
 
-  // Sync fav button state
+  // Load fav state from server (cross-device)
   const btn = document.getElementById('favorite-btn');
-  if (btn && getFavs().includes(JOB_ID)) {
-    btn.classList.add('active');
-    const heart = btn.querySelector('.heart-icon');
-    const label = btn.querySelector('.favorite-text');
-    if (heart) heart.textContent = '❤️';
-    if (label) label.textContent = 'Saved';
+  if (!btn) return;
+  try {
+    const res = await fetch('/api/favorites');
+    const data = await res.json();
+    const favs = data.favorites || [];
+    // Update localStorage cache
+    localStorage.setItem('jobradar_favorites_cache', JSON.stringify(favs));
+    if (favs.includes(JOB_ID)) {
+      btn.classList.add('active');
+      const heart = btn.querySelector('.heart-icon');
+      const label = btn.querySelector('.favorite-text');
+      if (heart) heart.textContent = '❤️';
+      if (label) label.textContent = 'Saved';
+    }
+  } catch {
+    // Fallback to cache
+    const cache = JSON.parse(localStorage.getItem('jobradar_favorites_cache') || '[]');
+    if (cache.includes(JOB_ID)) {
+      btn.classList.add('active');
+      const heart = btn.querySelector('.heart-icon');
+      const label = btn.querySelector('.favorite-text');
+      if (heart) heart.textContent = '❤️';
+      if (label) label.textContent = 'Saved';
+    }
   }
 });
 </script>

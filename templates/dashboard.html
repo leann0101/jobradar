@@ -363,7 +363,7 @@
 </style>
 
 <script>
-// ===== VIEWED JOBS =====
+// ===== VIEWED JOBS (localStorage only - per device) =====
 const VIEWED_KEY = 'jobradar_viewed';
 function getViewed() { try { return JSON.parse(localStorage.getItem(VIEWED_KEY) || '[]'); } catch { return []; } }
 function markViewed(id) {
@@ -378,28 +378,49 @@ function applyViewed() {
   });
 }
 
-// ===== FAVORITES =====
-const FAV_KEY = 'jobradar_favorites';
-function getFavs() { try { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); } catch { return []; } }
-function saveFavs(favs) { localStorage.setItem(FAV_KEY, JSON.stringify(favs)); }
+// ===== FAVORITES (server-synced for cross-device) =====
+let _serverFavs = []; // in-memory cache from server
 
-function toggleFavorite(id, btn) {
-  let favs = getFavs();
-  if (favs.includes(id)) {
-    favs = favs.filter(f => f !== id);
-    btn.textContent = '♡';
-    btn.classList.remove('active');
-  } else {
-    favs.push(id);
-    btn.textContent = '❤️';
-    btn.classList.add('active');
+async function loadFavsFromServer() {
+  try {
+    const res = await fetch('/api/favorites');
+    const data = await res.json();
+    _serverFavs = data.favorites || [];
+  } catch (e) {
+    // Fallback to localStorage cache if server unreachable
+    _serverFavs = JSON.parse(localStorage.getItem('jobradar_favorites_cache') || '[]');
   }
-  saveFavs(favs);
-  renderFavorites();
+  // Update localStorage cache
+  localStorage.setItem('jobradar_favorites_cache', JSON.stringify(_serverFavs));
+  renderFavorites(_serverFavs);
 }
 
-function renderFavorites() {
-  const favs = getFavs();
+async function toggleFavorite(id, btn) {
+  const isFav = _serverFavs.includes(id);
+  const newState = !isFav;
+
+  // Optimistic UI update
+  if (newState) {
+    _serverFavs.push(id);
+  } else {
+    _serverFavs = _serverFavs.filter(f => f !== id);
+  }
+  localStorage.setItem('jobradar_favorites_cache', JSON.stringify(_serverFavs));
+  renderFavorites(_serverFavs);
+
+  // Persist to server
+  try {
+    await fetch('/api/jobs/favorite/' + id, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({favorite: newState})
+    });
+  } catch (e) {
+    console.warn('Failed to sync favorite to server:', e);
+  }
+}
+
+function renderFavorites(favs) {
   const grid = document.getElementById('favorites-grid');
   const empty = document.getElementById('favorites-empty');
   const badge = document.getElementById('fav-badge');
@@ -435,7 +456,6 @@ function renderFavorites() {
     if (original) {
       const clone = original.cloneNode(true);
       clone.id = 'fav-card-' + id;
-      // Remove fav-btn from clone to avoid duplicate event handlers; replace with remove button
       const favBtn = clone.querySelector('.fav-btn');
       if (favBtn) {
         favBtn.textContent = '❤️';
@@ -453,7 +473,11 @@ function renderFavorites() {
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', function() {
   applyViewed();
-  renderFavorites();
+  // Render from localStorage cache first (instant), then refresh from server
+  const cached = JSON.parse(localStorage.getItem('jobradar_favorites_cache') || '[]');
+  _serverFavs = cached;
+  renderFavorites(cached);
+  loadFavsFromServer(); // async update from server
 });
 </script>
 

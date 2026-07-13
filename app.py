@@ -485,7 +485,7 @@ def api_delete_job(job_id):
 def api_favorite_job(job_id):
     data = request.get_json() or {}
     is_favorite = bool(data.get("favorite", False))
-    
+
     jobs = load_jobs()
     for j in jobs:
         if j.get("id") == job_id:
@@ -494,6 +494,14 @@ def api_favorite_job(job_id):
     save_jobs(jobs)
     sync_data_to_github()
     return jsonify({"status": "ok", "favorite": is_favorite})
+
+
+@app.route("/api/favorites", methods=["GET"])
+def api_get_favorites():
+    """Return list of all favorited job IDs (for cross-device sync)."""
+    jobs = load_jobs()
+    fav_ids = [j["id"] for j in jobs if j.get("favorite")]
+    return jsonify({"favorites": fav_ids})
 
 
 

@@ -1,6 +1,10 @@
+from __future__ import annotations
 import os
 import json
 import logging
+import urllib.parse
+import requests
+from bs4 import BeautifulSoup
 from groq import Groq
 
 logger = logging.getLogger(__name__)
@@ -64,6 +68,46 @@ Respond with this exact JSON structure:
         raise e
 
 
+def search_company_info(company_name: str) -> str:
+    """
+    Search DuckDuckGo HTML interface for company news, funding, layoffs, culture, and tech stack.
+    Returns parsed search result snippets to serve as context for the LLM.
+    """
+    if not company_name or company_name.lower() in ["unknown", "n/a", ""]:
+        return ""
+
+    snippets = []
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+    }
+
+    # Query 1: background, funding, layoffs
+    q1 = urllib.parse.quote(f"{company_name} company background funding layoffs")
+    url1 = f"https://html.duckduckgo.com/html/?q={q1}"
+    try:
+        r = requests.get(url1, headers=headers, timeout=8)
+        if r.status_code == 200:
+            soup = BeautifulSoup(r.text, "html.parser")
+            for a in soup.find_all("a", class_="result__snippet")[:4]:
+                snippets.append(a.get_text(strip=True))
+    except Exception as e:
+        logger.warning(f"DDG search query 1 failed for {company_name}: {e}")
+
+    # Query 2: reddit discussion, culture, tech stack
+    q2 = urllib.parse.quote(f"{company_name} reddit employee culture tech stack")
+    url2 = f"https://html.duckduckgo.com/html/?q={q2}"
+    try:
+        r = requests.get(url2, headers=headers, timeout=8)
+        if r.status_code == 200:
+            soup = BeautifulSoup(r.text, "html.parser")
+            for a in soup.find_all("a", class_="result__snippet")[:4]:
+                snippets.append(a.get_text(strip=True))
+    except Exception as e:
+        logger.warning(f"DDG search query 2 failed for {company_name}: {e}")
+
+    return "\n".join(snippets)
+
+
 def analyze_job(job: dict, must_have: list[str], nice_to_have: list[str], resume_text: str = "", career_objective: dict = None) -> dict:
     """
     Send a job's JD to Groq for career preferences analysis.
@@ -71,9 +115,20 @@ def analyze_job(job: dict, must_have: list[str], nice_to_have: list[str], resume
     """
     client = get_client()
     jd_text = job.get("jd_text", "")
-    
+
     if not jd_text:
         jd_text = f"Job title: {job.get('title', '')} at {job.get('company', '')}"
+
+    company_name = job.get("company", "")
+    search_context = search_company_info(company_name)
+    search_context_prompt = ""
+    if search_context:
+        search_context_prompt = f"""
+WEB SEARCH CONTEXT ABOUT THE COMPANY:
+We fetched the following snippets from DuckDuckGo about this company (its news, funding, layoffs, culture, and tech stack):
+{search_context}
+Use this information as extra context to evaluate the company's background, funding, layoffs, reddit discussions, tech stack, and risks.
+"""
 
     must_have_str = ", ".join(must_have)
     nice_to_have_str = ", ".join(nice_to_have)
@@ -83,7 +138,7 @@ def analyze_job(job: dict, must_have: list[str], nice_to_have: list[str], resume
     if career_objective:
         target_archetype = career_objective.get("target_archetype", "")
         target_trajectory = career_objective.get("target_trajectory", "")
-    
+
     if not target_archetype:
         target_archetype = "Strategic Product Builder / Early-stage Discovery PM"
     if not target_trajectory:
@@ -104,6 +159,8 @@ Evaluate the match between the resume and the job description. Provide a compati
 
 JOB DESCRIPTION:
 {jd_text[:4000]}
+
+{search_context_prompt}
 
 USER'S MUST-HAVE keywords (informational references for technical/domain preferences):
 {must_have_str}
@@ -183,7 +240,16 @@ Respond with this exact JSON structure:
   "company_profile": {{
     "description": "Brief description of the company and what it does",
     "business_domain": "business domain",
-    "employee_count": "employee count"
+    "employee_count": "employee count",
+    "official_website": "Official website URL or 'Unknown'",
+    "tech_stack": ["tech1", "tech2"],
+    "funding_info": "Financing round, key investors, or 'N/A for public/bootstrapped'",
+    "layoff_history": "Recent layoff events, restructuring info, or 'No major layoffs reported'",
+    "reddit_discussion": "Summary of community/Reddit sentiment about working here or 'N/A'",
+    "employee_background": "Typical profile of team members (e.g. ex-FAANG, PhDs, or industry veterans)",
+    "company_risks": "Identified company risks (e.g., market competition, regulatory changes, high churn)",
+    "growth_potential": "Assessment of company growth and career progression opportunities",
+    "company_culture": "Description of work-life balance, collaboration, or engineering culture"
   }},
   "resume_match": {{
     "score": 85,
@@ -236,7 +302,7 @@ Respond with this exact JSON structure:
             max_tokens=1536,
         )
         raw = response.choices[0].message.content.strip()
-        
+
         # Clean and extract JSON object cleanly
         start_idx = raw.find('{')
         end_idx = raw.rfind('}')
@@ -261,7 +327,16 @@ Respond with this exact JSON structure:
             "company_profile": {
                 "description": "Company description unavailable",
                 "business_domain": "",
-                "employee_count": "Unknown"
+                "employee_count": "Unknown",
+                "official_website": "Unknown",
+                "tech_stack": [],
+                "funding_info": "Unknown",
+                "layoff_history": "Unknown",
+                "reddit_discussion": "Unknown",
+                "employee_background": "Unknown",
+                "company_risks": "Unknown",
+                "growth_potential": "Unknown",
+                "company_culture": "Unknown"
             },
             "resume_match": {
                 "score": 0,
@@ -292,13 +367,13 @@ Respond with this exact JSON structure:
             "problem_definition_clarity": {"score": 1, "label": "Fully defined problem", "evidence": ""}
         }
         analysis["scorecard"] = scorecard
-        
+
     problem_space = scorecard.get("problem_space_type", {}).get("score", 1)
     product_stage = scorecard.get("product_stage", {}).get("score", 1)
     decision_power = scorecard.get("decision_power", {}).get("score", 1)
     customer_interaction = scorecard.get("customer_interaction", {}).get("score", 1)
     problem_definition_clarity = scorecard.get("problem_definition_clarity", {}).get("score", 1)
-    
+
     try: problem_space = int(problem_space)
     except: problem_space = 1
     try: product_stage = int(product_stage)
@@ -331,7 +406,7 @@ def classify_job(job_or_score, settings: dict) -> str:
     score_thresholds = settings.get("score_thresholds", settings)
     best_threshold = score_thresholds.get("best_match", 80)
     medium_threshold = score_thresholds.get("medium_match", 60)
-    
+
     if not isinstance(job_or_score, dict):
         if job_or_score >= best_threshold:
             return "best"
@@ -343,7 +418,7 @@ def classify_job(job_or_score, settings: dict) -> str:
     score = job.get("match_score", 0)
     scorecard = job.get("scorecard", {})
     ctf_info = job.get("career_trajectory_fit", {})
-    
+
     # Check if this is an old job analyzed before the scorecard engine was added
     if not scorecard and not ctf_info:
         if score >= best_threshold:
@@ -351,15 +426,15 @@ def classify_job(job_or_score, settings: dict) -> str:
         elif score >= medium_threshold:
             return "medium"
         return "low"
-        
+
     ctf_score = ctf_info.get("score", 1)
-    
+
     product_stage = scorecard.get("product_stage", {}).get("score", 1)
     decision_power = scorecard.get("decision_power", {}).get("score", 1)
     problem_space = scorecard.get("problem_space_type", {}).get("score", 1)
     customer_interaction = scorecard.get("customer_interaction", {}).get("score", 1)
     problem_definition_clarity = scorecard.get("problem_definition_clarity", {}).get("score", 1)
-    
+
     try: ctf_score = int(ctf_score)
     except: ctf_score = 1
     try: product_stage = int(product_stage)
@@ -372,7 +447,7 @@ def classify_job(job_or_score, settings: dict) -> str:
     except: customer_interaction = 1
     try: problem_definition_clarity = int(problem_definition_clarity)
     except: problem_definition_clarity = 1
-    
+
     # Load gating rules from settings override_rules
     override_rules = settings.get("override_rules", {})
     min_ps = override_rules.get("min_problem_space", 1)
@@ -380,7 +455,7 @@ def classify_job(job_or_score, settings: dict) -> str:
     min_dec = override_rules.get("min_decision_power", 3)
     min_cust = override_rules.get("min_customer_interaction", 1)
     min_clarity = override_rules.get("min_problem_definition_clarity", 1)
-    
+
     try: min_ps = int(min_ps)
     except: min_ps = 1
     try: min_stage = int(min_stage)
@@ -391,28 +466,28 @@ def classify_job(job_or_score, settings: dict) -> str:
     except: min_cust = 1
     try: min_clarity = int(min_clarity)
     except: min_clarity = 1
-    
+
     # Rule 1: CTF <= 2 -> Low Match (forced)
     if ctf_score <= 2:
         return "low"
-        
+
     # Rule 2: High Match qualifications
     if score >= best_threshold:
         # Check gating requirements: CTF >= 4 AND all dimensions satisfy user minimums
-        if (ctf_score >= 4 and 
-            problem_space >= min_ps and 
-            product_stage >= min_stage and 
-            decision_power >= min_dec and 
-            customer_interaction >= min_cust and 
+        if (ctf_score >= 4 and
+            problem_space >= min_ps and
+            product_stage >= min_stage and
+            decision_power >= min_dec and
+            customer_interaction >= min_cust and
             problem_definition_clarity >= min_clarity):
             return "best"
         else:
             return "medium"
-            
+
     # Rule 3: Medium Match
     if score >= medium_threshold:
         return "medium"
-        
+
     # Rule 4: Low Match
     return "low"
 

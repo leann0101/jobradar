@@ -5,7 +5,6 @@ import logging
 import threading
 import base64
 import requests
-import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -221,33 +220,32 @@ def run_scrape_pipeline():
         thresholds = settings.get("score_thresholds", {"best_match": 40, "medium_match": 15})
         resume_text = settings.get("resume_text", "")
 
-        existing_jobs = load_jobs()
-        existing_urls = {j["url"] for j in existing_jobs}
-
         all_raw_jobs = []
         for title in job_titles:
             if "linkedin" in platforms:
                 logger.info(f"Scraping LinkedIn for '{title}'...")
                 try:
-                    all_raw_jobs.extend(scrape_linkedin(title, location, days_ago, filter_cfg=search_cfg, existing_urls=existing_urls))
+                    all_raw_jobs.extend(scrape_linkedin(title, location, days_ago, filter_cfg=search_cfg))
                 except Exception as e:
                     logger.error(f"LinkedIn failed: {e}")
 
             if "indeed" in platforms:
                 logger.info(f"Scraping Indeed for '{title}'...")
                 try:
-                    all_raw_jobs.extend(scrape_indeed(title, location, days_ago, existing_urls=existing_urls))
+                    all_raw_jobs.extend(scrape_indeed(title, location, days_ago))
                 except Exception as e:
                     logger.error(f"Indeed failed: {e}")
 
             if "glassdoor" in platforms:
                 logger.info(f"Scraping Glassdoor for '{title}'...")
                 try:
-                    all_raw_jobs.extend(scrape_glassdoor(title, location, days_ago, existing_urls=existing_urls))
+                    all_raw_jobs.extend(scrape_glassdoor(title, location, days_ago))
                 except Exception as e:
                     logger.error(f"Glassdoor failed: {e}")
 
         # De-duplicate by URL
+        existing_jobs = load_jobs()
+        existing_urls = {j["url"] for j in existing_jobs}
         new_raw = [j for j in all_raw_jobs if j.get("url") and j["url"] not in existing_urls]
         logger.info(f"Found {len(new_raw)} new jobs to analyze.")
 
@@ -342,7 +340,7 @@ def job_detail(job_id):
     jobs = load_jobs()
     job = next((j for j in jobs if j.get("id") == job_id), None)
     if not job:
-        return redirect(url_for("dashboard"))
+        return "Job not found", 404
     settings = load_settings()
     return render_template("job_detail.html", job=job, settings=settings)
 
@@ -483,6 +481,22 @@ def api_delete_job(job_id):
     return jsonify({"status": "deleted"})
 
 
+@app.route("/api/jobs/favorite/<job_id>", methods=["POST"])
+def api_favorite_job(job_id):
+    data = request.get_json() or {}
+    is_favorite = bool(data.get("favorite", False))
+    
+    jobs = load_jobs()
+    for j in jobs:
+        if j.get("id") == job_id:
+            j["favorite"] = is_favorite
+            break
+    save_jobs(jobs)
+    sync_data_to_github()
+    return jsonify({"status": "ok", "favorite": is_favorite})
+
+
+
 @app.route("/api/jobs/clear", methods=["DELETE"])
 def api_clear_jobs():
     save_jobs([])
@@ -525,42 +539,8 @@ def api_clear_old_jobs():
 
 
 # ── Scheduler ─────────────────────────────────────────────────────────────────
-def check_and_trigger_missed_scrape():
-    # Wait a few seconds to let the main web process boot up fully
-    time.sleep(10)
-    try:
-        history = load_history()
-        if not history:
-            logger.info("No scrape history found. Running initial scrape on startup.")
-            thread = threading.Thread(target=run_scrape_pipeline, daemon=True)
-            thread.start()
-            return
-            
-        last_run_str = history[0].get("run_at", "")
-        if last_run_str:
-            try:
-                # Support timezone offsets or plain ISO format parsing
-                # replacing 'Z' with '+00:00' to support older python versions if needed
-                clean_ts = last_run_str.replace("Z", "+00:00")
-                last_run = datetime.fromisoformat(clean_ts)
-                
-                # Make sure both datetimes are timezone-naive or zone-aware
-                # If last_run is timezone-aware, strip it to match datetime.now()
-                if last_run.tzinfo is not None:
-                    last_run = last_run.replace(tzinfo=None)
-                    
-                if datetime.now() - last_run > timedelta(days=6.9):
-                    logger.info(f"Last scrape was {last_run_str} (more than 7 days ago). Triggering missed scrape on startup.")
-                    thread = threading.Thread(target=run_scrape_pipeline, daemon=True)
-                    thread.start()
-            except Exception as e:
-                logger.error(f"Failed to parse last run timestamp '{last_run_str}': {e}")
-    except Exception as e:
-        logger.error(f"Error in check_and_trigger_missed_scrape: {e}")
-
-
 def start_scheduler():
-    scheduler = BackgroundScheduler(timezone="UTC")
+    scheduler = BackgroundScheduler()
     # Run every Monday at 08:00 UTC
     scheduler.add_job(
         run_scrape_pipeline,
@@ -572,11 +552,6 @@ def start_scheduler():
     )
     scheduler.start()
     logger.info("Scheduler started: weekly scrape every Monday 08:00 UTC")
-    
-    # Run the self-healing startup check in a separate background thread
-    thread = threading.Thread(target=check_and_trigger_missed_scrape, daemon=True)
-    thread.start()
-    
     return scheduler
 
 

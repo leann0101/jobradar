@@ -5,9 +5,11 @@ Replaces jobs.json / settings.json / history.json file storage.
 Requires env var:
   DATABASE_URL=postgresql://user:password@host:5432/dbname
 """
+from __future__ import annotations
 import os
 import json
 import logging
+from typing import Optional
 from datetime import datetime
 
 from sqlalchemy import (
@@ -202,7 +204,7 @@ def db_save_jobs(jobs: list):
         Session.remove()
 
 
-def db_get_job(job_id: str) -> dict | None:
+def db_get_job(job_id: str) -> Optional[dict]:
     Session = get_session()
     try:
         job = Session.query(Job).filter_by(id=job_id, deleted=False).first()

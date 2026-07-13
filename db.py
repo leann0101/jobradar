@@ -181,20 +181,56 @@ def db_load_jobs(include_deleted=False) -> list:
         Session.remove()
 
 
+def _parse_json_field(val):
+    """If val is a JSON string, parse it. Otherwise return as-is."""
+    if isinstance(val, str):
+        try:
+            return json.loads(val)
+        except (json.JSONDecodeError, ValueError):
+            return val
+    return val
+
+
+# JSON fields that may arrive as strings and need parsing
+_JSON_FIELDS = [
+    "required_skills", "preferred_skills", "language_requirements",
+    "matched_must_have", "matched_nice_to_have", "missing_must_have",
+    "scorecard", "career_trajectory_fit", "company_profile", "resume_match",
+]
+
+
 def db_save_jobs(jobs: list):
     """Upsert a list of job dicts into the DB."""
     Session = get_session()
     try:
         for job_dict in jobs:
-            existing = Session.query(Job).filter_by(id=job_dict["id"]).first()
+            # Parse any JSON-string fields back to dicts/lists
+            clean = {k: v for k, v in job_dict.items()}
+            for field in _JSON_FIELDS:
+                if field in clean:
+                    clean[field] = _parse_json_field(clean[field])
+
+            # why_match / why_not_match may be dicts — flatten to string
+            for field in ("why_match", "why_not_match"):
+                val = clean.get(field, "")
+                if isinstance(val, dict):
+                    # Extract text from nested explanation lists
+                    exp = val.get("explanation", val)
+                    if isinstance(exp, list):
+                        clean[field] = "\n".join(str(x) for x in exp)
+                    else:
+                        clean[field] = str(exp)
+                elif not isinstance(val, str):
+                    clean[field] = str(val)
+
+            existing = Session.query(Job).filter_by(id=clean["id"]).first()
             if existing:
-                # Update all fields
-                for k, v in job_dict.items():
+                for k, v in clean.items():
                     if hasattr(existing, k):
                         setattr(existing, k, v)
             else:
-                job = Job(**{k: v for k, v in job_dict.items() if hasattr(Job, k)})
-                Session.add(job)
+                kwargs = {k: v for k, v in clean.items() if hasattr(Job, k)}
+                Session.add(Job(**kwargs))
         Session.commit()
     except Exception as e:
         Session.rollback()

@@ -15,11 +15,25 @@ _client = None
 def get_client() -> Groq:
     global _client
     if _client is None:
-        api_key = os.environ.get("GROQ_API_KEY", "")
-        if not api_key:
-            raise ValueError("GROQ_API_KEY environment variable not set")
-        _client = Groq(api_key=api_key)
+        use_local = os.environ.get("USE_LOCAL_LLM", "false").lower() == "true"
+        if use_local:
+            base_url = os.environ.get("LOCAL_LLM_URL", "http://localhost:11434/v1")
+            api_key = os.environ.get("LOCAL_LLM_KEY", "local")
+            _client = Groq(api_key=api_key, base_url=base_url)
+            logger.info(f"Using local LLM at {base_url}")
+        else:
+            api_key = os.environ.get("GROQ_API_KEY", "")
+            if not api_key:
+                raise ValueError("GROQ_API_KEY environment variable not set")
+            _client = Groq(api_key=api_key)
     return _client
+
+
+def get_model_name() -> str:
+    use_local = os.environ.get("USE_LOCAL_LLM", "false").lower() == "true"
+    if use_local:
+        return os.environ.get("LOCAL_LLM_MODEL", "llama3")
+    return "llama-3.3-70b-versatile"
 
 
 def recommend_from_resume(resume_text: str) -> dict:
@@ -44,7 +58,7 @@ Respond with this exact JSON structure:
 
     try:
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model=get_model_name(),
             messages=[{"role": "user", "content": prompt}],
             temperature=0.3,
             max_tokens=512,
@@ -296,7 +310,7 @@ Respond with this exact JSON structure:
 
     try:
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model=get_model_name(),
             messages=[{"role": "user", "content": prompt}],
             temperature=0.1,
             max_tokens=1536,
@@ -506,7 +520,7 @@ TEXT TO TRANSLATE:
 """
     try:
         response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model=get_model_name(),
             messages=[{"role": "user", "content": prompt}],
             temperature=0.2,
             max_tokens=2048,

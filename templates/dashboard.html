@@ -23,296 +23,302 @@
   </button>
 </div>
 
-<!-- Stats -->
+<!-- Stats (clickable) -->
 <div class="stats-grid">
-  <div class="stat-card blue">
+  <div class="stat-card blue" style="cursor:default;">
     <div class="stat-value">{{ total }}</div>
     <div class="stat-label">Total Jobs Found</div>
   </div>
-  <div class="stat-card green">
+  <div class="stat-card green" style="cursor:pointer;" onclick="document.getElementById('section-best').scrollIntoView({behavior:'smooth', block:'start'})" title="Jump to Best Matches">
     <div class="stat-value">{{ best_count }}</div>
-    <div class="stat-label">Best Matches</div>
+    <div class="stat-label">Best Matches ↓</div>
   </div>
-  <div class="stat-card amber">
+  <div class="stat-card amber" style="cursor:pointer;" onclick="document.getElementById('section-medium').scrollIntoView({behavior:'smooth', block:'start'})" title="Jump to Medium Matches">
     <div class="stat-value">{{ medium_count }}</div>
-    <div class="stat-label">Medium Matches</div>
+    <div class="stat-label">Medium Matches ↓</div>
   </div>
-  <div class="stat-card purple">
-    <div class="stat-value">{{ total - best_count - medium_count }}</div>
-    <div class="stat-label">Low Matches</div>
+  <div class="stat-card purple" style="cursor:pointer;" onclick="document.getElementById('section-favorites').scrollIntoView({behavior:'smooth', block:'start'})" title="Jump to Favorites">
+    <div class="stat-value" id="fav-count-stat">0</div>
+    <div class="stat-label">Favorites ↓</div>
   </div>
 </div>
 
-<!-- High Matches Section -->
-<div class="section-header">
-  <div class="section-title">🏆 High Matches</div>
-  <span class="section-badge badge-best">{{ best_count }} jobs</span>
+<!-- ===== FAVORITES SECTION ===== -->
+<div id="section-favorites" style="scroll-margin-top: 80px;">
+  <div class="section-header">
+    <div class="section-title">❤️ Favorites</div>
+    <span class="section-badge" style="background:rgba(248,113,113,0.12); color:#f87171; border:1px solid rgba(248,113,113,0.25);" id="fav-badge">0 jobs</span>
+  </div>
+  <div id="favorites-grid" class="jobs-grid" style="display:none;"></div>
+  <div id="favorites-empty" class="empty-state">
+    <div class="empty-icon">❤️</div>
+    <h3>No favorites yet</h3>
+    <p>Click the ♡ heart on any job card or job detail page to save it here.</p>
+  </div>
 </div>
-
-{% if best_jobs %}
-<div class="jobs-grid">
-  {% for job in best_jobs %}
-  <a href="{{ url_for('job_detail', job_id=job.id) }}" class="job-card best-match" id="card-{{ job.id }}">
-    <div class="job-card-header">
-      <div>
-        <div class="job-title">{{ job.title }}</div>
-        <div class="job-company">{{ job.company }}</div>
-      </div>
-      <!-- Triple match scores -->
-      <div style="display: flex; gap: 10px; align-items: center; flex-shrink: 0;">
-        <div style="text-align: center;">
-          <div class="job-score-ring" title="Preference match score: {{ job.match_score }}%" style="width: 36px; height: 36px;">
-            <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" style="width: 36px; height: 36px;">
-              <circle cx="25" cy="25" r="20" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="4"/>
-              <circle cx="25" cy="25" r="20" fill="none"
-                stroke="#22d3a0" stroke-width="4"
-                stroke-dasharray="{{ (job.match_score / 100 * 125.66) | round(1) }} 125.66"
-                stroke-dashoffset="31.4"
-                stroke-linecap="round"/>
-              <text x="25" y="25" class="score-text" style="font-size: 15px; font-weight: 800;">{{ job.match_score }}</text>
-            </svg>
-          </div>
-          <div style="font-size: 8px; color: var(--text-secondary); margin-top: 2px; font-weight: 700; text-transform: uppercase;">Pref</div>
-        </div>
-
-        <!-- Career Trajectory Fit (CTF) Score -->
-        <div style="text-align: center;">
-          <div class="job-score-ring" title="Career Trajectory Fit: {{ (job.get('career_trajectory_fit', {}) or {}).get('score', 1) }}/5" style="width: 36px; height: 36px; background: rgba(255, 255, 255, 0.03); border: 2.5px solid {% if ((job.get('career_trajectory_fit', {}) or {}).get('score', 1) | int) >= 4 %}#22d3a0{% elif ((job.get('career_trajectory_fit', {}) or {}).get('score', 1) | int) >= 3 %}#fbbf24{% else %}#f87171{% endif %}; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
-            <span style="font-size: 13.5px; font-weight: 800; color: var(--text-primary);">{{ (job.get('career_trajectory_fit', {}) or {}).get('score', 1) }}</span>
-          </div>
-          <div style="font-size: 8px; color: var(--text-secondary); margin-top: 2px; font-weight: 700; text-transform: uppercase;">CTF</div>
-        </div>
-
-        {% if job.resume_match and job.resume_match.score is defined and job.resume_match.score > 0 %}
-        <div style="text-align: center;">
-          <div class="job-score-ring" title="Resume match score: {{ job.resume_match.score }}%" style="width: 36px; height: 36px;">
-            <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" style="width: 36px; height: 36px;">
-              <circle cx="25" cy="25" r="20" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="4"/>
-              <circle cx="25" cy="25" r="20" fill="none"
-                stroke="#a78bfa" stroke-width="4"
-                stroke-dasharray="{{ (job.resume_match.score / 100 * 125.66) | round(1) }} 125.66"
-                stroke-dashoffset="31.4"
-                stroke-linecap="round"/>
-              <text x="25" y="25" class="score-text" style="font-size: 15px; font-weight: 800;">{{ job.resume_match.score }}</text>
-            </svg>
-          </div>
-          <div style="font-size: 8px; color: var(--text-secondary); margin-top: 2px; font-weight: 700; text-transform: uppercase;">Resume</div>
-        </div>
-        {% endif %}
-      </div>
-    </div>
-
-    <div class="job-meta">
-      <span class="job-meta-item">📍 {{ job.location or 'Germany' }}</span>
-      <span class="job-meta-item">📅 {{ job.date_posted or '—' }}</span>
-      <span class="badge-platform">{{ job.platform }}</span>
-    </div>
-
-    {% if job.summary and job.summary != 'Analysis unavailable' %}
-    <div class="job-summary">{{ job.summary }}</div>
-    {% endif %}
-
-    <div class="keyword-tags">
-      {% for kw in (job.matched_must_have or [])[:5] %}
-        <span class="keyword-tag matched-must">✓ {{ kw }}</span>
-      {% endfor %}
-      {% for kw in (job.matched_nice_to_have or [])[:2] %}
-        <span class="keyword-tag matched-nice">+ {{ kw }}</span>
-      {% endfor %}
-    </div>
-
-    <!-- 5-dimension scorecard progress bars -->
-    <div class="mini-scorecard" style="margin-top: 14px; padding-top: 10px; border-top: 1px dashed rgba(255, 255, 255, 0.08); display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;">
-      {% set dimensions = [
-        ('problem_space_type', 'PS', 'Problem Space'),
-        ('product_stage', 'STG', 'Product Stage'),
-        ('decision_power', 'DEC', 'Decision Power'),
-        ('customer_interaction', 'CUST', 'Customer Interaction'),
-        ('problem_definition_clarity', 'CLR', 'Problem Clarity')
-      ] %}
-      {% for key, label, full_name in dimensions %}
-        {% set d_val = ((job.get('scorecard', {}) or {}).get(key, {}) or {}).get('score', 1) | int %}
-        <div title="{{ full_name }}: {{ d_val }}/5" style="display: flex; flex-direction: column; gap: 4px;">
-          <div style="display: flex; justify-content: space-between; font-size: 8px; color: var(--text-muted); font-weight: 700;">
-            <span>{{ label }}</span>
-            <span>{{ d_val }}</span>
-          </div>
-          <div style="height: 3px; background: rgba(255,255,255,0.05); border-radius: 1.5px; overflow: hidden; display: flex;">
-            <div style="width: {{ d_val * 20 }}%; height: 100%; border-radius: 1.5px; background: {% if d_val >= 4 %}var(--accent-green){% elif d_val >= 3 %}var(--accent-blue){% else %}var(--text-muted){% endif %};"></div>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-
-    <div class="job-card-footer">
-      <span style="font-size:12px; color: var(--text-muted);">{{ job.experience_level or '' }}</span>
-      <span class="btn btn-ghost btn-sm">View Details →</span>
-    </div>
-  </a>
-  {% endfor %}
-</div>
-{% else %}
-<div class="empty-state">
-  <div class="empty-icon">🎯</div>
-  <h3>No high matches yet</h3>
-  <p>Run the scraper to find jobs that match your career intelligence blueprint.</p>
-</div>
-{% endif %}
 
 <div class="divider"></div>
 
-<!-- Medium Match Section -->
-<div class="section-header">
-  <div class="section-title">⚡ Medium Matches</div>
-  <span class="section-badge badge-medium">{{ medium_count }} jobs</span>
-</div>
+<!-- ===== BEST MATCHES ===== -->
+<div id="section-best" style="scroll-margin-top: 80px;">
+  <div class="section-header">
+    <div class="section-title">🏆 High Matches</div>
+    <span class="section-badge badge-best">{{ best_count }} jobs</span>
+  </div>
 
-{% if medium_jobs %}
-<div class="jobs-grid">
-  {% for job in medium_jobs %}
-  <a href="{{ url_for('job_detail', job_id=job.id) }}" class="job-card medium-match" id="card-{{ job.id }}">
-    <div class="job-card-header">
-      <div>
-        <div class="job-title">{{ job.title }}</div>
-        <div class="job-company">{{ job.company }}</div>
+  {% if best_jobs %}
+  <div class="jobs-grid">
+    {% for job in best_jobs %}
+    {% include '_job_card.html' ignore missing %}
+    <a href="{{ url_for('job_detail', job_id=job.id) }}" class="job-card best-match" id="card-{{ job.id }}" data-job-id="{{ job.id }}" onclick="markViewed('{{ job.id }}')">
+      <div class="job-card-header">
+        <div>
+          <div class="job-title">{{ job.title }}</div>
+          <div class="job-company">{{ job.company }}</div>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center; flex-shrink:0;">
+          <!-- Fav button -->
+          <button class="fav-btn" data-job-id="{{ job.id }}" onclick="event.preventDefault(); event.stopPropagation(); toggleFavorite('{{ job.id }}', this)" title="Favorite" style="background:none; border:none; font-size:18px; cursor:pointer; padding:2px 4px; line-height:1; transition: transform 0.15s;">♡</button>
+          <!-- Pref score -->
+          <div style="text-align:center;">
+            <div class="job-score-ring" style="width:36px; height:36px;">
+              <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" style="width:36px; height:36px;">
+                <circle cx="25" cy="25" r="20" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="4"/>
+                <circle cx="25" cy="25" r="20" fill="none" stroke="#22d3a0" stroke-width="4"
+                  stroke-dasharray="{{ (job.match_score / 100 * 125.66) | round(1) }} 125.66"
+                  stroke-dashoffset="31.4" stroke-linecap="round"/>
+                <text x="25" y="25" class="score-text" style="font-size:15px; font-weight:800;">{{ job.match_score }}</text>
+              </svg>
+            </div>
+            <div style="font-size:8px; color:var(--text-secondary); margin-top:2px; font-weight:700; text-transform:uppercase;">Pref</div>
+          </div>
+          <!-- CTF score -->
+          <div style="text-align:center;">
+            <div class="job-score-ring" style="width:36px; height:36px; background:rgba(255,255,255,0.03); border:2.5px solid {% if ((job.get('career_trajectory_fit', {}) or {}).get('score', 1) | int) >= 4 %}#22d3a0{% elif ((job.get('career_trajectory_fit', {}) or {}).get('score', 1) | int) >= 3 %}#fbbf24{% else %}#f87171{% endif %}; border-radius:50%; display:flex; align-items:center; justify-content:center; box-sizing:border-box;">
+              <span style="font-size:13.5px; font-weight:800; color:var(--text-primary);">{{ (job.get('career_trajectory_fit', {}) or {}).get('score', 1) }}</span>
+            </div>
+            <div style="font-size:8px; color:var(--text-secondary); margin-top:2px; font-weight:700; text-transform:uppercase;">CTF</div>
+          </div>
+          {% if job.resume_match and job.resume_match.score is defined and job.resume_match.score > 0 %}
+          <div style="text-align:center;">
+            <div class="job-score-ring" style="width:36px; height:36px;">
+              <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" style="width:36px; height:36px;">
+                <circle cx="25" cy="25" r="20" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="4"/>
+                <circle cx="25" cy="25" r="20" fill="none" stroke="#a78bfa" stroke-width="4"
+                  stroke-dasharray="{{ (job.resume_match.score / 100 * 125.66) | round(1) }} 125.66"
+                  stroke-dashoffset="31.4" stroke-linecap="round"/>
+                <text x="25" y="25" class="score-text" style="font-size:15px; font-weight:800;">{{ job.resume_match.score }}</text>
+              </svg>
+            </div>
+            <div style="font-size:8px; color:var(--text-secondary); margin-top:2px; font-weight:700; text-transform:uppercase;">Resume</div>
+          </div>
+          {% endif %}
+        </div>
       </div>
-      <!-- Triple match scores -->
-      <div style="display: flex; gap: 10px; align-items: center; flex-shrink: 0;">
-        <div style="text-align: center;">
-          <div class="job-score-ring" title="Preference match score: {{ job.match_score }}%" style="width: 36px; height: 36px;">
-            <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" style="width: 36px; height: 36px;">
-              <circle cx="25" cy="25" r="20" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="4"/>
-              <circle cx="25" cy="25" r="20" fill="none"
-                stroke="#fbbf24" stroke-width="4"
-                stroke-dasharray="{{ (job.match_score / 100 * 125.66) | round(1) }} 125.66"
-                stroke-dashoffset="31.4"
-                stroke-linecap="round"/>
-              <text x="25" y="25" class="score-text" style="font-size: 15px; font-weight: 800;">{{ job.match_score }}</text>
-            </svg>
-          </div>
-          <div style="font-size: 8px; color: var(--text-secondary); margin-top: 2px; font-weight: 700; text-transform: uppercase;">Pref</div>
-        </div>
 
-        <!-- Career Trajectory Fit (CTF) Score -->
-        <div style="text-align: center;">
-          <div class="job-score-ring" title="Career Trajectory Fit: {{ (job.get('career_trajectory_fit', {}) or {}).get('score', 1) }}/5" style="width: 36px; height: 36px; background: rgba(255, 255, 255, 0.03); border: 2.5px solid {% if ((job.get('career_trajectory_fit', {}) or {}).get('score', 1) | int) >= 4 %}#22d3a0{% elif ((job.get('career_trajectory_fit', {}) or {}).get('score', 1) | int) >= 3 %}#fbbf24{% else %}#f87171{% endif %}; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
-            <span style="font-size: 13.5px; font-weight: 800; color: var(--text-primary);">{{ (job.get('career_trajectory_fit', {}) or {}).get('score', 1) }}</span>
-          </div>
-          <div style="font-size: 8px; color: var(--text-secondary); margin-top: 2px; font-weight: 700; text-transform: uppercase;">CTF</div>
-        </div>
-
-        {% if job.resume_match and job.resume_match.score is defined and job.resume_match.score > 0 %}
-        <div style="text-align: center;">
-          <div class="job-score-ring" title="Resume match score: {{ job.resume_match.score }}%" style="width: 36px; height: 36px;">
-            <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" style="width: 36px; height: 36px;">
-              <circle cx="25" cy="25" r="20" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="4"/>
-              <circle cx="25" cy="25" r="20" fill="none"
-                stroke="#a78bfa" stroke-width="4"
-                stroke-dasharray="{{ (job.resume_match.score / 100 * 125.66) | round(1) }} 125.66"
-                stroke-dashoffset="31.4"
-                stroke-linecap="round"/>
-              <text x="25" y="25" class="score-text" style="font-size: 15px; font-weight: 800;">{{ job.resume_match.score }}</text>
-            </svg>
-          </div>
-          <div style="font-size: 8px; color: var(--text-secondary); margin-top: 2px; font-weight: 700; text-transform: uppercase;">Resume</div>
-        </div>
-        {% endif %}
+      <div class="job-meta">
+        <span class="job-meta-item">📍 {{ job.location or 'Germany' }}</span>
+        <span class="job-meta-item">📅 {{ job.date_posted or '—' }}</span>
+        <span class="badge-platform">{{ job.platform }}</span>
       </div>
-    </div>
 
-    <div class="job-meta">
-      <span class="job-meta-item">📍 {{ job.location or 'Germany' }}</span>
-      <span class="job-meta-item">📅 {{ job.date_posted or '—' }}</span>
-      <span class="badge-platform">{{ job.platform }}</span>
-    </div>
+      {% if job.summary and job.summary != 'Analysis unavailable' %}
+      <div class="job-summary">{{ job.summary }}</div>
+      {% endif %}
 
-    {% if job.summary and job.summary != 'Analysis unavailable' %}
-    <div class="job-summary">{{ job.summary }}</div>
-    {% endif %}
+      <div class="keyword-tags">
+        {% for kw in (job.matched_must_have or [])[:5] %}
+          <span class="keyword-tag matched-must">✓ {{ kw }}</span>
+        {% endfor %}
+        {% for kw in (job.matched_nice_to_have or [])[:2] %}
+          <span class="keyword-tag matched-nice">+ {{ kw }}</span>
+        {% endfor %}
+      </div>
 
-    <div class="keyword-tags">
-      {% for kw in (job.matched_must_have or [])[:4] %}
-        <span class="keyword-tag matched-must">✓ {{ kw }}</span>
-      {% endfor %}
-      {% for kw in (job.matched_nice_to_have or [])[:2] %}
-        <span class="keyword-tag matched-nice">+ {{ kw }}</span>
-      {% endfor %}
-    </div>
-
-    <!-- 5-dimension scorecard progress bars -->
-    <div class="mini-scorecard" style="margin-top: 14px; padding-top: 10px; border-top: 1px dashed rgba(255, 255, 255, 0.08); display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;">
-      {% set dimensions = [
-        ('problem_space_type', 'PS', 'Problem Space'),
-        ('product_stage', 'STG', 'Product Stage'),
-        ('decision_power', 'DEC', 'Decision Power'),
-        ('customer_interaction', 'CUST', 'Customer Interaction'),
-        ('problem_definition_clarity', 'CLR', 'Problem Clarity')
-      ] %}
-      {% for key, label, full_name in dimensions %}
-        {% set d_val = ((job.get('scorecard', {}) or {}).get(key, {}) or {}).get('score', 1) | int %}
-        <div title="{{ full_name }}: {{ d_val }}/5" style="display: flex; flex-direction: column; gap: 4px;">
-          <div style="display: flex; justify-content: space-between; font-size: 8px; color: var(--text-muted); font-weight: 700;">
-            <span>{{ label }}</span>
-            <span>{{ d_val }}</span>
+      <div class="mini-scorecard" style="margin-top:14px; padding-top:10px; border-top:1px dashed rgba(255,255,255,0.08); display:grid; grid-template-columns:repeat(5, 1fr); gap:6px;">
+        {% set dimensions = [
+          ('problem_space_type', 'PS', 'Problem Space'),
+          ('product_stage', 'STG', 'Product Stage'),
+          ('decision_power', 'DEC', 'Decision Power'),
+          ('customer_interaction', 'CUST', 'Customer Interaction'),
+          ('problem_definition_clarity', 'CLR', 'Problem Clarity')
+        ] %}
+        {% for key, label, full_name in dimensions %}
+          {% set d_val = ((job.get('scorecard', {}) or {}).get(key, {}) or {}).get('score', 1) | int %}
+          <div title="{{ full_name }}: {{ d_val }}/5" style="display:flex; flex-direction:column; gap:4px;">
+            <div style="display:flex; justify-content:space-between; font-size:8px; color:var(--text-muted); font-weight:700;">
+              <span>{{ label }}</span><span>{{ d_val }}</span>
+            </div>
+            <div style="height:3px; background:rgba(255,255,255,0.05); border-radius:1.5px; overflow:hidden;">
+              <div style="width:{{ d_val * 20 }}%; height:100%; border-radius:1.5px; background:{% if d_val >= 4 %}var(--accent-green){% elif d_val >= 3 %}var(--accent-blue){% else %}var(--text-muted){% endif %};"></div>
+            </div>
           </div>
-          <div style="height: 3px; background: rgba(255,255,255,0.05); border-radius: 1.5px; overflow: hidden; display: flex;">
-            <div style="width: {{ d_val * 20 }}%; height: 100%; border-radius: 1.5px; background: {% if d_val >= 4 %}var(--accent-green){% elif d_val >= 3 %}var(--accent-blue){% else %}var(--text-muted){% endif %};"></div>
-          </div>
+        {% endfor %}
+      </div>
+
+      <div class="job-card-footer">
+        <span style="font-size:12px; color:var(--text-muted);">{{ job.experience_level or '' }}</span>
+        <span class="btn btn-ghost btn-sm">View Details →</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">🎯</div>
+    <h3>No high matches yet</h3>
+    <p>Run the scraper to find jobs that match your career intelligence blueprint.</p>
+  </div>
+  {% endif %}
+</div>
+
+<div class="divider"></div>
+
+<!-- ===== MEDIUM MATCHES ===== -->
+<div id="section-medium" style="scroll-margin-top: 80px;">
+  <div class="section-header">
+    <div class="section-title">⚡ Medium Matches</div>
+    <span class="section-badge badge-medium">{{ medium_count }} jobs</span>
+  </div>
+
+  {% if medium_jobs %}
+  <div class="jobs-grid">
+    {% for job in medium_jobs %}
+    <a href="{{ url_for('job_detail', job_id=job.id) }}" class="job-card medium-match" id="card-{{ job.id }}" data-job-id="{{ job.id }}" onclick="markViewed('{{ job.id }}')">
+      <div class="job-card-header">
+        <div>
+          <div class="job-title">{{ job.title }}</div>
+          <div class="job-company">{{ job.company }}</div>
         </div>
-      {% endfor %}
-    </div>
+        <div style="display:flex; gap:10px; align-items:center; flex-shrink:0;">
+          <button class="fav-btn" data-job-id="{{ job.id }}" onclick="event.preventDefault(); event.stopPropagation(); toggleFavorite('{{ job.id }}', this)" title="Favorite" style="background:none; border:none; font-size:18px; cursor:pointer; padding:2px 4px; line-height:1; transition: transform 0.15s;">♡</button>
+          <div style="text-align:center;">
+            <div class="job-score-ring" style="width:36px; height:36px;">
+              <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" style="width:36px; height:36px;">
+                <circle cx="25" cy="25" r="20" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="4"/>
+                <circle cx="25" cy="25" r="20" fill="none" stroke="#fbbf24" stroke-width="4"
+                  stroke-dasharray="{{ (job.match_score / 100 * 125.66) | round(1) }} 125.66"
+                  stroke-dashoffset="31.4" stroke-linecap="round"/>
+                <text x="25" y="25" class="score-text" style="font-size:15px; font-weight:800;">{{ job.match_score }}</text>
+              </svg>
+            </div>
+            <div style="font-size:8px; color:var(--text-secondary); margin-top:2px; font-weight:700; text-transform:uppercase;">Pref</div>
+          </div>
+          <div style="text-align:center;">
+            <div class="job-score-ring" style="width:36px; height:36px; background:rgba(255,255,255,0.03); border:2.5px solid {% if ((job.get('career_trajectory_fit', {}) or {}).get('score', 1) | int) >= 4 %}#22d3a0{% elif ((job.get('career_trajectory_fit', {}) or {}).get('score', 1) | int) >= 3 %}#fbbf24{% else %}#f87171{% endif %}; border-radius:50%; display:flex; align-items:center; justify-content:center; box-sizing:border-box;">
+              <span style="font-size:13.5px; font-weight:800; color:var(--text-primary);">{{ (job.get('career_trajectory_fit', {}) or {}).get('score', 1) }}</span>
+            </div>
+            <div style="font-size:8px; color:var(--text-secondary); margin-top:2px; font-weight:700; text-transform:uppercase;">CTF</div>
+          </div>
+          {% if job.resume_match and job.resume_match.score is defined and job.resume_match.score > 0 %}
+          <div style="text-align:center;">
+            <div class="job-score-ring" style="width:36px; height:36px;">
+              <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" style="width:36px; height:36px;">
+                <circle cx="25" cy="25" r="20" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="4"/>
+                <circle cx="25" cy="25" r="20" fill="none" stroke="#a78bfa" stroke-width="4"
+                  stroke-dasharray="{{ (job.resume_match.score / 100 * 125.66) | round(1) }} 125.66"
+                  stroke-dashoffset="31.4" stroke-linecap="round"/>
+                <text x="25" y="25" class="score-text" style="font-size:15px; font-weight:800;">{{ job.resume_match.score }}</text>
+              </svg>
+            </div>
+            <div style="font-size:8px; color:var(--text-secondary); margin-top:2px; font-weight:700; text-transform:uppercase;">Resume</div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
 
-    <div class="job-card-footer">
-      <span style="font-size:12px; color: var(--text-muted);">{{ job.experience_level or '' }}</span>
-      <span class="btn btn-ghost btn-sm">View Details →</span>
-    </div>
-  </a>
-  {% endfor %}
+      <div class="job-meta">
+        <span class="job-meta-item">📍 {{ job.location or 'Germany' }}</span>
+        <span class="job-meta-item">📅 {{ job.date_posted or '—' }}</span>
+        <span class="badge-platform">{{ job.platform }}</span>
+      </div>
+
+      {% if job.summary and job.summary != 'Analysis unavailable' %}
+      <div class="job-summary">{{ job.summary }}</div>
+      {% endif %}
+
+      <div class="keyword-tags">
+        {% for kw in (job.matched_must_have or [])[:4] %}
+          <span class="keyword-tag matched-must">✓ {{ kw }}</span>
+        {% endfor %}
+        {% for kw in (job.matched_nice_to_have or [])[:2] %}
+          <span class="keyword-tag matched-nice">+ {{ kw }}</span>
+        {% endfor %}
+      </div>
+
+      <div class="mini-scorecard" style="margin-top:14px; padding-top:10px; border-top:1px dashed rgba(255,255,255,0.08); display:grid; grid-template-columns:repeat(5, 1fr); gap:6px;">
+        {% set dimensions = [
+          ('problem_space_type', 'PS', 'Problem Space'),
+          ('product_stage', 'STG', 'Product Stage'),
+          ('decision_power', 'DEC', 'Decision Power'),
+          ('customer_interaction', 'CUST', 'Customer Interaction'),
+          ('problem_definition_clarity', 'CLR', 'Problem Clarity')
+        ] %}
+        {% for key, label, full_name in dimensions %}
+          {% set d_val = ((job.get('scorecard', {}) or {}).get(key, {}) or {}).get('score', 1) | int %}
+          <div title="{{ full_name }}: {{ d_val }}/5" style="display:flex; flex-direction:column; gap:4px;">
+            <div style="display:flex; justify-content:space-between; font-size:8px; color:var(--text-muted); font-weight:700;">
+              <span>{{ label }}</span><span>{{ d_val }}</span>
+            </div>
+            <div style="height:3px; background:rgba(255,255,255,0.05); border-radius:1.5px; overflow:hidden;">
+              <div style="width:{{ d_val * 20 }}%; height:100%; border-radius:1.5px; background:{% if d_val >= 4 %}var(--accent-green){% elif d_val >= 3 %}var(--accent-blue){% else %}var(--text-muted){% endif %};"></div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="job-card-footer">
+        <span style="font-size:12px; color:var(--text-muted);">{{ job.experience_level or '' }}</span>
+        <span class="btn btn-ghost btn-sm">View Details →</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">⚡</div>
+    <h3>No medium matches yet</h3>
+    <p>Medium match jobs will appear here after scraping.</p>
+  </div>
+  {% endif %}
 </div>
-{% else %}
-<div class="empty-state">
-  <div class="empty-icon">⚡</div>
-  <h3>No medium matches yet</h3>
-  <p>Medium match jobs will appear here after scraping.</p>
-</div>
-{% endif %}
 
 <div class="divider"></div>
 
 <!-- Low Match Section -->
-<div class="section-header" style="margin-top: 32px;">
-  <div class="section-title" style="color: var(--text-secondary);">❄️ Low Matches</div>
-  <span class="section-badge" style="background: rgba(248, 113, 113, 0.1); color: var(--accent-red); border: 1px solid rgba(248, 113, 113, 0.2);">{{ low_count }} jobs</span>
+<div class="section-header" style="margin-top:32px;">
+  <div class="section-title" style="color:var(--text-secondary);">❄️ Low Matches</div>
+  <span class="section-badge" style="background:rgba(248,113,113,0.1); color:var(--accent-red); border:1px solid rgba(248,113,113,0.2);">{{ low_count }} jobs</span>
 </div>
 
 {% if low_jobs %}
-<details class="low-matches-details" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; cursor: pointer; display: block; margin-bottom: 32px;">
-  <summary style="font-size: 13.5px; font-weight: 600; color: var(--text-secondary); list-style: none; display: flex; align-items: center; justify-content: space-between; outline: none; user-select: none;">
-    <span>🔍 Click to expand/collapse low compatibility jobs (score < {{ settings.score_thresholds.medium_match }}% or low trajectory)</span>
-    <span class="toggle-icon" style="transition: transform 0.2s;">▼</span>
+<details class="low-matches-details" style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; cursor:pointer; display:block; margin-bottom:32px;">
+  <summary style="font-size:13.5px; font-weight:600; color:var(--text-secondary); list-style:none; display:flex; align-items:center; justify-content:space-between; outline:none; user-select:none;">
+    <span>🔍 Click to expand/collapse low compatibility jobs (score &lt; {{ settings.score_thresholds.medium_match }}% or low trajectory)</span>
+    <span class="toggle-icon" style="transition:transform 0.2s;">▼</span>
   </summary>
-  <div style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px; display: flex; flex-direction: column; gap: 8px; cursor: default; overflow-x: auto;" onclick="event.stopPropagation()">
-    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; min-width: 600px;">
+  <div style="margin-top:16px; border-top:1px solid var(--border); padding-top:12px; display:flex; flex-direction:column; gap:8px; cursor:default; overflow-x:auto;" onclick="event.stopPropagation()">
+    <table style="width:100%; border-collapse:collapse; text-align:left; font-size:13px; min-width:600px;">
       <thead>
-        <tr style="border-bottom: 1px solid var(--border); color: var(--text-muted); text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px;">
-          <th style="padding: 8px;">Job Title</th>
-          <th style="padding: 8px;">Company</th>
-          <th style="padding: 8px;">Location</th>
-          <th style="padding: 8px; text-align: center;">Pref</th>
-          <th style="padding: 8px; text-align: center;">Resume</th>
-          <th style="padding: 8px; text-align: right;">Action</th>
+        <tr style="border-bottom:1px solid var(--border); color:var(--text-muted); text-transform:uppercase; font-size:11px; letter-spacing:0.5px;">
+          <th style="padding:8px;">Job Title</th>
+          <th style="padding:8px;">Company</th>
+          <th style="padding:8px;">Location</th>
+          <th style="padding:8px; text-align:center;">Pref</th>
+          <th style="padding:8px; text-align:center;">Resume</th>
+          <th style="padding:8px; text-align:right;">Action</th>
         </tr>
       </thead>
       <tbody>
         {% for job in low_jobs %}
-        <tr style="border-bottom: 1px solid rgba(255,255,255,0.03); color: var(--text-secondary); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
-          <td style="padding: 10px 8px; font-weight: 600;"><a href="{{ url_for('job_detail', job_id=job.id) }}" style="color: var(--text-primary); text-decoration: none;">{{ job.title }}</a></td>
-          <td style="padding: 10px 8px;">{{ job.company }}</td>
-          <td style="padding: 10px 8px; font-size: 12px;">📍 {{ job.location or '—' }}</td>
-          <td style="padding: 10px 8px; text-align: center; font-weight: 700; color: var(--accent-red);">{{ job.match_score }}%</td>
-          <td style="padding: 10px 8px; text-align: center; font-weight: 700; color: var(--accent-purple);">{{ job.resume_match.score or 0 }}%</td>
-          <td style="padding: 10px 8px; text-align: right;">
-            <a href="{{ url_for('job_detail', job_id=job.id) }}" class="btn btn-ghost btn-sm" style="padding: 4px 8px; font-size: 11px;">View →</a>
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.03); color:var(--text-secondary); transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+          <td style="padding:10px 8px; font-weight:600;"><a href="{{ url_for('job_detail', job_id=job.id) }}" onclick="markViewed('{{ job.id }}')" style="color:var(--text-primary); text-decoration:none;">{{ job.title }}</a></td>
+          <td style="padding:10px 8px;">{{ job.company }}</td>
+          <td style="padding:10px 8px; font-size:12px;">📍 {{ job.location or '—' }}</td>
+          <td style="padding:10px 8px; text-align:center; font-weight:700; color:var(--accent-red);">{{ job.match_score }}%</td>
+          <td style="padding:10px 8px; text-align:center; font-weight:700; color:var(--accent-purple);">{{ job.resume_match.score or 0 }}%</td>
+          <td style="padding:10px 8px; text-align:right;">
+            <a href="{{ url_for('job_detail', job_id=job.id) }}" class="btn btn-ghost btn-sm" style="padding:4px 8px; font-size:11px;">View →</a>
           </td>
         </tr>
         {% endfor %}
@@ -321,19 +327,134 @@
   </div>
 </details>
 <style>
-  .low-matches-details[open] .toggle-icon {
-    transform: rotate(180deg);
-  }
-  .low-matches-details summary::-webkit-details-marker {
-    display: none;
-  }
+  .low-matches-details[open] .toggle-icon { transform: rotate(180deg); }
+  .low-matches-details summary::-webkit-details-marker { display: none; }
 </style>
 {% else %}
-<div class="empty-state" style="margin-bottom: 32px;">
+<div class="empty-state" style="margin-bottom:32px;">
   <div class="empty-icon">❄️</div>
   <h3>No low match jobs filtered</h3>
   <p>All found jobs match your configured preference thresholds.</p>
 </div>
 {% endif %}
+
+<style>
+/* ---- Viewed jobs dimming ---- */
+.job-card.viewed {
+  opacity: 0.45;
+  filter: saturate(0.4);
+  transition: opacity 0.3s, filter 0.3s;
+}
+.job-card.viewed:hover {
+  opacity: 0.85;
+  filter: saturate(0.8);
+}
+
+/* ---- Fav button ---- */
+.fav-btn { color: var(--text-muted); }
+.fav-btn.active { color: #f87171 !important; transform: scale(1.15); }
+.fav-btn:hover { transform: scale(1.2); }
+
+/* ---- Stat card hover ---- */
+.stat-card.green:hover, .stat-card.amber:hover, .stat-card.purple:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s;
+}
+</style>
+
+<script>
+// ===== VIEWED JOBS =====
+const VIEWED_KEY = 'jobradar_viewed';
+function getViewed() { try { return JSON.parse(localStorage.getItem(VIEWED_KEY) || '[]'); } catch { return []; } }
+function markViewed(id) {
+  const viewed = getViewed();
+  if (!viewed.includes(id)) { viewed.push(id); localStorage.setItem(VIEWED_KEY, JSON.stringify(viewed)); }
+}
+function applyViewed() {
+  const viewed = getViewed();
+  viewed.forEach(id => {
+    const card = document.getElementById('card-' + id);
+    if (card) card.classList.add('viewed');
+  });
+}
+
+// ===== FAVORITES =====
+const FAV_KEY = 'jobradar_favorites';
+function getFavs() { try { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); } catch { return []; } }
+function saveFavs(favs) { localStorage.setItem(FAV_KEY, JSON.stringify(favs)); }
+
+function toggleFavorite(id, btn) {
+  let favs = getFavs();
+  if (favs.includes(id)) {
+    favs = favs.filter(f => f !== id);
+    btn.textContent = '♡';
+    btn.classList.remove('active');
+  } else {
+    favs.push(id);
+    btn.textContent = '❤️';
+    btn.classList.add('active');
+  }
+  saveFavs(favs);
+  renderFavorites();
+}
+
+function renderFavorites() {
+  const favs = getFavs();
+  const grid = document.getElementById('favorites-grid');
+  const empty = document.getElementById('favorites-empty');
+  const badge = document.getElementById('fav-badge');
+  const statCount = document.getElementById('fav-count-stat');
+
+  badge.textContent = favs.length + ' jobs';
+  statCount.textContent = favs.length;
+
+  // Sync all fav buttons across the page
+  document.querySelectorAll('.fav-btn').forEach(btn => {
+    const id = btn.dataset.jobId;
+    if (favs.includes(id)) {
+      btn.textContent = '❤️';
+      btn.classList.add('active');
+    } else {
+      btn.textContent = '♡';
+      btn.classList.remove('active');
+    }
+  });
+
+  if (favs.length === 0) {
+    grid.style.display = 'none';
+    empty.style.display = '';
+    return;
+  }
+  empty.style.display = 'none';
+  grid.style.display = '';
+
+  // Clone matching cards into favorites grid
+  grid.innerHTML = '';
+  favs.forEach(id => {
+    const original = document.getElementById('card-' + id);
+    if (original) {
+      const clone = original.cloneNode(true);
+      clone.id = 'fav-card-' + id;
+      // Remove fav-btn from clone to avoid duplicate event handlers; replace with remove button
+      const favBtn = clone.querySelector('.fav-btn');
+      if (favBtn) {
+        favBtn.textContent = '❤️';
+        favBtn.classList.add('active');
+        favBtn.onclick = function(e) {
+          e.preventDefault(); e.stopPropagation();
+          toggleFavorite(id, document.querySelector('.fav-btn[data-job-id="' + id + '"]'));
+        };
+      }
+      grid.appendChild(clone);
+    }
+  });
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', function() {
+  applyViewed();
+  renderFavorites();
+});
+</script>
 
 {% endblock %}

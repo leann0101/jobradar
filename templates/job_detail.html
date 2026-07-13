@@ -440,4 +440,57 @@
     </div>
   </div>
 </div>
+
+<style>
+#favorite-btn { color: var(--text-secondary); }
+#favorite-btn.active { border-color: #f87171 !important; color: #f87171; }
+#favorite-btn:hover { border-color: #f87171; }
+</style>
+
+<script>
+const JOB_ID = "{{ job.id }}";
+const FAV_KEY = 'jobradar_favorites';
+const VIEWED_KEY = 'jobradar_viewed';
+
+function getFavs() { try { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); } catch { return []; } }
+function saveFavs(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
+
+function toggleFavorite(id, btn) {
+  let favs = getFavs();
+  const heart = btn.querySelector('.heart-icon');
+  const label = btn.querySelector('.favorite-text');
+  if (favs.includes(id)) {
+    favs = favs.filter(f => f !== id);
+    heart.textContent = '🤍';
+    label.textContent = 'Save Job';
+    btn.classList.remove('active');
+  } else {
+    favs.push(id);
+    heart.textContent = '❤️';
+    label.textContent = 'Saved';
+    btn.classList.add('active');
+  }
+  saveFavs(favs);
+}
+
+// Init: sync button state & mark as viewed
+document.addEventListener('DOMContentLoaded', function() {
+  // Mark viewed
+  try {
+    const viewed = JSON.parse(localStorage.getItem(VIEWED_KEY) || '[]');
+    if (!viewed.includes(JOB_ID)) { viewed.push(JOB_ID); localStorage.setItem(VIEWED_KEY, JSON.stringify(viewed)); }
+  } catch {}
+
+  // Sync fav button state
+  const btn = document.getElementById('favorite-btn');
+  if (btn && getFavs().includes(JOB_ID)) {
+    btn.classList.add('active');
+    const heart = btn.querySelector('.heart-icon');
+    const label = btn.querySelector('.favorite-text');
+    if (heart) heart.textContent = '❤️';
+    if (label) label.textContent = 'Saved';
+  }
+});
+</script>
 {% endblock %}
+

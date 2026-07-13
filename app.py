@@ -220,7 +220,7 @@ def run_scrape_pipeline(is_local: bool = False, raw_only: bool = False):
             existing_urls = {j["url"] for j in existing_jobs}
 
         # Define how many pages to scrape based on environment
-        linkedin_pages = 5 if is_local else 3
+        linkedin_pages = 15 if is_local else 3
         indeed_pages = 3 if is_local else 1
 
         all_raw_jobs = []

@@ -247,44 +247,47 @@ def run_scrape_pipeline(is_local: bool = False, raw_only: bool = False):
         indeed_pages = 3 if is_local else 1
 
         all_raw_jobs = []
-        for title in job_titles:
-            logger.info(f"🚀 Starting parallel scrape for keyword: '{title}'")
-            
-            with ThreadPoolExecutor(max_workers=3) as executor:
-                futures = {}
-                
-                if "linkedin" in platforms:
-                    logger.info(f"Queueing LinkedIn for '{title}' (up to {linkedin_pages} pages)...")
-                    futures[executor.submit(
-                        scrape_linkedin, title, location, days_ago, 
-                        search_cfg, existing_urls, linkedin_pages
-                    )] = "LinkedIn"
+        
+        def run_platform(platform_name: str):
+            platform_jobs = []
+            for title in job_titles:
+                logger.info(f"🚀 [{platform_name}] Starting '{title}'...")
+                try:
+                    if platform_name == "linkedin":
+                        jobs = scrape_linkedin(title, location, days_ago, search_cfg, existing_urls, linkedin_pages)
+                    elif platform_name == "indeed":
+                        jobs = scrape_indeed(title, location, days_ago, existing_urls, indeed_pages)
+                    elif platform_name == "glassdoor":
+                        jobs = scrape_glassdoor(title, location, days_ago)
+                    else:
+                        jobs = []
 
-                if "indeed" in platforms:
-                    logger.info(f"Queueing Indeed for '{title}' (up to {indeed_pages} pages)...")
-                    futures[executor.submit(
-                        scrape_indeed, title, location, days_ago, 
-                        existing_urls, indeed_pages
-                    )] = "Indeed"
+                    platform_jobs.extend(jobs)
+                    if raw_only:
+                        _save_raw_incrementally(jobs)
+                    logger.info(f"✅ [{platform_name}] Finished '{title}' with {len(jobs)} jobs.")
+                except Exception as e:
+                    logger.error(f"❌ [{platform_name}] Failed for '{title}': {e}")
+            return platform_name, platform_jobs
 
-                if "glassdoor" in platforms:
-                    logger.info(f"Queueing Glassdoor for '{title}'...")
-                    futures[executor.submit(
-                        scrape_glassdoor, title, location, days_ago, 
-                        existing_urls
-                    )] = "Glassdoor"
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            futures = {}
+            if "linkedin" in platforms:
+                futures[executor.submit(run_platform, "linkedin")] = "linkedin"
+            if "indeed" in platforms:
+                futures[executor.submit(run_platform, "indeed")] = "indeed"
+            if "glassdoor" in platforms:
+                futures[executor.submit(run_platform, "glassdoor")] = "glassdoor"
 
-                # Process results as they complete
-                for future in as_completed(futures):
-                    platform_name = futures[future]
-                    try:
-                        jobs = future.result()
-                        all_raw_jobs.extend(jobs)
-                        if raw_only:
-                            _save_raw_incrementally(jobs)
-                        logger.info(f"✅ {platform_name} finished scraping '{title}' with {len(jobs)} jobs.")
-                    except Exception as e:
-                        logger.error(f"❌ {platform_name} failed for '{title}': {e}")
+            # Process results as each platform finishes all its keywords
+            for future in as_completed(futures):
+                p_name = futures[future]
+                try:
+                    _, jobs = future.result()
+                    all_raw_jobs.extend(jobs)
+                    logger.info(f"🎉 {p_name} completely finished all keywords! Total jobs: {len(jobs)}")
+                except Exception as e:
+                    logger.error(f"❌ {p_name} thread failed: {e}")
 
         # Remove any duplicates generated in this run
         unique_urls = set()

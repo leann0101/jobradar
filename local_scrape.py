@@ -50,7 +50,7 @@ def main():
     from app import run_scrape_pipeline
     
     try:
-        run_scrape_pipeline()
+        run_scrape_pipeline(is_local=True)
         logger.info("✅ 本機爬蟲任務完成！資料已同步至雲端資料庫。")
     except Exception as e:
         logger.error(f"❌ 執行過程中發生錯誤: {e}")

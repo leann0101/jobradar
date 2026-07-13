@@ -26,7 +26,7 @@ def random_delay(min_sec=1, max_sec=3):
     time.sleep(random.uniform(min_sec, max_sec))
 
 
-def scrape_linkedin(search_query: str, location: str = "Germany", days_ago: int = 15, filter_cfg: dict = None, existing_urls: set[str] = None) -> list[dict]:
+def scrape_linkedin(search_query: str, location: str = "Germany", days_ago: int = 15, filter_cfg: dict = None, existing_urls: set[str] = None, max_pages: int = 3) -> list[dict]:
     """
     Scrapes LinkedIn public job search page using requests (no browser needed).
     Note: LinkedIn heavily blocks scrapers; this uses the public JSON API endpoint.
@@ -59,8 +59,8 @@ def scrape_linkedin(search_query: str, location: str = "Germany", days_ago: int 
     wt_param = f"&f_WT={','.join(wt_list)}" if wt_list else ""
     e_param = f"&f_E={','.join(e_list)}" if e_list else ""
     
-    # Scrape up to 5 pages (start = 0, 25, 50, 75, 100) to get up to 125 job cards
-    for page in range(5):
+    # Scrape dynamic number of pages
+    for page in range(max_pages):
         start_val = page * 25
         logger.info(f"Scraping LinkedIn page {page+1} (start={start_val}) for '{search_query}'...")
         

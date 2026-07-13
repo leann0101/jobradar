@@ -184,11 +184,20 @@ def url_already_exists(url: str) -> bool:
 
 
 # ── Scraping pipeline ─────────────────────────────────────────────────────────
-def run_scrape_pipeline():
-    global is_scraping
+def run_scrape_pipeline(is_local: bool = False):
+    """
+    Core pipeline:
+    1. Load settings (title, location, days_ago)
+    2. Scrape LinkedIn, Indeed, Glassdoor based on configured platforms
+    3. Remove duplicates vs existing DB URLs
+    4. Enrich company info
+    5. Score and filter via Groq
+    6. Save to DB
+    """
+    global is_scraping, scrape_lock
     with scrape_lock:
         if is_scraping:
-            logger.info("Scrape already in progress, skipping.")
+            logger.info("Scraping already in progress. Skipping.")
             return
         is_scraping = True
 
@@ -210,19 +219,23 @@ def run_scrape_pipeline():
             existing_jobs = load_jobs()
             existing_urls = {j["url"] for j in existing_jobs}
 
+        # Define how many pages to scrape based on environment
+        linkedin_pages = 5 if is_local else 3
+        indeed_pages = 3 if is_local else 1
+
         all_raw_jobs = []
         for title in job_titles:
             if "linkedin" in platforms:
-                logger.info(f"Scraping LinkedIn for '{title}'...")
+                logger.info(f"Scraping LinkedIn for '{title}' (up to {linkedin_pages} pages)...")
                 try:
-                    all_raw_jobs.extend(scrape_linkedin(title, location, days_ago, filter_cfg=search_cfg))
+                    all_raw_jobs.extend(scrape_linkedin(title, location, days_ago, filter_cfg=search_cfg, existing_urls=existing_urls, max_pages=linkedin_pages))
                 except Exception as e:
                     logger.error(f"LinkedIn failed: {e}")
 
             if "indeed" in platforms:
-                logger.info(f"Scraping Indeed for '{title}'...")
+                logger.info(f"Scraping Indeed for '{title}' (up to {indeed_pages} pages)...")
                 try:
-                    all_raw_jobs.extend(scrape_indeed(title, location, days_ago))
+                    all_raw_jobs.extend(scrape_indeed(title, location, days_ago, existing_urls=existing_urls, max_pages=indeed_pages))
                 except Exception as e:
                     logger.error(f"Indeed failed: {e}")
 

@@ -26,7 +26,7 @@ def random_delay(min_sec=1, max_sec=3):
     time.sleep(random.uniform(min_sec, max_sec))
 
 
-def scrape_indeed(search_query: str, location: str = "Germany", days_ago: int = 15, existing_urls: set[str] = None) -> list[dict]:
+def scrape_indeed(search_query: str, location: str = "Germany", days_ago: int = 15, existing_urls: set[str] = None, max_pages: int = 1) -> list[dict]:
     """
     Scrapes Indeed Germany for PM jobs using requests + BeautifulSoup.
     """
@@ -34,7 +34,7 @@ def scrape_indeed(search_query: str, location: str = "Germany", days_ago: int = 
     headers = random.choice(HEADERS_LIST)
     fromage = min(days_ago, 14)
 
-    for page in range(3):
+    for page in range(max_pages):
         start_val = page * 10
         logger.info(f"Scraping Indeed page {page+1} (start={start_val}) for '{search_query}'...")
         

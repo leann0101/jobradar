@@ -212,6 +212,25 @@ def run_scrape_pipeline(is_local: bool = False, raw_only: bool = False):
         nice_to_have = settings.get("nice_to_have", [])
         resume_text = settings.get("resume_text", "")
 
+        os.makedirs(DATA_DIR, exist_ok=True)
+        raw_file = DATA_DIR / "raw_jobs.json"
+
+        def _save_raw_incrementally(new_jobs):
+            if not new_jobs: return
+            existing_raw = []
+            if raw_file.exists():
+                try:
+                    with open(raw_file, "r") as f:
+                        existing_raw = json.load(f)
+                except Exception:
+                    pass
+            existing_raw_urls = {j["url"] for j in existing_raw}
+            unique_new = [j for j in new_jobs if j["url"] not in existing_raw_urls]
+            combined = existing_raw + unique_new
+            with open(raw_file, "w") as f:
+                json.dump(combined, f, indent=2, ensure_ascii=False)
+            logger.info(f"Incrementally saved {len(unique_new)} new jobs. Total raw jobs: {len(combined)}")
+
         # Existing URLs for dedup
         if USE_DB:
             existing_urls = set()  # db_url_exists() is checked per job below
@@ -228,50 +247,52 @@ def run_scrape_pipeline(is_local: bool = False, raw_only: bool = False):
             if "linkedin" in platforms:
                 logger.info(f"Scraping LinkedIn for '{title}' (up to {linkedin_pages} pages)...")
                 try:
-                    all_raw_jobs.extend(scrape_linkedin(title, location, days_ago, filter_cfg=search_cfg, existing_urls=existing_urls, max_pages=linkedin_pages))
+                    jobs = scrape_linkedin(title, location, days_ago, filter_cfg=search_cfg, existing_urls=existing_urls, max_pages=linkedin_pages)
+                    all_raw_jobs.extend(jobs)
+                    if raw_only: _save_raw_incrementally(jobs)
                 except Exception as e:
                     logger.error(f"LinkedIn failed: {e}")
 
             if "indeed" in platforms:
                 logger.info(f"Scraping Indeed for '{title}' (up to {indeed_pages} pages)...")
                 try:
-                    all_raw_jobs.extend(scrape_indeed(title, location, days_ago, existing_urls=existing_urls, max_pages=indeed_pages))
+                    jobs = scrape_indeed(title, location, days_ago, existing_urls=existing_urls, max_pages=indeed_pages)
+                    all_raw_jobs.extend(jobs)
+                    if raw_only: _save_raw_incrementally(jobs)
                 except Exception as e:
                     logger.error(f"Indeed failed: {e}")
 
             if "glassdoor" in platforms:
                 logger.info(f"Scraping Glassdoor for '{title}'...")
                 try:
-                    all_raw_jobs.extend(scrape_glassdoor(title, location, days_ago))
+                    jobs = scrape_glassdoor(title, location, days_ago)
+                    all_raw_jobs.extend(jobs)
+                    if raw_only: _save_raw_incrementally(jobs)
                 except Exception as e:
                     logger.error(f"Glassdoor failed: {e}")
 
-        # De-duplicate
+        # Remove any duplicates generated in this run
+        unique_urls = set()
+        unique_raw_jobs = []
+        for j in all_raw_jobs:
+            if j.get("url") and j["url"] not in unique_urls:
+                unique_urls.add(j["url"])
+                unique_raw_jobs.append(j)
+        all_raw_jobs = unique_raw_jobs
+        
+        # De-duplicate against DB/existing
         if USE_DB:
             new_raw = [j for j in all_raw_jobs if j.get("url") and not db_url_exists(j["url"])]
         else:
+            existing_jobs = load_jobs()
+            existing_urls = {j["url"] for j in existing_jobs}
             new_raw = [j for j in all_raw_jobs if j.get("url") and j["url"] not in existing_urls]
 
-        logger.info(f"Found {len(new_raw)} new jobs to analyze.")
+        logger.info(f"Found {len(new_raw)} total new jobs to analyze.")
 
-        # If raw_only, save to JSON and exit before AI analysis
+        # If raw_only, we've already saved incrementally. Just exit.
         if raw_only:
-            os.makedirs(DATA_DIR, exist_ok=True)
-            raw_file = DATA_DIR / "raw_jobs.json"
-            existing_raw = []
-            if raw_file.exists():
-                try:
-                    with open(raw_file, "r") as f:
-                        existing_raw = json.load(f)
-                except Exception:
-                    pass
-            existing_raw_urls = {j["url"] for j in existing_raw}
-            new_raw = [j for j in all_raw_jobs if j["url"] not in existing_raw_urls]
-            combined_raw = existing_raw + new_raw
-            
-            with open(raw_file, "w") as f:
-                json.dump(combined_raw, f, indent=2, ensure_ascii=False)
-            logger.info(f"✅ Raw scrape complete! Saved {len(combined_raw)} total raw jobs to {raw_file}")
+            logger.info("✅ Raw scrape complete!")
             return
 
         # AI analyze each new job

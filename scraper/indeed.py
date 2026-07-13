@@ -34,76 +34,87 @@ def scrape_indeed(search_query: str, location: str = "Germany", days_ago: int = 
     headers = random.choice(HEADERS_LIST)
     fromage = min(days_ago, 14)
 
-    url = (
-        f"https://de.indeed.com/jobs"
-        f"?q={search_query.replace(' ', '+')}"
-        f"&l={location.replace(' ', '+')}"
-        f"&fromage={fromage}"
-        f"&sort=date"
-        f"&lang=en"
-    )
-
-    try:
-        resp = requests.get(url, headers=headers, timeout=15)
-        soup = BeautifulSoup(resp.text, "html.parser")
-
-        cards = (
-            soup.find_all("div", class_="job_seen_beacon") or
-            soup.find_all("div", attrs={"data-testid": "slider_item"}) or
-            soup.find_all("div", class_="result")
+    for page in range(3):
+        start_val = page * 10
+        logger.info(f"Scraping Indeed page {page+1} (start={start_val}) for '{search_query}'...")
+        
+        url = (
+            f"https://de.indeed.com/jobs"
+            f"?q={search_query.replace(' ', '+')}"
+            f"&l={location.replace(' ', '+')}"
+            f"&fromage={fromage}"
+            f"&sort=date"
+            f"&lang=en"
+            f"&start={start_val}"
         )
-        logger.info(f"Indeed: found {len(cards)} cards")
 
-        for card in cards[:25]:
-            try:
-                title_el   = card.find("h2", class_="jobTitle") or card.find("h2")
-                company_el = (
-                    card.find(attrs={"data-testid": "company-name"}) or
-                    card.find("span", class_="companyName")
-                )
-                loc_el = (
-                    card.find(attrs={"data-testid": "text-location"}) or
-                    card.find("div", class_="companyLocation")
-                )
-                date_el = (
-                    card.find(attrs={"data-testid": "myJobsStateDate"}) or
-                    card.find("span", class_="date")
-                )
-                link_el = card.find("a", class_="jcs-JobTitle") or (title_el.find("a") if title_el else None)
+        try:
+            resp = requests.get(url, headers=headers, timeout=15)
+            soup = BeautifulSoup(resp.text, "html.parser")
 
-                title   = title_el.get_text(strip=True) if title_el else ""
-                company = company_el.get_text(strip=True) if company_el else ""
-                loc     = loc_el.get_text(strip=True) if loc_el else location
-                date_text = date_el.get_text(strip=True) if date_el else ""
-                link_path = link_el.get("href", "") if link_el else ""
+            cards = (
+                soup.find_all("div", class_="job_seen_beacon") or
+                soup.find_all("div", attrs={"data-testid": "slider_item"}) or
+                soup.find_all("div", class_="result")
+            )
+            logger.info(f"Indeed page {page+1}: found {len(cards)} cards")
+            
+            if not cards:
+                break
 
-                if not title or not link_path:
+            for card in cards[:25]:
+                try:
+                    title_el   = card.find("h2", class_="jobTitle") or card.find("h2")
+                    company_el = (
+                        card.find(attrs={"data-testid": "company-name"}) or
+                        card.find("span", class_="companyName")
+                    )
+                    loc_el = (
+                        card.find(attrs={"data-testid": "text-location"}) or
+                        card.find("div", class_="companyLocation")
+                    )
+                    date_el = (
+                        card.find(attrs={"data-testid": "myJobsStateDate"}) or
+                        card.find("span", class_="date")
+                    )
+                    link_el = card.find("a", class_="jcs-JobTitle") or (title_el.find("a") if title_el else None)
+
+                    title   = title_el.get_text(strip=True) if title_el else ""
+                    company = company_el.get_text(strip=True) if company_el else ""
+                    loc     = loc_el.get_text(strip=True) if loc_el else location
+                    date_text = date_el.get_text(strip=True) if date_el else ""
+                    link_path = link_el.get("href", "") if link_el else ""
+
+                    if not title or not link_path:
+                        continue
+
+                    link = f"https://de.indeed.com{link_path}" if link_path.startswith("/") else link_path
+                    link_clean = link.split("?")[0]
+                    if existing_urls and link_clean in existing_urls:
+                        logger.info(f"Skipping already-scraped Indeed job: {link_clean}")
+                        continue
+
+                    jd_text = _fetch_indeed_jd(link, headers)
+                    random_delay(1, 2)
+
+                    jobs.append({
+                        "title": title,
+                        "company": company,
+                        "location": loc,
+                        "date_posted": _parse_relative_date(date_text),
+                        "url": link_clean,
+                        "jd_text": jd_text,
+                        "platform": "Indeed",
+                    })
+                except Exception as e:
+                    logger.warning(f"Indeed card error: {e}")
                     continue
+            
+            random_delay(2, 4)
 
-                link = f"https://de.indeed.com{link_path}" if link_path.startswith("/") else link_path
-                link_clean = link.split("?")[0]
-                if existing_urls and link_clean in existing_urls:
-                    logger.info(f"Skipping already-scraped Indeed job: {link_clean}")
-                    continue
-
-                jd_text = _fetch_indeed_jd(link, headers)
-                random_delay(1, 2)
-
-                jobs.append({
-                    "title": title,
-                    "company": company,
-                    "location": loc,
-                    "date_posted": _parse_relative_date(date_text),
-                    "url": link_clean,
-                    "jd_text": jd_text,
-                    "platform": "Indeed",
-                })
-            except Exception as e:
-                logger.warning(f"Indeed card error: {e}")
-                continue
-
-    except Exception as e:
-        logger.error(f"Indeed scraper error: {e}")
+        except Exception as e:
+            logger.error(f"Indeed scraper error on page {page+1}: {e}")
+            break
 
     return jobs
 

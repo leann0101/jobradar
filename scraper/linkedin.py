@@ -59,8 +59,8 @@ def scrape_linkedin(search_query: str, location: str = "Germany", days_ago: int 
     wt_param = f"&f_WT={','.join(wt_list)}" if wt_list else ""
     e_param = f"&f_E={','.join(e_list)}" if e_list else ""
     
-    # Scrape up to 3 pages (start = 0, 25, 50) to get up to 75 job cards
-    for page in range(3):
+    # Scrape up to 5 pages (start = 0, 25, 50, 75, 100) to get up to 125 job cards
+    for page in range(5):
         start_val = page * 25
         logger.info(f"Scraping LinkedIn page {page+1} (start={start_val}) for '{search_query}'...")
         

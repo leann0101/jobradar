@@ -3,13 +3,12 @@ import json
 import uuid
 import logging
 import threading
-import base64
-import requests
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
-load_dotenv()  # Load .env file (GROQ_API_KEY etc.)
+load_dotenv()
 
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -19,14 +18,25 @@ from scraper.indeed import scrape_indeed
 from scraper.glassdoor import scrape_glassdoor
 from ai_analyzer import analyze_job, classify_job
 
-# ── Logging ──────────────────────────────────────────────────────────────────
+# DB layer — falls back to JSON if DATABASE_URL is not set
+USE_DB = bool(os.environ.get("DATABASE_URL"))
+if USE_DB:
+    from db import (
+        init_db,
+        db_load_jobs, db_save_jobs, db_get_job, db_delete_job,
+        db_set_favorite, db_get_favorites, db_url_exists,
+        db_load_settings, db_save_settings,
+        db_load_history, db_save_history,
+    )
+
+# ── Logging ───────────────────────────────────────────────────────────────────
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 logger = logging.getLogger(__name__)
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
+# ── Paths (JSON fallback) ─────────────────────────────────────────────────────
 BASE_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / "data"
 JOBS_FILE = DATA_DIR / "jobs.json"
@@ -39,7 +49,7 @@ scrape_lock = threading.Lock()
 is_scraping = False
 
 
-# ── Data helpers ──────────────────────────────────────────────────────────────
+# ── JSON helpers (fallback) ───────────────────────────────────────────────────
 def load_json(path: Path, default):
     try:
         with open(path, "r", encoding="utf-8") as f:
@@ -54,7 +64,11 @@ def save_json(path: Path, data):
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 
+# ── Unified data helpers (DB or JSON) ────────────────────────────────────────
 def load_settings() -> dict:
+    if USE_DB:
+        return db_load_settings()
+
     defaults = {
         "must_have": [],
         "nice_to_have": [],
@@ -93,7 +107,17 @@ def load_settings() -> dict:
     return data
 
 
+def save_settings(settings: dict):
+    if USE_DB:
+        db_save_settings(settings)
+    else:
+        save_json(SETTINGS_FILE, settings)
+
+
 def load_jobs() -> list:
+    if USE_DB:
+        return db_load_jobs()
+
     jobs = load_json(JOBS_FILE, [])
     modified = False
     for j in jobs:
@@ -105,16 +129,9 @@ def load_jobs() -> list:
             }
             modified = True
         if "resume_match" not in j or not isinstance(j["resume_match"], dict):
-            j["resume_match"] = {
-                "score": 0,
-                "strengths": [],
-                "gaps": [],
-                "explanation": "No resume analysis available"
-            }
+            j["resume_match"] = {"score": 0, "strengths": [], "gaps": [], "explanation": ""}
             modified = True
-            
-        # Migrate old jobs to the new scorecard and CTF schema
-        if "scorecard" not in j or not j["scorecard"] or "career_trajectory_fit" not in j or not j["career_trajectory_fit"]:
+        if "scorecard" not in j or not j["scorecard"] or "career_trajectory_fit" not in j:
             j["scorecard"] = {
                 "problem_space_type": {"score": 3, "label": "Optimization of mature product", "evidence": "Pre-migration record"},
                 "product_stage": {"score": 3, "label": "Scaling (1->10)", "evidence": "Pre-migration record"},
@@ -122,81 +139,47 @@ def load_jobs() -> list:
                 "customer_interaction": {"score": 3, "label": "Occasional exposure", "evidence": "Pre-migration record"},
                 "problem_definition_clarity": {"score": 3, "label": "Medium ambiguity", "evidence": "Pre-migration record"}
             }
-            j["career_trajectory_fit"] = {
-                "score": 3,
-                "label": "Neutral",
-                "evidence": "Pre-migration record"
-            }
-            j["why_match"] = "Pre-migration record. Run scraper to re-analyze this job."
-            j["why_not_match"] = "Pre-migration record. Run scraper to re-analyze this job."
+            j["career_trajectory_fit"] = {"score": 3, "label": "Neutral", "evidence": "Pre-migration record"}
+            j["why_match"] = "Pre-migration record. Run scraper to re-analyze."
+            j["why_not_match"] = "Pre-migration record. Run scraper to re-analyze."
             modified = True
-            
     if modified:
         save_json(JOBS_FILE, jobs)
     return jobs
 
 
 def save_jobs(jobs: list):
-    save_json(JOBS_FILE, jobs)
+    if USE_DB:
+        db_save_jobs(jobs)
+    else:
+        save_json(JOBS_FILE, jobs)
 
 
 def load_history() -> list:
+    if USE_DB:
+        return db_load_history()
     return load_json(HISTORY_FILE, [])
 
 
 def save_history(history: list):
-    save_json(HISTORY_FILE, history)
+    if USE_DB:
+        db_save_history(history)
+    else:
+        save_json(HISTORY_FILE, history)
 
 
-def sync_data_to_github():
-    token = os.environ.get("GITHUB_TOKEN")
-    owner = os.environ.get("GITHUB_OWNER")
-    repo = os.environ.get("GITHUB_REPO")
-    
-    if not (token and owner and repo):
-        logger.info("GitHub sync credentials not fully set, skipping sync.")
-        return
-        
-    headers = {
-        "Authorization": f"token {token}",
-        "Accept": "application/vnd.github.v3+json",
-        "User-Agent": "JobRadar-Sync"
-    }
-    
-    files_to_sync = ["data/jobs.json", "data/history.json", "data/settings.json"]
-    
-    for rel_path in files_to_sync:
-        local_path = BASE_DIR / rel_path
-        if not local_path.exists():
-            continue
-            
-        github_path = rel_path.replace("\\", "/")
-        
-        try:
-            with open(local_path, "rb") as f:
-                content_bytes = f.read()
-            encoded = base64.b64encode(content_bytes).decode("utf-8")
-            
-            sha = None
-            url = f"https://api.github.com/repos/{owner}/{repo}/contents/{github_path}"
-            r = requests.get(url, headers=headers, timeout=10)
-            if r.status_code == 200:
-                sha = r.json().get("sha")
-                
-            payload = {
-                "message": f"Sync: update {github_path} from local scrape",
-                "content": encoded
-            }
-            if sha:
-                payload["sha"] = sha
-                
-            r_put = requests.put(url, headers=headers, json=payload, timeout=15)
-            if r_put.status_code in [200, 201]:
-                logger.info(f"Successfully synced {github_path} to GitHub.")
-            else:
-                logger.error(f"Failed to sync {github_path} to GitHub: {r_put.status_code} {r_put.text}")
-        except Exception as e:
-            logger.error(f"Error syncing {github_path} to GitHub: {e}")
+def get_job_by_id(job_id: str) -> dict | None:
+    if USE_DB:
+        return db_get_job(job_id)
+    jobs = load_jobs()
+    return next((j for j in jobs if j.get("id") == job_id), None)
+
+
+def url_already_exists(url: str) -> bool:
+    if USE_DB:
+        return db_url_exists(url)
+    jobs = load_jobs()
+    return any(j.get("url") == url for j in jobs)
 
 
 # ── Scraping pipeline ─────────────────────────────────────────────────────────
@@ -217,8 +200,14 @@ def run_scrape_pipeline():
         platforms = search_cfg.get("platforms", ["linkedin", "indeed", "glassdoor"])
         must_have = settings.get("must_have", [])
         nice_to_have = settings.get("nice_to_have", [])
-        thresholds = settings.get("score_thresholds", {"best_match": 40, "medium_match": 15})
         resume_text = settings.get("resume_text", "")
+
+        # Existing URLs for dedup
+        if USE_DB:
+            existing_urls = set()  # db_url_exists() is checked per job below
+        else:
+            existing_jobs = load_jobs()
+            existing_urls = {j["url"] for j in existing_jobs}
 
         all_raw_jobs = []
         for title in job_titles:
@@ -243,64 +232,72 @@ def run_scrape_pipeline():
                 except Exception as e:
                     logger.error(f"Glassdoor failed: {e}")
 
-        # De-duplicate by URL
-        existing_jobs = load_jobs()
-        existing_urls = {j["url"] for j in existing_jobs}
-        new_raw = [j for j in all_raw_jobs if j.get("url") and j["url"] not in existing_urls]
+        # De-duplicate
+        if USE_DB:
+            new_raw = [j for j in all_raw_jobs if j.get("url") and not db_url_exists(j["url"])]
+        else:
+            new_raw = [j for j in all_raw_jobs if j.get("url") and j["url"] not in existing_urls]
+
         logger.info(f"Found {len(new_raw)} new jobs to analyze.")
 
         # AI analyze each new job
         analyzed = []
         for job in new_raw:
             try:
-                enriched = analyze_job(
-                    job,
-                    must_have,
-                    nice_to_have,
-                    resume_text,
-                    settings.get("career_objective")
-                )
+                enriched = analyze_job(job, must_have, nice_to_have, resume_text, settings.get("career_objective"))
                 enriched["id"] = str(uuid.uuid4())
                 enriched["scraped_at"] = datetime.now().isoformat()
+
+                # Classify
+                user_languages = [lang.lower() for lang in search_cfg.get("languages", []) if lang]
+                if user_languages:
+                    job_langs = [lang.lower() for lang in enriched.get("language_requirements", [])]
+                    if job_langs and not any(lang in user_languages for lang in job_langs):
+                        enriched["match_category"] = "low"
+                    else:
+                        enriched["match_category"] = classify_job(enriched, settings)
+                else:
+                    enriched["match_category"] = classify_job(enriched, settings)
+
                 analyzed.append(enriched)
                 logger.info(f"  ✓ {job['title']} @ {job['company']} — score: {enriched.get('match_score', 0)}")
             except Exception as e:
                 logger.error(f"Analysis failed for {job.get('title')}: {e}")
 
-        all_jobs = existing_jobs + analyzed
-        
-        # Re-classify all jobs with current thresholds and language filter
-        user_languages = [lang.lower() for lang in search_cfg.get("languages", []) if lang]
-        for j in all_jobs:
-            if "match_score" in j:
-                lang_ok = True
-                if user_languages:
-                    job_languages = [lang.lower() for lang in j.get("language_requirements", [])]
-                    if job_languages and not any(lang in user_languages for lang in job_languages):
-                        lang_ok = False
-                
-                if lang_ok:
-                    j["match_category"] = classify_job(j, settings)
-                else:
-                    j["match_category"] = "low"
-
-        save_jobs(all_jobs)
+        # Save new jobs
+        if USE_DB:
+            db_save_jobs(analyzed)
+            # Re-classify all existing jobs with new settings if needed
+        else:
+            existing_jobs = load_jobs()
+            all_jobs = existing_jobs + analyzed
+            user_languages = [lang.lower() for lang in search_cfg.get("languages", []) if lang]
+            for j in all_jobs:
+                if "match_score" in j:
+                    if user_languages:
+                        job_langs = [lang.lower() for lang in j.get("language_requirements", [])]
+                        if job_langs and not any(lang in user_languages for lang in job_langs):
+                            j["match_category"] = "low"
+                        else:
+                            j["match_category"] = classify_job(j, settings)
+                    else:
+                        j["match_category"] = classify_job(j, settings)
+            save_jobs(all_jobs)
 
         # Log history
         history = load_history()
-        history.insert(0, {
+        new_entry = {
             "run_at": datetime.now().isoformat(),
             "new_jobs_found": len(analyzed),
-            "total_jobs": len(all_jobs),
+            "total_jobs": len(analyzed),
             "platforms": platforms,
-        })
-        history = history[:50]  # Keep last 50 runs
+        }
+        history.insert(0, new_entry)
+        history = history[:50]
         save_history(history)
 
         logger.info(f"Scrape complete. {len(analyzed)} new jobs added.")
 
-        # Sync to GitHub (keeps data persistent across restarts/deploys)
-        sync_data_to_github()
     finally:
         with scrape_lock:
             is_scraping = False
@@ -313,7 +310,6 @@ def dashboard():
     settings = load_settings()
     history = load_history()
 
-    # Sort by match_score desc
     jobs_sorted = sorted(jobs, key=lambda x: x.get("match_score", 0), reverse=True)
     best = [j for j in jobs_sorted if j.get("match_category") == "best"]
     medium = [j for j in jobs_sorted if j.get("match_category") == "medium"]
@@ -337,10 +333,9 @@ def dashboard():
 
 @app.route("/job/<job_id>")
 def job_detail(job_id):
-    jobs = load_jobs()
-    job = next((j for j in jobs if j.get("id") == job_id), None)
+    job = get_job_by_id(job_id)
     if not job:
-        return "Job not found", 404
+        return redirect(url_for("dashboard"))
     settings = load_settings()
     return render_template("job_detail.html", job=job, settings=settings)
 
@@ -354,15 +349,13 @@ def settings_page():
         settings["nice_to_have"] = [k.strip() for k in data.get("nice_to_have", []) if k.strip()]
         settings["score_thresholds"]["best_match"] = int(data.get("best_match", 80))
         settings["score_thresholds"]["medium_match"] = int(data.get("medium_match", 60))
-        
-        # Career Objectives
+
         co = data.get("career_objective", {})
         settings["career_objective"] = {
             "target_archetype": co.get("target_archetype", "Strategic Product Builder / Early-stage Discovery PM").strip(),
             "target_trajectory": co.get("target_trajectory", "").strip()
         }
-        
-        # Override rules
+
         ov = data.get("override_rules", {})
         settings["override_rules"] = {
             "min_problem_space": int(ov.get("min_problem_space", 1)),
@@ -383,26 +376,24 @@ def settings_page():
         settings["search"]["employment_types"] = data.get("employment_types", [])
         settings["search"]["languages"] = data.get("languages", [])
         settings["resume_text"] = data.get("resume_text", "").strip()
-        save_json(SETTINGS_FILE, settings)
+        save_settings(settings)
 
-        # Re-classify existing jobs under new thresholds/rules
-        jobs = load_jobs()
-        user_languages = [lang.lower() for lang in settings.get("search", {}).get("languages", []) if lang]
-        for j in jobs:
-            if "match_score" in j:
-                lang_ok = True
-                if user_languages:
-                    job_languages = [lang.lower() for lang in j.get("language_requirements", [])]
-                    if job_languages and not any(lang in user_languages for lang in job_languages):
-                        lang_ok = False
-                
-                if lang_ok:
-                    j["match_category"] = classify_job(j, settings)
-                else:
-                    j["match_category"] = "low"
-        save_jobs(jobs)
+        # Re-classify existing jobs under new thresholds
+        if not USE_DB:
+            jobs = load_jobs()
+            user_languages = [lang.lower() for lang in settings.get("search", {}).get("languages", []) if lang]
+            for j in jobs:
+                if "match_score" in j:
+                    if user_languages:
+                        job_langs = [lang.lower() for lang in j.get("language_requirements", [])]
+                        if job_langs and not any(lang in user_languages for lang in job_langs):
+                            j["match_category"] = "low"
+                        else:
+                            j["match_category"] = classify_job(j, settings)
+                    else:
+                        j["match_category"] = classify_job(j, settings)
+            save_jobs(jobs)
 
-        sync_data_to_github()
         return jsonify({"status": "ok"})
     return render_template("settings.html", settings=settings)
 
@@ -413,7 +404,6 @@ def api_analyze_resume():
     resume_text = data.get("resume_text", "").strip()
     if not resume_text:
         return jsonify({"error": "Resume text is empty"}), 400
-
     try:
         from ai_analyzer import recommend_from_resume
         recommendations = recommend_from_resume(resume_text)
@@ -425,26 +415,22 @@ def api_analyze_resume():
 
 @app.route("/api/job/translate/<job_id>", methods=["POST"])
 def api_translate_job(job_id):
-    jobs = load_jobs()
-    job = next((j for j in jobs if j.get("id") == job_id), None)
+    job = get_job_by_id(job_id)
     if not job:
         return jsonify({"error": "Job not found"}), 404
-    
+
     if job.get("jd_translated"):
         return jsonify({"translated_text": job["jd_translated"]})
-        
+
     jd_text = job.get("jd_text", "")
     if not jd_text:
         return jsonify({"error": "No description to translate"}), 400
-        
+
     try:
         from ai_analyzer import translate_text_to_english
         translated = translate_text_to_english(jd_text)
         job["jd_translated"] = translated
-        # Save back updated job
-        save_jobs(jobs)
-        # Sync immediately
-        sync_data_to_github()
+        save_jobs([job])
         return jsonify({"translated_text": translated})
     except Exception as e:
         logger.error(f"Translation failed: {e}")
@@ -459,7 +445,6 @@ def history_page():
 
 @app.route("/api/scrape", methods=["POST"])
 def api_scrape():
-    """Trigger a scrape run manually."""
     global is_scraping
     if is_scraping:
         return jsonify({"status": "already_running"}), 409
@@ -475,9 +460,12 @@ def api_scrape_status():
 
 @app.route("/api/jobs/delete/<job_id>", methods=["DELETE"])
 def api_delete_job(job_id):
-    jobs = load_jobs()
-    jobs = [j for j in jobs if j.get("id") != job_id]
-    save_jobs(jobs)
+    if USE_DB:
+        db_delete_job(job_id)
+    else:
+        jobs = load_jobs()
+        jobs = [j for j in jobs if j.get("id") != job_id]
+        save_jobs(jobs)
     return jsonify({"status": "deleted"})
 
 
@@ -486,28 +474,38 @@ def api_favorite_job(job_id):
     data = request.get_json() or {}
     is_favorite = bool(data.get("favorite", False))
 
-    jobs = load_jobs()
-    for j in jobs:
-        if j.get("id") == job_id:
-            j["favorite"] = is_favorite
-            break
-    save_jobs(jobs)
-    sync_data_to_github()
+    if USE_DB:
+        db_set_favorite(job_id, is_favorite)
+    else:
+        jobs = load_jobs()
+        for j in jobs:
+            if j.get("id") == job_id:
+                j["favorite"] = is_favorite
+                break
+        save_jobs(jobs)
+
     return jsonify({"status": "ok", "favorite": is_favorite})
 
 
 @app.route("/api/favorites", methods=["GET"])
 def api_get_favorites():
-    """Return list of all favorited job IDs (for cross-device sync)."""
-    jobs = load_jobs()
-    fav_ids = [j["id"] for j in jobs if j.get("favorite")]
+    if USE_DB:
+        fav_ids = db_get_favorites()
+    else:
+        jobs = load_jobs()
+        fav_ids = [j["id"] for j in jobs if j.get("favorite")]
     return jsonify({"favorites": fav_ids})
-
 
 
 @app.route("/api/jobs/clear", methods=["DELETE"])
 def api_clear_jobs():
-    save_jobs([])
+    if USE_DB:
+        # Soft-delete all
+        jobs = db_load_jobs()
+        for j in jobs:
+            db_delete_job(j["id"])
+    else:
+        save_jobs([])
     return jsonify({"status": "cleared"})
 
 
@@ -515,41 +513,48 @@ def api_clear_jobs():
 def api_clear_old_jobs():
     data = request.get_json() or {}
     days = int(data.get("days", 30))
-    
+    cutoff_date = (datetime.now() - timedelta(days=days)).date()
+
     jobs = load_jobs()
     initial_count = len(jobs)
-    
-    cutoff_date = (datetime.now() - timedelta(days=days)).date()
-    
-    filtered_jobs = []
+    cleared_count = 0
+
     for j in jobs:
         date_str = j.get("date_posted", "")
-        keep = True
         if date_str:
             try:
                 posted_date = datetime.strptime(date_str[:10], "%Y-%m-%d").date()
                 if posted_date < cutoff_date:
-                    keep = False
+                    if USE_DB:
+                        db_delete_job(j["id"])
+                    cleared_count += 1
             except Exception:
                 pass
-        if keep:
-            filtered_jobs.append(j)
-            
-    save_jobs(filtered_jobs)
-    sync_data_to_github()
-    
-    cleared_count = initial_count - len(filtered_jobs)
+
+    if not USE_DB:
+        filtered_jobs = [j for j in jobs if not _is_older_than(j.get("date_posted", ""), cutoff_date)]
+        save_jobs(filtered_jobs)
+        cleared_count = initial_count - len(filtered_jobs)
+
     return jsonify({
         "status": "ok",
         "cleared_count": cleared_count,
-        "total_remaining": len(filtered_jobs)
+        "total_remaining": initial_count - cleared_count
     })
+
+
+def _is_older_than(date_str: str, cutoff) -> bool:
+    if not date_str:
+        return False
+    try:
+        return datetime.strptime(date_str[:10], "%Y-%m-%d").date() < cutoff
+    except Exception:
+        return False
 
 
 # ── Scheduler ─────────────────────────────────────────────────────────────────
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    # Run every Monday at 08:00 UTC
     scheduler.add_job(
         run_scrape_pipeline,
         trigger="cron",
@@ -563,8 +568,43 @@ def start_scheduler():
     return scheduler
 
 
+def check_and_trigger_missed_scrape():
+    time.sleep(10)
+    try:
+        history = load_history()
+        if not history:
+            logger.info("No scrape history found. Running initial scrape on startup.")
+            thread = threading.Thread(target=run_scrape_pipeline, daemon=True)
+            thread.start()
+            return
+        last_run_str = history[0].get("run_at", "")
+        if last_run_str:
+            try:
+                clean_ts = last_run_str.replace("Z", "+00:00")
+                last_run = datetime.fromisoformat(clean_ts)
+                if last_run.tzinfo is not None:
+                    last_run = last_run.replace(tzinfo=None)
+                if datetime.now() - last_run > timedelta(days=6.9):
+                    logger.info(f"Last scrape was {last_run_str} (>7 days). Triggering missed scrape.")
+                    thread = threading.Thread(target=run_scrape_pipeline, daemon=True)
+                    thread.start()
+            except Exception as e:
+                logger.error(f"Failed to parse last run timestamp '{last_run_str}': {e}")
+    except Exception as e:
+        logger.error(f"Error in check_and_trigger_missed_scrape: {e}")
+
+
 # ── Entry point ───────────────────────────────────────────────────────────────
 if __name__ == "__main__":
+    if USE_DB:
+        logger.info("DATABASE_URL detected — using PostgreSQL.")
+        init_db()
+    else:
+        logger.info("No DATABASE_URL — using JSON file storage.")
+
     scheduler = start_scheduler()
+    missed_thread = threading.Thread(target=check_and_trigger_missed_scrape, daemon=True)
+    missed_thread.start()
+
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)

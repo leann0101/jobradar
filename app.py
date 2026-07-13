@@ -184,7 +184,7 @@ def url_already_exists(url: str) -> bool:
 
 
 # ── Scraping pipeline ─────────────────────────────────────────────────────────
-def run_scrape_pipeline(is_local: bool = False):
+def run_scrape_pipeline(is_local: bool = False, raw_only: bool = False):
     """
     Core pipeline:
     1. Load settings (title, location, days_ago)
@@ -253,6 +253,26 @@ def run_scrape_pipeline(is_local: bool = False):
             new_raw = [j for j in all_raw_jobs if j.get("url") and j["url"] not in existing_urls]
 
         logger.info(f"Found {len(new_raw)} new jobs to analyze.")
+
+        # If raw_only, save to JSON and exit before AI analysis
+        if raw_only:
+            os.makedirs(DATA_DIR, exist_ok=True)
+            raw_file = DATA_DIR / "raw_jobs.json"
+            existing_raw = []
+            if raw_file.exists():
+                try:
+                    with open(raw_file, "r") as f:
+                        existing_raw = json.load(f)
+                except Exception:
+                    pass
+            existing_raw_urls = {j["url"] for j in existing_raw}
+            new_raw = [j for j in all_raw_jobs if j["url"] not in existing_raw_urls]
+            combined_raw = existing_raw + new_raw
+            
+            with open(raw_file, "w") as f:
+                json.dump(combined_raw, f, indent=2, ensure_ascii=False)
+            logger.info(f"✅ Raw scrape complete! Saved {len(combined_raw)} total raw jobs to {raw_file}")
+            return
 
         # AI analyze each new job
         analyzed = []

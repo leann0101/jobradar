@@ -50,8 +50,8 @@ def main():
     from app import run_scrape_pipeline
     
     try:
-        run_scrape_pipeline(is_local=True)
-        logger.info("✅ 本機爬蟲任務完成！資料已同步至雲端資料庫。")
+        run_scrape_pipeline(is_local=True, raw_only=True)
+        logger.info("✅ 本機爬蟲任務完成！原始資料已儲存至 data/raw_jobs.json。請通知 AGY 進行下一步分析。")
     except Exception as e:
         logger.error(f"❌ 執行過程中發生錯誤: {e}")
         sys.exit(1)

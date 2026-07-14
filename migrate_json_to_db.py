@@ -9,14 +9,21 @@ import os
 import json
 import logging
 from pathlib import Path
-from dotenv import load_dotenv
-
-load_dotenv()
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-logger = logging.getLogger(__name__)
-
 BASE_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / "data"
+
+# Load .env manually (no python-dotenv dependency)
+env_path = BASE_DIR / ".env"
+if env_path.exists():
+    with open(env_path) as ef:
+        for line in ef:
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1)
+                os.environ.setdefault(k.strip(), v.strip())
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logger = logging.getLogger(__name__)
 
 
 def main():

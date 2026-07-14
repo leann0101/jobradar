@@ -200,10 +200,16 @@ _JSON_FIELDS = [
 
 
 def db_save_jobs(jobs: list):
-    """Upsert a list of job dicts into the DB."""
+    """Upsert a list of job dicts into the DB (Optimized with Batch Commits)."""
     Session = get_session()
     try:
-        for job_dict in jobs:
+        # Fetch all existing jobs in one query
+        existing_objs = Session.query(Job).all()
+        existing_by_id = {obj.id: obj for obj in existing_objs}
+        existing_by_url = {obj.url: obj for obj in existing_objs if obj.url}
+
+        batch_size = 10
+        for i, job_dict in enumerate(jobs):
             # Parse any JSON-string fields back to dicts/lists
             clean = {k: v for k, v in job_dict.items()}
             for field in _JSON_FIELDS:
@@ -223,14 +229,37 @@ def db_save_jobs(jobs: list):
                 elif not isinstance(val, str):
                     clean[field] = str(val)
 
-            existing = Session.query(Job).filter_by(id=clean["id"]).first()
+            # Check match in memory
+            existing = None
+            job_id = clean.get("id")
+            job_url = clean.get("url")
+
+            if job_id in existing_by_id:
+                existing = existing_by_id[job_id]
+            elif job_url and job_url in existing_by_url:
+                existing = existing_by_url[job_url]
+
             if existing:
+                clean["id"] = existing.id
                 for k, v in clean.items():
                     if hasattr(existing, k):
                         setattr(existing, k, v)
             else:
                 kwargs = {k: v for k, v in clean.items() if hasattr(Job, k)}
-                Session.add(Job(**kwargs))
+                new_job = Job(**kwargs)
+                Session.add(new_job)
+                # Update memory maps to prevent duplicates within the list itself
+                if new_job.id:
+                    existing_by_id[new_job.id] = new_job
+                if new_job.url:
+                    existing_by_url[new_job.url] = new_job
+
+            # Commit periodically to avoid network timeouts on large payloads
+            if (i + 1) % batch_size == 0:
+                Session.commit()
+                logger.info(f"  Processed and committed {i + 1}/{len(jobs)} jobs...")
+
+        # Final commit
         Session.commit()
     except Exception as e:
         Session.rollback()
@@ -290,6 +319,14 @@ def db_url_exists(url: str) -> bool:
     Session = get_session()
     try:
         return Session.query(Job).filter_by(url=url).first() is not None
+    finally:
+        Session.remove()
+
+def db_get_all_urls() -> set:
+    Session = get_session()
+    try:
+        rows = Session.query(Job.url).filter(Job.url != "").all()
+        return {r[0] for r in rows if r[0]}
     finally:
         Session.remove()
 

@@ -31,8 +31,8 @@
     "ecosystems"
   ],
   "score_thresholds": {
-    "best_match": 40,
-    "medium_match": 15
+    "best_match": 50,
+    "medium_match": 10
   },
   "search": {
     "job_titles": [

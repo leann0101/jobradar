@@ -261,7 +261,7 @@
     "match_explanation": "The job description matches some of the user's must-have keywords conceptually, such as automation and AI, but lacks direct mentions of Industry 4.0, IIoT, and other specific industrial technologies.",
     "match_score": 11,
     "id": "b9e8410a-3c9e-4f66-afd6-f23005d1553d",
-    "match_category": "low",
+    "match_category": "medium",
     "scraped_at": "2026-06-25T22:21:45.112399",
     "company_profile": {
       "description": "Company description unavailable",
@@ -773,7 +773,7 @@
     "match_explanation": "The job description matches some of the user's preferred skills and industry, but lacks direct mentions of most must-have keywords related to Industry 4.0 and industrial automation.",
     "match_score": 11,
     "id": "838e72c0-34c1-4153-8adf-f1b5492be93b",
-    "match_category": "low",
+    "match_category": "medium",
     "scraped_at": "2026-06-25T22:21:59.960908",
     "company_profile": {
       "description": "Company description unavailable",
@@ -1496,7 +1496,7 @@
     "match_explanation": "The job description matches some of the must-have keywords conceptually, but lacks direct mentions of most of the technical preferences, resulting in a moderate match quality.",
     "match_score": 11,
     "id": "a8bfa884-7d9b-4aa0-91cc-3f747651dcb9",
-    "match_category": "low",
+    "match_category": "medium",
     "scraped_at": "2026-06-25T22:22:52.816662",
     "company_profile": {
       "description": "Company description unavailable",
@@ -1694,7 +1694,7 @@
     "match_explanation": "The job description matches some of the must-have keywords conceptually, such as software product and OT/IT integration, but lacks direct mentions of most of the industrial and technical preferences.",
     "match_score": 11,
     "id": "e2d3b001-b23b-4387-8f7b-6ced5cac4574",
-    "match_category": "low",
+    "match_category": "medium",
     "scraped_at": "2026-06-25T22:23:10.517450",
     "company_profile": {
       "description": "Company description unavailable",
@@ -1798,7 +1798,7 @@
     "match_explanation": "The job description matches some of the must-have keywords conceptually, but lacks direct mentions of most technical and industrial preferences.",
     "match_score": 11,
     "id": "73f596ab-6ded-43f7-94a6-9998e1c73f7d",
-    "match_category": "low",
+    "match_category": "medium",
     "scraped_at": "2026-06-25T22:23:15.750419",
     "company_profile": {
       "description": "Company description unavailable",
@@ -2107,7 +2107,7 @@
     "match_explanation": "The job description matches some of the user's must-have and nice-to-have keywords conceptually, but lacks direct matches for Industry 4.0 and Industrial IoT-related terms.",
     "match_score": 11,
     "id": "4f6b7ecb-655b-4866-b714-8ee4f9865784",
-    "match_category": "low",
+    "match_category": "medium",
     "scraped_at": "2026-06-25T22:23:39.159589",
     "company_profile": {
       "description": "Company description unavailable",
@@ -2417,7 +2417,7 @@
     "match_explanation": "The job description matches some of the must-have keywords conceptually, such as supply chain, but lacks direct matches for most of the industrial and technical preferences.",
     "match_score": 11,
     "id": "8b83b8c9-693f-4c70-a873-a6232de2e7bc",
-    "match_category": "low",
+    "match_category": "medium",
     "scraped_at": "2026-06-25T22:23:58.979186",
     "company_profile": {
       "description": "Company description unavailable",
@@ -2523,7 +2523,7 @@
     "match_explanation": "The job description matches some of the nice-to-have keywords, but lacks direct references to the user's must-have keywords related to Industry 4.0 and industrial automation.",
     "match_score": 11,
     "id": "d6d231c0-9e92-497f-bbeb-1cdfc1a887e9",
-    "match_category": "low",
+    "match_category": "medium",
     "scraped_at": "2026-06-25T22:24:04.070775",
     "company_profile": {
       "description": "Company description unavailable",
@@ -2622,7 +2622,7 @@
     "match_explanation": "The job description matches some of the user's must-have keywords conceptually, such as automation, but lacks direct matches for most of the industrial and technical preferences.",
     "match_score": 11,
     "id": "dd881cf6-8b47-4111-9586-1cdf75f5263c",
-    "match_category": "low",
+    "match_category": "medium",
     "scraped_at": "2026-06-25T22:24:12.169638",
     "company_profile": {
       "description": "Company description unavailable",
@@ -2724,7 +2724,7 @@
     "match_explanation": "The job description matches some of the user's must-have keywords conceptually, such as AI and B2B, but lacks direct matches for Industry 4.0, IIoT, and other industrial-specific terms.",
     "match_score": 11,
     "id": "90f8d0bb-0acb-4d32-bc06-fcacf9c3d56c",
-    "match_category": "low",
+    "match_category": "medium",
     "scraped_at": "2026-06-25T22:24:18.920584",
     "company_profile": {
       "description": "Company description unavailable",
@@ -3449,7 +3449,7 @@
     "match_explanation": "The job description matches some of the user's must-have keywords conceptually, but lacks direct mentions of Industry 4.0, IIoT, and other industrial-specific terms.",
     "match_score": 11,
     "id": "8fc503cb-aed7-4b40-a1d2-83abdd0e0d6e",
-    "match_category": "low",
+    "match_category": "medium",
     "scraped_at": "2026-06-25T22:26:50.778473",
     "company_profile": {
       "description": "Company description unavailable",
@@ -4162,7 +4162,7 @@
     "match_explanation": "The job description matches some of the must-have keywords conceptually, such as software and industrial IoT, but lacks direct matches for most of the technical and industrial keywords.",
     "match_score": 11,
     "id": "55ea8af5-b205-4d69-961c-5449283cd62c",
-    "match_category": "low",
+    "match_category": "medium",
     "scraped_at": "2026-06-25T22:27:10.950701",
     "company_profile": {
       "description": "Company description unavailable",
@@ -4471,7 +4471,7 @@
     "match_explanation": "The job description matches some must-have keywords conceptually, such as manufacturing, but lacks direct mentions of most technical and industrial keywords.",
     "match_score": 11,
     "id": "fd0ea18e-d45b-4bce-a4cc-e8b570f987e5",
-    "match_category": "low",
+    "match_category": "medium",
     "scraped_at": "2026-06-25T22:27:34.809366",
     "company_profile": {
       "description": "Company description unavailable",
